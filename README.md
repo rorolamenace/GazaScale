@@ -55,3 +55,7 @@ Les 2 110 communes et 26 cantons de `dist/swiss.js` proviennent de © swisstopo,
 ## Blessés
 
 174 995 blessés rapportés au 23 septembre 2026, MoH via la même fiche OCHA que les décès. Couche jaune activable indépendamment : voisins au bord de Gaza ou des communes réservées aux décès, puis expansion par voisinage (tolérance 30 m), priorité à la proximité au centre. Communes entièrement intérieures et communes réservées aux décès exclues. Recherche bornée à 40 km du contour ; déficit affiché si nécessaire. Dernière commune fractionnée démographiquement. Aucun total décès + blessés : les catégories ne sont pas garanties disjointes.
+
+## Commandes compactes
+
+Deux boutons sous le zoom ouvrent ou ferment les filtres et la fiche Gaza / légende, repliés par défaut. Les panneaux sont exclusifs et refermables avec Échap. La comparaison est limitée à 34 % de la hauteur de carte sur ordinateur et 30 % sur mobile, avec défilement interne. Elle reste fermée pendant le calcul ; un indicateur discret signale le chargement ou propose une nouvelle tentative en cas d’erreur. Les déplacements annulent les anciennes requêtes. La fermeture manuelle est conservée jusqu’à une nouvelle demande ou un nouveau dépôt de Gaza.
