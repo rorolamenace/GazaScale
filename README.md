@@ -23,7 +23,7 @@ Ouvrir http://127.0.0.1:4187. Les tuiles OpenStreetMap et les données communale
 
 ## Lire les chiffres
 
-Les habitants d’une commune partiellement touchée sont pris comme référence sur la commune entière. Il ne s’agit pas d’une estimation fine de la population dans le cercle. Les communes suisses ne sont pas couvertes.
+Les habitants d’une commune partiellement touchée sont pris comme référence sur la commune entière. Il ne s’agit pas d’une estimation fine de la population dans le cercle. Les communes françaises et suisses sont couvertes.
 
 Le cercle intérieur traduit une proportion de structures détruites ou endommagées, et non une surface de terrain détruit. Les statistiques ont des dates distinctes, affichées dans l’interface et détaillées dans « Sources & méthode ».
 
@@ -51,3 +51,7 @@ Pour un autre hébergeur statique, servir le dossier `dist/`. Ce dépôt n’act
 ## Suisse
 
 Les 2 110 communes et 26 cantons de `dist/swiss.js` proviennent de © swisstopo, swissBOUNDARIES3D (janvier 2026). Populations OFS au 31 décembre 2024. Source : https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissboundaries3d. Géométries LV95 converties en WGS84 et simplifiées à 20 m, coordonnées arrondies à six décimales. Les surfaces officielles sont converties de ha en km². Seuls les objets Commune de pays CH sont candidats ; les codes CH préfixés évitent les collisions avec les codes INSEE. Les frontières ne coupent pas la sélection : communes françaises et suisses sont classées ensemble. Cantons accessibles dans Dépt. / canton ; régions uniquement françaises.
+
+## Blessés
+
+174 995 blessés rapportés au 23 septembre 2026, MoH via la même fiche OCHA que les décès. Couche jaune activable indépendamment : voisins au bord de Gaza ou des communes réservées aux décès, puis expansion par voisinage (tolérance 30 m), priorité à la proximité au centre. Communes entièrement intérieures et communes réservées aux décès exclues. Recherche bornée à 40 km du contour ; déficit affiché si nécessaire. Dernière commune fractionnée démographiquement. Aucun total décès + blessés : les catégories ne sont pas garanties disjointes.
