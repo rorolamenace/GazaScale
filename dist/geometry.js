@@ -1,0 +1,8 @@
+/* Lambert azimuthal equal-area, spherical Earth. Rotate in metres, then invert at destination. */
+(function(global){const R=6371008.8,rad=Math.PI/180;
+function forward(p,c){const a=p[1]*rad,o=(p[0]-c[0])*rad,b=c[1]*rad,k=Math.sqrt(2/(1+Math.sin(b)*Math.sin(a)+Math.cos(b)*Math.cos(a)*Math.cos(o)));return [R*k*Math.cos(a)*Math.sin(o),R*k*(Math.cos(b)*Math.sin(a)-Math.sin(b)*Math.cos(a)*Math.cos(o))];}
+function inverse(p,c){const x=p[0],y=p[1],rho=Math.hypot(x,y);if(rho<1e-10)return [...c];const a=2*Math.asin(Math.min(1,rho/(2*R))),b=c[1]*rad;return [c[0]+Math.atan2(x*Math.sin(a),rho*Math.cos(b)*Math.cos(a)-y*Math.sin(b)*Math.sin(a))/rad,Math.asin(Math.cos(a)*Math.sin(b)+y*Math.sin(a)*Math.cos(b)/rho)/rad];}
+function ringArea(r){let sum=0;for(let i=0;i<r.length-1;i++)sum+=r[i][0]*r[i+1][1]-r[i+1][0]*r[i][1];return Math.abs(sum)/2;}
+function prepare(feature){const origin=[34.38,31.42];let polygons=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates:[feature.geometry.coordinates];let xy=polygons.map(p=>p.map(r=>r.map(v=>forward(v,origin))));let area=xy.reduce((s,p)=>s+ringArea(p[0])-p.slice(1).reduce((a,r)=>a+ringArea(r),0),0);let scale=Math.sqrt(365e6/area);return xy.map(p=>p.map(r=>r.map(([x,y])=>[x*scale,y*scale])));}
+function place(xy,center,angle){const a=angle*rad;return {type:'Feature',properties:{},geometry:{type:'MultiPolygon',coordinates:xy.map(p=>p.map(r=>r.map(([x,y])=>inverse([x*Math.cos(a)+y*Math.sin(a),-x*Math.sin(a)+y*Math.cos(a)],center))))}};}
+global.GazaGeometry={forward,inverse,prepare,place,ringArea};})(typeof window==='undefined'?globalThis:window);
