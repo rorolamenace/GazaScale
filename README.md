@@ -19,7 +19,7 @@ Ouvrir http://127.0.0.1:4187. Les tuiles OpenStreetMap et les données communale
 - Panneau fermé pendant le déplacement, rouvert au relâchement. Croix et bouton de réouverture, affichage adapté aux petits écrans.
 - Comparaison des superficies et populations par département ou région.
 - Communes françaises touchées par la forme : sélection par proximité au centre, arrêt lorsque la population cumulée atteint le bilan humain. La dernière commune peut ne contribuer que pour une fraction de sa population. Si le cercle ne contient pas assez d’habitants, le manque est indiqué.
-- Seules les communes retenues sont colorées. Le rouge est une équivalence démographique, pas une localisation de décès.
+- Seules les communes retenues sont colorées. Le gris est une équivalence démographique, pas une localisation de décès.
 
 ## Lire les chiffres
 
