@@ -19,7 +19,7 @@ Ouvrir http://127.0.0.1:4187. Les tuiles OpenStreetMap et les données communale
 - Panneau fermé pendant le déplacement, rouvert au relâchement. Croix et bouton de réouverture, affichage adapté aux petits écrans.
 - Comparaison des superficies et populations par département ou région.
 - Communes françaises touchées par la forme : sélection par proximité au centre, arrêt lorsque la population cumulée atteint le bilan humain. La dernière commune peut ne contribuer que pour une fraction de sa population. Si le cercle ne contient pas assez d’habitants, le manque est indiqué.
-- Seules les communes retenues sont colorées. Le gris est une équivalence démographique, pas une localisation de décès.
+- Seules les communes retenues sont colorées. Le rouge est une équivalence démographique, pas une localisation de décès.
 
 ## Lire les chiffres
 
@@ -47,3 +47,7 @@ Les données et bibliothèques tierces restent soumises à leurs licences respec
 `dist/` contient le site statique prêt à servir. `app.js` gère les interactions, `geometry.js` les projections et `selection.js` l’arrêt de la sélection des communes. `.openai/hosting.json` identifie l’hébergement Sites existant ; il ne contient aucun secret.
 
 Pour un autre hébergeur statique, servir le dossier `dist/`. Ce dépôt n’active pas automatiquement GitHub Pages.
+
+## Suisse
+
+Les 2 110 communes et 26 cantons de `dist/swiss.js` proviennent de © swisstopo, swissBOUNDARIES3D (janvier 2026). Populations OFS au 31 décembre 2024. Source : https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissboundaries3d. Géométries LV95 converties en WGS84 et simplifiées à 20 m, coordonnées arrondies à six décimales. Les surfaces officielles sont converties de ha en km². Seuls les objets Commune de pays CH sont candidats ; les codes CH préfixés évitent les collisions avec les codes INSEE. Les frontières ne coupent pas la sélection : communes françaises et suisses sont classées ensemble. Cantons accessibles dans Dépt. / canton ; régions uniquement françaises.
