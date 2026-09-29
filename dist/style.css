@@ -55,3 +55,6 @@
 @media(max-width:650px){#toggle-sidebar,.sidebar-collapsed #toggle-sidebar,body:not(.sidebar-collapsed) #toggle-sidebar{left:12px;top:12px;width:36px;height:44px}.city-search{left:58px;max-width:calc(100% - 126px)}body:not(.sidebar-collapsed) #explanation-panel{padding-top:68px}.comparison{width:auto;max-height:42%}.comparison .segmented{flex-wrap:wrap;max-width:100%;width:auto}.comparison .segmented button{padding:7px 6px}}
 
 #location-status{flex-wrap:wrap}#location-status>span{flex:1 1 180px}#location-browser-link{font-size:12px;color:#006d9f}#location-browser-link[hidden]{display:none}
+
+/* The vector background never captures Leaflet or touch gestures. */
+.leaflet-maplibre-gl{pointer-events:none}
