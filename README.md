@@ -1,4 +1,4 @@
-# Gaza ici
+# Gazala
 
 Carte interactive pour comparer les 365 km² de la bande de Gaza aux territoires français. L’application affiche un contour géographique ou un cercle de même superficie, déplaçable et pivotable.
 
@@ -59,3 +59,6 @@ Les 2 110 communes et 26 cantons de `dist/swiss.js` proviennent de © swisstopo,
 ## Commandes compactes
 
 Deux boutons sous le zoom ouvrent ou ferment les filtres et la fiche Gaza / légende, repliés par défaut. Les panneaux sont exclusifs et refermables avec Échap. La comparaison est limitée à 34 % de la hauteur de carte sur ordinateur et 30 % sur mobile, avec défilement interne. Elle reste fermée pendant le calcul ; un indicateur discret signale le chargement ou propose une nouvelle tentative en cas d’erreur. Les déplacements annulent les anciennes requêtes. La fermeture manuelle est conservée jusqu’à une nouvelle demande ou un nouveau dépôt de Gaza.
+
+
+Identité : Gazala · domaine prévu : gazala.org · contact affiché : contact@gazala.org. Le raccordement DNS et la boîte e-mail nécessitent une configuration chez le fournisseur du domaine. Icône vectorielle originale dans dist/gazala.svg : disque aux couleurs du drapeau palestinien.
