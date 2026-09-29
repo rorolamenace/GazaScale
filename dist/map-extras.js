@@ -34,7 +34,7 @@ let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
 placeAtPointer=function(event){placedAt=Date.now();clearTimeout(mapClickTimer);closeMapMenus();nativePlace(event);};
 // Single tap opens a commune; double click and long press remain placement gestures.
-map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{comparisonWanted=false;setComparisonOpen(false);map.closePopup();if(level!=='communes'||communeState!=='ready')return;const candidates=new Map([...communes,...nearbyCommunes,...impactRows.map(r=>r.feature)].map(f=>[f.properties.code,f]));const point=turf.point([event.latlng.lng,event.latlng.lat]);const feature=[...candidates.values()].find(f=>turf.booleanPointInPolygon(point,f));if(feature)communePopup(feature,event.latlng);},280);});
+map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{comparisonWanted=false;setComparisonOpen(false);map.closePopup();if(level!=='communes'||communeState!=='ready')return;const candidates=new Map(impactRows.filter(r=>r.lives>0||r.injured>0).map(r=>[r.feature.properties.code,r.feature]));const point=turf.point([event.latlng.lng,event.latlng.lat]);const feature=[...candidates.values()].find(f=>turf.booleanPointInPolygon(point,f));if(feature)communePopup(feature,event.latlng);},280);});
 map.on('dblclick',()=>clearTimeout(mapClickTimer));
 $('toggle-shape').onclick=()=>{representation=representation==='circle'?'contour':'circle';updateRepresentation();};
 $('toggle-overseas').onclick=()=>{const open=$('overseas-menu').hidden;$('overseas-menu').hidden=!open;$('toggle-overseas').setAttribute('aria-expanded',String(open));if(open)setMapPanel(null);};
