@@ -16,7 +16,8 @@ function communePopup(feature,latlng){
  L.popup({maxWidth:window.matchMedia('(max-width:650px)').matches?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);
 }
 window.refreshMapExtras=()=>{
- $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage||representation!=='circle';
+ $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage;
+ $('color-key').querySelector('.key-grey').parentElement.lastChild.textContent='≈ '+fmt(damageData[damageKind].ratio*100)+' % · '+(damageKind==='affected'?'bâtiments affectés*':'bâtiments détruits*');
  impactRows=[];if(level!=='communes'||communeState!=='ready')return;
  impactRows=impactSummary();
  // Replace overlapping lists with one sortable-by-size, non-duplicated table.
