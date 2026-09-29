@@ -31,15 +31,29 @@ const details=document.createElement('details');details.className='communes-deta
 
 function renderInjuries(){
  if(!showInjuries||communeState!=='ready')return;
- if(!injurySelection){const reserved=GazaSelection.selectCommunes(communes,center,fatalities,turf).selected.map(r=>r.feature);injurySelection=GazaSelection.selectNeighbors(nearbyCommunes,currentFeature,center,injuries,reserved,turf);}
+ if(!injurySelection){const reserved=GazaSelection.selectCommunes(communes,center,fatalities,turf).selected;injurySelection=GazaSelection.selectNeighbors(nearbyCommunes,currentFeature,center,injuries,reserved,turf);}
+ document.querySelectorAll('#map pattern[id^="shared-population-"]').forEach(node=>node.remove());
  const rows=injurySelection.selected,byCode=new Map(rows.map(r=>[r.feature.properties.code,r]));
  injuredLayer.addData({type:'FeatureCollection',features:rows.map(r=>r.feature)}).setStyle(f=>({color:'#9b7300',weight:2,fillColor:'#f2cc32',fillOpacity:byCode.get(f.properties.code).fraction<1?.13:.36,dashArray:byCode.get(f.properties.code).fraction<1?'5 4':null}));
+ // Shared communes use proportional stripes, not a geographic split of residents.
+ injuredLayer.eachLayer(layer=>{const row=byCode.get(layer.feature.properties.code);if(!row.shared)return;
+  const path=layer.getElement(),svg=path?.ownerSVGElement;if(!svg)return;
+  const ns='http://www.w3.org/2000/svg',id='shared-population-'+row.feature.properties.code;
+  svg.querySelector('[id="'+id+'"]')?.remove();
+  const pattern=document.createElementNS(ns,'pattern');pattern.id=id;pattern.setAttribute('patternUnits','userSpaceOnUse');pattern.setAttribute('width','24');pattern.setAttribute('height','24');pattern.setAttribute('patternTransform','rotate(35)');
+  const red=24*row.livesRepresented/row.population,yellow=24*row.represented/row.population;
+  for(const [x,width,color] of [[0,red,showLives?'#dc3655':'transparent'],[red,yellow,'#f2cc32']]){const rect=document.createElementNS(ns,'rect');rect.setAttribute('x',x);rect.setAttribute('width',width);rect.setAttribute('height','24');rect.setAttribute('fill',color);pattern.append(rect);}
+  let defs=svg.querySelector('defs');if(!defs){defs=document.createElementNS(ns,'defs');svg.prepend(defs);}defs.append(pattern);
+  layer.setStyle({fillColor:'url(#'+id+')',fillOpacity:.36});
+  highlighted.eachLayer(redLayer=>{if(redLayer.feature.properties.code===row.feature.properties.code)redLayer.setStyle({fillOpacity:0});});
+ });
  const section=document.createElement('section');section.className='injury-equivalence';const title=document.createElement('strong');title.textContent=fmt(injuries)+' blessés rapportés';section.append(title);
- const last=rows.at(-1),full=rows.filter(r=>r.fraction===1).length,p=document.createElement('p');p.textContent=injurySelection.remaining?fmt(injuries-injurySelection.remaining)+' personnes représentées · '+fmt(injurySelection.remaining)+' non représentées dans le voisinage disponible':(full?fmt(full)+' commune'+(full>1?'s':'')+' entière'+(full>1?'s':''):'')+(last?.fraction<1?(full?' + ':'')+fmt(last.fraction*100,1)+' % de '+last.feature.properties.nom:'');section.append(p);
+ const full=rows.filter(r=>r.fraction===1).length,p=document.createElement('p'),parts=[];if(full)parts.push(fmt(full)+' commune'+(full>1?'s':'')+' entière'+(full>1?'s':''));for(const row of rows.filter(r=>r.fraction<1))parts.push(fmt(row.fraction*100,1)+' % de '+row.feature.properties.nom+(row.shared?' (population restante)':''));p.textContent=parts.join(' + ');if(injurySelection.remaining)p.textContent+=' · '+fmt(injurySelection.remaining)+' personnes non représentées dans le voisinage disponible';section.append(p);
+ for(const row of rows.filter(r=>r.shared)){const shared=document.createElement('p');shared.className='group-note';shared.textContent=row.feature.properties.nom+' : '+fmt(row.livesRepresented)+' vies perdues + '+fmt(row.represented)+' blessés représentés sur '+fmt(row.population)+' habitants. Hachures rouges et jaunes : répartition symbolique, sans localisation des habitants.';section.append(shared);}
  const date=document.createElement('small');date.textContent='Au 23 septembre 2026 · MoH via OCHA';section.append(date);
- const details=document.createElement('details');details.className='communes-details';const summary=document.createElement('summary');summary.textContent=fmt(rows.length)+' communes voisines en jaune · voir le calcul';details.append(summary);
+ const details=document.createElement('details');details.className='communes-details';const summary=document.createElement('summary');summary.textContent=fmt(rows.length)+' commune'+(rows.length>1?'s':'')+' pour les blessés · voir le calcul';details.append(summary);
  const list=document.createElement('ul');list.className='communes-list';for(const row of rows){const li=document.createElement('li'),name=document.createElement('span'),count=document.createElement('strong');name.textContent=row.feature.properties.nom+' · '+(row.feature.properties.country==='CH'?'CH':'FR');count.textContent=fmt(row.represented)+' / '+fmt(row.population);li.append(name,count);list.append(li);}details.append(list);section.append(details);
- const note=document.createElement('p');note.className='group-note';note.textContent='Communes voisines du contour, puis de proche en proche, jusqu’à l’équivalence. Les communes réservées aux vies perdues sont exclues, même si le rouge est masqué. Pointillés : dernière commune utilisée en partie. Recherche limitée à 40 km autour de Gaza, en France et en Suisse. Les bilans des décès et des blessés ne sont pas additionnés.';details.append(note);const body=$('comparison-body'),life=body.querySelector('.life-equivalence');if(life)life.after(section);else body.append(section);
+ const note=document.createElement('p');note.className='group-note';note.textContent='Communes voisines du contour, puis de proche en proche, jusqu’à l’équivalence. La population restante de la dernière commune rouge est utilisée en premier, même si le rouge est masqué. Les communes entièrement réservées aux vies perdues sont exclues. Pointillés : commune utilisée en partie. Recherche limitée à 40 km autour de Gaza, en France et en Suisse. Les bilans des décès et des blessés ne sont pas additionnés.';details.append(note);const body=$('comparison-body'),life=body.querySelector('.life-equivalence');if(life)life.after(section);else body.append(section);
 }
 
 let comparisonOpen=false,comparisonWanted=true,resultsReady=false,lastMoveCompare=0;
