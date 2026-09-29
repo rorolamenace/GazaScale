@@ -10,9 +10,18 @@ L.control.zoom({position:'topright'}).addTo(map);L.control.scale({imperial:false
 let tileFailed=false;const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 tiles.on('tileerror',()=>{if(!tileFailed){tileFailed=true;$('status').textContent='Fond de carte indisponible. Les contours et comparaisons restent utilisables.';}});tiles.on('tileload',()=>{if(tileFailed){tileFailed=false;$('status').textContent='';}});
 map.createPane('boundaries');map.getPane('boundaries').style.zIndex=350;map.getPane('boundaries').style.pointerEvents='none';
+map.createPane('human-impact');map.getPane('human-impact').style.pointerEvents='none';
+let humanImpactFirst=true;
+function setLayerPriority(first){
+ humanImpactFirst=first;map.getPane('human-impact').style.zIndex=first?'450':'375';
+ $('human-impact-first').checked=first;
+ $('layer-priority-note').textContent=first?'Au premier plan : vies perdues et blessés.':'Au premier plan : surface de Gaza et destructions.';
+}
+$('human-impact-first').onchange=e=>setLayerPriority(e.target.checked);
+setLayerPriority(true);
 let boundaryLayer=L.geoJSON(data.departements,{pane:'boundaries',style:{color:'#778c98',weight:1,opacity:.6,fillOpacity:0},interactive:false}).addTo(map);
-let highlighted=L.geoJSON(null,{pane:'boundaries',style:{color:'#426779',weight:2,fillColor:'#93b7c9',fillOpacity:.13},interactive:false}).addTo(map);
-const injuredLayer=L.geoJSON(null,{pane:'boundaries',interactive:false}).addTo(map);
+let highlighted=L.geoJSON(null,{pane:'human-impact',style:{color:'#426779',weight:2,fillColor:'#93b7c9',fillOpacity:.13},interactive:false}).addTo(map);
+const injuredLayer=L.geoJSON(null,{pane:'human-impact',interactive:false}).addTo(map);
 const shape=L.geoJSON(null,{style:{color:'#0072b2',weight:3.5,fillColor:'#56b4e9',fillOpacity:.08,className:'gaza-shape'}}).addTo(map);
 const damageShape=L.geoJSON(null,{style:{color:'#454b54',weight:3,dashArray:'8 5',fillColor:'#7b818a',fillOpacity:.48},interactive:false}).addTo(map);
 const toolsControl=L.control({position:'topright'});toolsControl.onAdd=()=>{const node=$('map-tools');L.DomEvent.disableClickPropagation(node);L.DomEvent.disableScrollPropagation(node);return node;};toolsControl.addTo(map);
@@ -180,7 +189,7 @@ function syncHypothesis(enabled){
 $('hypothesis-toggle').onchange=e=>{syncHypothesis(e.target.checked);showLives=true;$('show-lives').checked=true;comparisonWanted=true;setLevel('communes');};
 $('show-injuries').onchange=e=>{showInjuries=e.target.checked;if(level!=='communes'&&showInjuries)setLevel('communes');else compare();};
 $('show-lives').onchange=e=>{showLives=e.target.checked;if(showLives)setLevel('communes');else renderComparison();};
-$('city').onchange=e=>go(e.target.value);$('reset').onclick=()=>{syncHypothesis(false);showInjuries=true;$('show-injuries').checked=true;showLives=true;$('show-lives').checked=true;angle=0;representation='circle';showDamage=true;damageKind='affected';$('damage-kind').value='affected';updateRepresentation();$('city').value='geneve';go('geneve');};$('center').onclick=()=>{const p=map.getCenter();center=[p.lng,p.lat];draw();comparisonWanted=true;compare();};$('france').onclick=()=>map.fitBounds([[41.2,-5.3],[51.1,10.6]]);
+$('city').onchange=e=>go(e.target.value);$('reset').onclick=()=>{setLayerPriority(true);syncHypothesis(false);showInjuries=true;$('show-injuries').checked=true;showLives=true;$('show-lives').checked=true;angle=0;representation='circle';showDamage=true;damageKind='affected';$('damage-kind').value='affected';updateRepresentation();$('city').value='geneve';go('geneve');};$('center').onclick=()=>{const p=map.getCenter();center=[p.lng,p.lat];draw();comparisonWanted=true;compare();};$('france').onclick=()=>map.fitBounds([[41.2,-5.3],[51.1,10.6]]);
 function setLevel(value){level=value;selected=null;clearTimeout(communeTimer);communeAbort?.abort();communeSequence++;$('commune').setAttribute('aria-pressed',level==='communes');$('dept').setAttribute('aria-pressed',level==='departements');$('region').setAttribute('aria-pressed',level==='regions');boundaryLayer.clearLayers().addData(data[level==='communes'?'departements':level]);compare();}
 $('commune').onclick=()=>setLevel('communes');$('compare-lives').onclick=()=>{showLives=true;$('show-lives').checked=true;comparisonWanted=true;setLevel('communes');$('map').scrollIntoView({block:'start',behavior:'smooth'});};$('dept').onclick=()=>setLevel('departements');$('region').onclick=()=>setLevel('regions');
 function setPeriod(){population=$('period').value==='2023'?2226544:2130000;$('gaza-pop').textContent=($('period').value==='2025'?'≈ ':'')+fmt(population);$('gaza-density').textContent=fmt(population/365);$('period-note').textContent=$('period').value==='2023'?'PCBS · estimation de mi-2023, avant octobre 2023.':'PCBS · estimation arrondie de fin 2025, pas un bilan définitif.';renderComparison();}
