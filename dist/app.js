@@ -5,7 +5,7 @@ const damageData={destroyed:{ratio:123464/198273*.81,count:123464,title:'Structu
 let showLives=true,showInjuries=true;
 let representation='circle',showDamage=true,damageKind='affected';
 let center=[6.108,46.035],angle=0,level='communes',selected=null,currentFeature,hits=[],population=2226544;
-const map=L.map('map',{zoomControl:false,minZoom:4,maxZoom:17}).setView([45.905,6.108],9);
+const map=L.map('map',{zoomControl:false,doubleClickZoom:false,tapHold:false,minZoom:4,maxZoom:17}).setView([45.905,6.108],9);
 L.control.zoom({position:'topright'}).addTo(map);L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
 let tileFailed=false;const tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 tiles.on('tileerror',()=>{if(!tileFailed){tileFailed=true;$('status').textContent='Fond de carte indisponible. Les contours et comparaisons restent utilisables.';}});tiles.on('tileload',()=>{if(tileFailed){tileFailed=false;$('status').textContent='';}});
@@ -55,18 +55,46 @@ function moved(){comparisonWanted=false;resultsReady=false;clearTimeout(communeT
 function placed(){document.body.classList.remove('gaza-dragging');comparisonWanted=true;compare();}
 $('comparison-close').onclick=closeComparison;$('comparison-reopen').onclick=()=>{requestComparisonOpen();if(comparisonOpen)$('comparison-close').focus({preventScroll:true});};$('comparison-retry').onclick=()=>{comparisonWanted=true;compare();};$('comparison-panel').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeComparison();}});
 const icon=(cls,text,size)=>L.divIcon({className:cls,html:text,iconSize:[size,size],iconAnchor:[size/2,size/2]});
-const anchor=L.marker([center[1],center[0]],{icon:icon('center-handle','<span class="grab-dot"></span>',36),draggable:true,title:'Déplacer Gaza',zIndexOffset:1000}).addTo(map);
+const anchor=L.marker([center[1],center[0]],{icon:icon('center-handle','<span class="grab-dot"></span>',36),interactive:false,title:'Gaza',zIndexOffset:1000}).addTo(map);
 const rotation=L.marker([center[1],center[0]],{icon:icon('rotate-handle','↻',27),draggable:true,title:'Faire pivoter Gaza',zIndexOffset:1000}).addTo(map);
 const arm=L.polyline([],{color:'#20333b',weight:1.5,dashArray:'4 5',interactive:false}).addTo(map);
 const label=L.marker([center[1],center[0]],{icon:L.divIcon({className:'gaza-label',html:'GAZA · 365 km²',iconSize:[120,20],iconAnchor:[-20,10]}),interactive:false}).addTo(map);
 for(const name of ['departements','regions'])for(const f of data[name].features)f.bbox=turf.bbox(f);
-function draw(){currentFeature=representation==='circle'?GazaGeometry.circle(center):GazaGeometry.place(xy,center,angle);shape.clearLayers().addData(currentFeature);anchor.setLatLng([center[1],center[0]]);label.setLatLng([center[1],center[0]]);const a=angle*Math.PI/180,p=GazaGeometry.inverse([25000*Math.sin(a),25000*Math.cos(a)],center);rotation.setLatLng([p[1],p[0]]);arm.setLatLngs([[center[1],center[0]],[p[1],p[0]]]);$('rotation').value=angle;$('angle').textContent=representation==='circle'?'Sans effet sur un cercle':Math.round(angle)+'°';$('rotation').disabled=representation==='circle';$('rotate').disabled=representation==='circle';if(representation==='circle'){map.removeLayer(rotation);map.removeLayer(arm);}else{if(!map.hasLayer(rotation))rotation.addTo(map);if(!map.hasLayer(arm))arm.addTo(map);}damageShape.clearLayers();if(representation==='circle'&&showDamage)damageShape.addData(GazaGeometry.circle(center,365*damageData[damageKind].ratio));attachDrag();}
-function attachDrag(){shape.eachLayer(layer=>{const path=layer.getElement();if(!path)return;path.addEventListener('pointerdown',event=>{if(event.button!==0)return;event.preventDefault();event.stopPropagation();const start=map.mouseEventToLatLng(event),original=[...center],pointer=event.pointerId;let hasMoved=false;map.dragging.disable();const move=e=>{if(e.pointerId!==pointer)return;if(!hasMoved&&Math.hypot(e.clientX-event.clientX,e.clientY-event.clientY)<3)return;hasMoved=true;const p=map.mouseEventToLatLng(e);center=[original[0]+p.lng-start.lng,Math.max(-80,Math.min(80,original[1]+p.lat-start.lat))];draw();moved();};const end=()=>{document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',end);document.removeEventListener('pointercancel',end);map.dragging.enable();if(hasMoved)placed();};document.addEventListener('pointermove',move);document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end);});});}
+function draw(){currentFeature=representation==='circle'?GazaGeometry.circle(center):GazaGeometry.place(xy,center,angle);shape.clearLayers().addData(currentFeature);anchor.setLatLng([center[1],center[0]]);label.setLatLng([center[1],center[0]]);const a=angle*Math.PI/180,p=GazaGeometry.inverse([25000*Math.sin(a),25000*Math.cos(a)],center);rotation.setLatLng([p[1],p[0]]);arm.setLatLngs([[center[1],center[0]],[p[1],p[0]]]);$('rotation').value=angle;$('angle').textContent=representation==='circle'?'Sans effet sur un cercle':Math.round(angle)+'°';$('rotation').disabled=representation==='circle';$('rotate').disabled=representation==='circle';if(representation==='circle'){map.removeLayer(rotation);map.removeLayer(arm);}else{if(!map.hasLayer(rotation))rotation.addTo(map);if(!map.hasLayer(arm))arm.addTo(map);}damageShape.clearLayers();if(representation==='circle'&&showDamage)damageShape.addData(GazaGeometry.circle(center,365*damageData[damageKind].ratio));}
+// Placement gestures do not consume normal map panning or pinch zoom.
+function installMapPlacement(element,place){
+ let pending=null,lastTouch=-Infinity;const touches=new Set();
+ const excluded=target=>target.closest('.leaflet-control,.rotate-handle,button,a,input,select');
+ const cancel=()=>{if(pending)clearTimeout(pending.timer);pending=null;};
+ element.addEventListener('dblclick',event=>{
+  if(excluded(event.target)||Date.now()-lastTouch<1000)return;
+  event.preventDefault();event.stopPropagation();place(event);
+ },true);
+ element.addEventListener('pointerdown',event=>{
+  if(event.pointerType!=='touch')return;
+  lastTouch=Date.now();touches.add(event.pointerId);cancel();
+  if(touches.size!==1||excluded(event.target))return;
+  const point={clientX:event.clientX,clientY:event.clientY};
+  pending={id:event.pointerId,...point,timer:setTimeout(()=>{pending=null;place(point);},600)};
+ },true);
+ document.addEventListener('pointermove',event=>{
+  if(pending&&event.pointerId===pending.id&&Math.hypot(event.clientX-pending.clientX,event.clientY-pending.clientY)>10)cancel();
+ },{passive:true});
+ const finish=event=>{if(event.pointerType==='touch')lastTouch=Date.now();touches.delete(event.pointerId);if(pending?.id===event.pointerId)cancel();};
+ document.addEventListener('pointerup',finish);document.addEventListener('pointercancel',finish);
+ window.addEventListener('blur',()=>{cancel();touches.clear();});
+ element.addEventListener('contextmenu',event=>{if(!excluded(event.target)&&Date.now()-lastTouch<1500)event.preventDefault();});
+}
+function placeAtPointer(event){
+ const point=map.mouseEventToLatLng(event);moved();
+ center=[point.lng,Math.max(-80,Math.min(80,point.lat))];
+ draw();map.setView([center[1],center[0]],map.getZoom(),{animate:false});placed();
+}
+installMapPlacement(map.getContainer(),placeAtPointer);
 function compare(){resultsReady=false;setComparisonOpen(false);if(level==='communes'){requestCommune();renderComparison();return;}const b=turf.bbox(currentFeature);hits=data[level].features.filter(f=>{const a=f.bbox;return a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1]&&turf.booleanIntersects(f,currentFeature);});hits.sort((a,b)=>a.properties.nom.localeCompare(b.properties.nom,'fr'));if(!hits.some(f=>f.properties.code===selected))selected=(hits.find(f=>turf.booleanPointInPolygon(turf.point(center),f))??hits[0])?.properties.code;renderComparison();}
 function renderComparison(){renderComparisonContents();settleComparison();}
 function renderComparisonContents(){injuredLayer.clearLayers();$('injuries-legend').hidden=level!=='communes'||!showInjuries;$('lives-legend').hidden=level!=='communes'||!showLives;if(level==='communes'){renderCommune();return;}$('comparison-foot').textContent='Territoires touchés par la forme · chiffres du territoire entier';highlighted.setStyle({color:'#426779',weight:2,fillColor:'#93b7c9',fillOpacity:.13});const f=hits.find(f=>f.properties.code===selected);$('territory-tabs').replaceChildren();highlighted.clearLayers();if(!f){$('territory-name').textContent='Hors des territoires couverts';$('comparison-body').innerHTML='<p class="micro">Placez Gaza sur la France ou la Suisse. En Suisse, choisissez « Dépt. / canton » pour comparer les cantons.</p>';return;}highlighted.addData(f);$('territory-name').textContent=f.properties.nom+(f.properties.country==='CH'?' · canton suisse':'');if(f.properties.country==='CH')$('comparison-foot').textContent='Population au 31 décembre 2024 · limites au 1er janvier 2026 · OFS / swisstopo';if(hits.length>1)for(const f of hits){const b=document.createElement('button');b.textContent=f.properties.nom;b.className=f.properties.code===selected?'active':'';b.onclick=()=>{selected=f.properties.code;renderComparison();};$('territory-tabs').append(b);}const s=data.stats[level][selected];if(!s||!s.surface){$('comparison-body').innerHTML='<p>Données non disponibles pour ce territoire.</p>';return;}const ratio=s.surface/365,density=s.population/s.surface;
 $('comparison-body').innerHTML=`<div class="metrics"><div class="metric"><strong>${fmt(s.surface)} <span>km²</span></strong><span>${fmt(s.surface*100)} hectares</span></div><div class="metric"><strong>${fmt(s.population)}</strong><span>habitants</span></div><div class="metric"><strong>${fmt(density)}</strong><span>habitants / km²</span></div></div><div class="ratio"><span class="ratio-track"><i style="width:${Math.min(100,365/s.surface*100)}%"></i></span><span>${ratio>=1?`Ce territoire représente <b>${fmt(ratio,1)} fois Gaza</b>.`:`Gaza représente <b>${fmt(1/ratio,1)} fois ce territoire</b>.`} Densité de Gaza : <b>${fmt(population/365/density,1)}×</b> celle du territoire.</span></div>`;}
-anchor.on('drag',()=>{const p=anchor.getLatLng();center=[p.lng,Math.max(-80,Math.min(80,p.lat))];draw();moved();});anchor.on('dragend',placed);
 rotation.on('drag',()=>{const p=rotation.getLatLng(),v=GazaGeometry.forward([p.lng,p.lat],center);angle=(Math.atan2(v[0],v[1])*180/Math.PI+360)%360;draw();moved();});rotation.on('dragend',placed);
 $('rotation').oninput=e=>{angle=Number(e.target.value);draw();moved();};$('rotation').onchange=placed;$('rotate').onclick=()=>{angle=(angle+90)%360;draw();compare();};
 function go(city){const p=cities[city];center=[p[1],p[0]];map.setView([p[0]-.13,p[1]],9);draw();comparisonWanted=true;compare();}
