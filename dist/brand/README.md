@@ -1,6 +1,6 @@
-# Gazala — pack graphique
+# GazaScale — pack graphique
 
-SVG vectoriels et PNG transparents. Logo : 1280 × 320 ; icônes : 512 × 512.
+SVG vectoriels et PNG transparents. Logo : 1280 × 253 ; icônes : 512 × 512.
 
 - fond-clair : fond transparent, anneau rouge foncé.
 - fond-sombre : fond transparent, anneau rouge éclairci, bord blanc autour du drapeau.
