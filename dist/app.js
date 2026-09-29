@@ -111,17 +111,18 @@ function renderInjuries(){
  const note=document.createElement('p');note.className='group-note';note.textContent='Communes voisines des communes sélectionnées, des plus proches du centre vers les suivantes, y compris à l’intérieur du cercle, jusqu’à l’équivalence. La population restante de la dernière commune rouge est utilisée en premier, même si le rouge est masqué. Les communes entièrement réservées aux vies perdues sont exclues. Pointillés : commune utilisée en partie. Recherche limitée à 40 km autour de Gaza, en France et en Suisse. Les bilans des décès et des blessés ne sont pas additionnés.';details.append(note);const body=$('comparison-body'),life=body.querySelector('.life-equivalence');if(life)life.after(section);else body.append(section);
 }
 
+let placementPaintTimer=null;
 let comparisonOpen=false,comparisonWanted=true,resultsReady=false,lastMoveCompare=0;
 function setComparisonOpen(open,focusButton=false){comparisonOpen=Boolean(open&&resultsReady);$('comparison-panel').hidden=!comparisonOpen;$('comparison-reopen').hidden=comparisonOpen||!resultsReady;$('comparison-reopen').setAttribute('aria-expanded',String(comparisonOpen));if(focusButton&&resultsReady)$('comparison-reopen').focus({preventScroll:true});}
 function requestComparisonOpen(){comparisonWanted=true;setComparisonOpen(true);}
 function closeComparison(){comparisonWanted=false;setComparisonOpen(false,true);}
 function settleComparison(){
  resultsReady=level==='communes'?communeState==='ready'&&communes.length>0:Boolean(hits.length&&data.stats[level][selected]?.surface);
- const badge=$('comparison-state');badge.hidden=resultsReady||document.body.classList.contains('gaza-dragging');$('comparison-retry').hidden=!(level==='communes'&&communeState==='error');badge.querySelector('span').textContent=level==='communes'&&communeState==='loading'?'Calcul des communes…':level==='communes'&&communeState==='error'?'Données indisponibles.':'Aucun résultat ici · déplacez Gaza en France ou en Suisse.';
+ const badge=$('comparison-state');const busy=level==='communes'&&communeState==='loading';badge.classList.toggle('is-loading',busy);$('map').setAttribute('aria-busy',String(busy));badge.hidden=resultsReady||document.body.classList.contains('gaza-dragging');$('comparison-retry').hidden=!(level==='communes'&&communeState==='error');badge.querySelector('span').textContent=level==='communes'&&communeState==='loading'?'Calcul des communes…':level==='communes'&&communeState==='error'?'Données indisponibles.':'Aucun résultat ici · déplacez Gaza en France ou en Suisse.';
  setComparisonOpen(comparisonWanted&&resultsReady);
 }
-function moved(){map.closePopup();comparisonWanted=false;resultsReady=false;clearTimeout(communeTimer);communeAbort?.abort();communeSequence++;setComparisonOpen(false);$('comparison-state').hidden=true;document.body.classList.add('gaza-dragging');}
-function placed(){document.body.classList.remove('gaza-dragging');comparisonWanted=true;compare();}
+function moved(){clearTimeout(placementPaintTimer);map.closePopup();comparisonWanted=false;resultsReady=false;clearTimeout(communeTimer);communeAbort?.abort();communeSequence++;setComparisonOpen(false);$('comparison-state').hidden=true;document.body.classList.add('gaza-dragging');}
+function placed(){document.body.classList.remove('gaza-dragging');comparisonWanted=true;const badge=$('comparison-state');badge.hidden=false;badge.classList.add('is-loading');badge.querySelector('span').textContent='Calcul des communes…';$('comparison-retry').hidden=true;$('map').setAttribute('aria-busy','true');const sequence=communeSequence;clearTimeout(placementPaintTimer);placementPaintTimer=setTimeout(()=>{if(sequence===communeSequence)compare();},50);}
 $('comparison-close').onclick=closeComparison;$('comparison-reopen').onclick=()=>{requestComparisonOpen();if(comparisonOpen)$('comparison-close').focus({preventScroll:true});};$('comparison-retry').onclick=()=>{comparisonWanted=true;compare();};$('comparison-panel').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeComparison();}});
 const icon=(cls,text,size)=>L.divIcon({className:cls,html:text,iconSize:[size,size],iconAnchor:[size/2,size/2]});
 const anchor=L.marker([center[1],center[0]],{icon:icon('center-handle','<span class="grab-dot"></span>',36),interactive:false,title:'Gaza',zIndexOffset:1000}).addTo(map);
