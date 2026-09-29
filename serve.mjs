@@ -1,5 +1,5 @@
 import http from 'node:http';
-import {readFile} from 'node:fs/promises';
+import {readFile,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {gzipSync} from 'node:zlib';
@@ -11,8 +11,9 @@ const gzipped=new Map();
 async function send(req,res,file,status=200){
  const data=await readFile(file),ext=path.extname(file),headers={...security,'Content-Type':types[ext]||'application/octet-stream','Cache-Control':ext==='.html'?'no-cache':'public, max-age=3600'};
  if(compressible.has(ext)&&/\bgzip\b/.test(req.headers['accept-encoding']||'')){
-  if(!gzipped.has(file))gzipped.set(file,gzipSync(data));
-  res.writeHead(status,{...headers,'Content-Encoding':'gzip','Vary':'Accept-Encoding'}).end(gzipped.get(file));return;
+  const key=file+':'+(await stat(file)).mtimeMs;
+  if(!gzipped.has(key))gzipped.set(key,gzipSync(data));
+  res.writeHead(status,{...headers,'Content-Encoding':'gzip','Vary':'Accept-Encoding'}).end(gzipped.get(key));return;
  }
  res.writeHead(status,headers).end(data);
 }
