@@ -1,0 +1,68 @@
+name: Test, build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/gazascale
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test tests/*.test.mjs
+
+  image:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t "${IMAGE,,}:${GITHUB_SHA}" -t "${IMAGE,,}:latest" .
+      - name: Smoke test
+        run: |
+          docker run -d --name site -p 8080:80 "${IMAGE,,}:latest"
+          sleep 2
+          curl -fsS http://127.0.0.1:8080/ | grep -q 'GazaScale'
+          curl -fsSI http://127.0.0.1:8080/app.js | grep -qi 'content-type: application/javascript'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/introuvable)" = 404
+      - name: Push to GitHub Container Registry
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push "${IMAGE,,}:${GITHUB_SHA}"
+          docker push "${IMAGE,,}:latest"
+
+  deploy:
+    needs: image
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Redeploy the Jelastic environment (Infomaniak)
+        env:
+          TOKEN: ${{ secrets.JELASTIC_TOKEN_GAZASCALE }}
+          API_HOST: ${{ vars.JELASTIC_API_HOST || 'app.jpe.infomaniak.com' }}
+          ENV_NAME: ${{ vars.JELASTIC_ENV_NAME || 'gazascale' }}
+          NODE_GROUP: ${{ vars.JELASTIC_NODE_GROUP || 'cp' }}
+        run: |
+          test -n "$TOKEN" || { echo "Secret JELASTIC_TOKEN_GAZASCALE manquant"; exit 1; }
+          response=$(curl -fsS "https://${API_HOST}/1.0/environment/control/rest/redeploycontainersbygroup" \
+            --data-urlencode "session=${TOKEN}" \
+            --data-urlencode "envName=${ENV_NAME}" \
+            --data-urlencode "nodeGroup=${NODE_GROUP}" \
+            --data-urlencode "tag=${GITHUB_SHA}" \
+            --data-urlencode "useExistingVolumes=true")
+          echo "$response" | grep -q '"result":0' || { echo "$response"; exit 1; }
+          echo "Déployé : ${ENV_NAME} avec l'image ${GITHUB_SHA}"

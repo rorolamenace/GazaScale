@@ -1,64 +1,91 @@
-# Gazala
+# GazaScale
 
-Carte interactive pour comparer les 365 km² de la bande de Gaza aux territoires français. L’application affiche un contour géographique ou un cercle de même superficie, déplaçable et pivotable.
+Carte interactive pour comparer les 365 km² de la bande de Gaza aux territoires français et suisses. On place Gaza n'importe où, sous forme de contour géographique ou de cercle de même surface, et la carte montre les communes touchées, les bâtiments détruits et l'équivalence en habitants des bilans humains.
+
+Site : https://gazascale.org · contact : contact@gazascale.org
 
 ## Lancer en local
 
-Node.js 18 ou plus récent, sans installation de dépendances :
+Node.js 18 ou plus récent, sans dépendance à installer :
 
 ```sh
 node serve.mjs
 ```
 
-Ouvrir http://127.0.0.1:4187. Les tuiles OpenStreetMap et les données communales hors Haute-Savoie nécessitent une connexion Internet.
+Ouvrir http://127.0.0.1:4187. Le serveur local compresse les réponses en gzip et renvoie `dist/404.html` pour les adresses inconnues. Le fond de carte et les communes hors Haute-Savoie demandent une connexion Internet.
+
+## Tests
+
+```sh
+node --test tests/*.test.mjs
+```
+
+Ils vérifient la surface de 365 km² après déplacement et rotation, l'arrêt exact de la sélection au bilan, la séparation entre vies perdues et blessés, et la cohérence des fichiers chargés à la demande.
+
+## Déployer avec Docker
+
+L'image sert `dist/` avec nginx, en gzip, avec un cache long pour les données et les en-têtes de sécurité (voir `deploy/nginx.conf`) :
+
+```sh
+docker build -t gazascale .
+docker run -p 8080:80 gazascale
+```
+
+Le déploiement sur Jelastic (Infomaniak) est décrit dans `deploy/README.md`.
 
 ## Fonctionnement
 
-- Ouverture au sud de Genève, en mode cercle, avec les destructions visibles.
-- Superficie conservée par projection azimutale équivalente ; rotation du contour dans un plan local.
-- Panneau fermé pendant le déplacement, rouvert au relâchement. Croix et bouton de réouverture, affichage adapté aux petits écrans.
-- Comparaison des superficies et populations par département ou région.
-- Communes françaises touchées par la forme : sélection par proximité au centre, arrêt lorsque la population cumulée atteint le bilan humain. La dernière commune peut ne contribuer que pour une fraction de sa population. Si le cercle ne contient pas assez d’habitants, le manque est indiqué.
-- Seules les communes retenues sont colorées. Le rouge est une équivalence démographique, pas une localisation de décès.
+- À l'ouverture, Gaza est placée au sud de Genève, en mode cercle, avec les destructions visibles.
+- Un double-clic sur la carte, ou un appui long sur mobile, place Gaza à cet endroit. Les flèches du clavier la déplacent d'un kilomètre. En mode contour, la poignée ronde la fait pivoter.
+- La surface reste exacte grâce à une projection azimutale équivalente ; la rotation se fait dans un plan local.
+- Le panneau de comparaison se ferme pendant un déplacement et se rouvre quand le calcul est prêt.
+- On compare par commune, par département ou canton, ou par région française.
 
 ## Lire les chiffres
 
-Les habitants d’une commune partiellement touchée sont pris comme référence sur la commune entière. Il ne s’agit pas d’une estimation fine de la population dans le cercle. Les communes françaises et suisses sont couvertes.
+Les communes françaises et suisses touchées par la forme sont classées de la plus proche du centre à la plus éloignée. Leurs populations s'additionnent jusqu'à atteindre le bilan des vies perdues ; la dernière commune peut ne compter que pour une fraction de sa population. Si les communes touchées ne suffisent pas, le manque est affiché. Le rouge est une équivalence en habitants : il ne situe pas les vies perdues.
 
-Le cercle intérieur traduit une proportion de structures détruites ou endommagées, et non une surface de terrain détruit. Les statistiques ont des dates distinctes, affichées dans l’interface et détaillées dans « Sources & méthode ».
+La population de référence est celle de la commune entière, même si la forme n'en couvre qu'une partie. Ce n'est pas une estimation de la population à l'intérieur du cercle.
 
-Le bilan humain est un instantané : 73 922 morts palestiniens rapportés au 23 septembre 2026 par le ministère de la Santé de Gaza, repris par OCHA. Il ne constitue pas une estimation exhaustive des morts indirectes. Aucun chiffre ne se met à jour automatiquement.
+Le cercle intérieur gris représente une proportion de bâtiments détruits ou endommagés, et non une surface de terrain détruit.
+
+Le bilan humain est un instantané : 73 922 vies palestiniennes perdues au 23 septembre 2026 selon le ministère de la Santé de Gaza, repris par OCHA. Il ne comprend pas toute la mortalité indirecte. Aucun chiffre ne se met à jour automatiquement. Les dates de chaque statistique sont affichées dans l'interface et détaillées dans « Sources & méthode ».
+
+## Blessés
+
+La même fiche OCHA rapporte 174 995 blessés. La couche jaune part de la population restante de la dernière commune utilisée pour les vies perdues, puis s'étend de commune voisine en commune voisine (tolérance de contact de 30 m), en privilégiant la proximité au centre. Les communes entièrement réservées aux vies perdues sont exclues. La recherche s'arrête à 40 km autour de Gaza ; un manque éventuel est affiché. Les deux bilans ne sont jamais additionnés, car rien ne garantit que les deux groupes soient distincts.
+
+Les communes voisines se chargent après celles qui sont sous la forme : les vies perdues s'affichent même si ce second chargement échoue, et un bouton permet de réessayer.
+
+## Suisse
+
+Les 2 110 communes et 26 cantons de `dist/swiss.js` viennent de swissBOUNDARIES3D (© swisstopo, janvier 2026), avec les populations de l'OFS au 31 décembre 2024. Les géométries LV95 ont été converties en WGS84, simplifiées à 20 m et arrondies à six décimales. Les surfaces officielles sont converties d'hectares en km². Seuls les objets Commune du pays CH sont candidats ; leurs codes sont préfixés par `CH-` pour ne pas entrer en collision avec les codes INSEE. La frontière ne coupe pas la sélection : communes françaises et suisses sont classées ensemble.
 
 ## Sources et bibliothèques
 
-- [OpenStreetMap](https://www.openstreetmap.org/copyright) : fond de carte, attribution conservée.
-- [Leaflet 1.9.4](https://leafletjs.com/) et [Turf 7.2.0](https://turfjs.org/) : carte et calculs géographiques.
-- [API Découpage administratif](https://geo.api.gouv.fr/) : communes, populations et surfaces. Haute-Savoie enregistrée le 29 septembre 2026 ; autres départements chargés à la demande et gardés en mémoire pendant la session.
+- [OpenFreeMap](https://openfreemap.org/) (style Liberty) et [OpenStreetMap](https://www.openstreetmap.org/copyright) : fond de carte, avec repli sur les tuiles OpenStreetMap si le fond vectoriel ne charge pas.
+- [Leaflet 1.9.4](https://leafletjs.com/), [MapLibre GL JS](https://maplibre.org/) et [Turf 7.2.0](https://turfjs.org/) : carte et calculs géographiques.
+- [API Découpage administratif](https://geo.api.gouv.fr/) : communes, populations et surfaces. La Haute-Savoie est enregistrée dans le site (29 septembre 2026) ; les autres départements sont chargés à la demande.
 - [france-geojson](https://github.com/gregoiredavid/france-geojson) : contours simplifiés des départements et régions.
 - [Palestine geodata](https://github.com/sepans/palestine_geodata) : contour de Gaza, normalisé à 365 km².
 - [PCBS](https://www.pcbs.gov.ps/statisticsIndicatorsTables.aspx?lang=en&table_id=1949) : populations datées.
-- [UNOSAT, 11 octobre 2025](https://www.un.org/unispal/document/unosat-gaza-strip-damage-assessment-31oct25/) : structures détruites et endommagées.
+- [UNOSAT, 11 octobre 2025](https://www.un.org/unispal/document/unosat-gaza-strip-damage-assessment-31oct25/) : bâtiments détruits et endommagés.
 - [OCHA, 23 septembre 2026](https://www.ochaopt.org/sites/default/files/Gaza_Reported_Impact_Snapshot_23_September_2026.pdf) : bilan humain rapporté.
+- Polices DM Sans et Manrope (SIL Open Font License), servies depuis `dist/fonts/`.
 
 Les données et bibliothèques tierces restent soumises à leurs licences respectives.
 
 ## Structure
 
-`dist/` contient le site statique prêt à servir. `app.js` gère les interactions, `geometry.js` les projections et `selection.js` l’arrêt de la sélection des communes. `.openai/hosting.json` identifie l’hébergement Sites existant ; il ne contient aucun secret.
+`dist/` contient le site statique prêt à servir :
 
-Pour un autre hébergeur statique, servir le dossier `dist/`. Ce dépôt n’active pas automatiquement GitHub Pages.
+- `app.js` : interactions, chargement des données et comparaisons ; `map-extras.js` : recherche, outre-mer, légende, géolocalisation.
+- `geometry.js` : projections ; `selection.js` et `neighbors.js` : sélection des communes pour les vies perdues et les blessés.
+- `data.js`, `communes.js`, `swiss.js` : données chargées au démarrage (départements, Haute-Savoie, Suisse).
+- `regions.json` et `overseas.js` : chargés seulement quand on compare par région ou qu'on place Gaza outre-mer. `overseas-index.js` contient les icônes du menu et les noms pour la recherche ; il se régénère avec `node tools/build-overseas-index.mjs`.
 
-## Suisse
+`.openai/hosting.json` identifie l'hébergement Sites existant ; il ne contient aucun secret. Pour un autre hébergeur statique, servir le dossier `dist/`.
 
-Les 2 110 communes et 26 cantons de `dist/swiss.js` proviennent de © swisstopo, swissBOUNDARIES3D (janvier 2026). Populations OFS au 31 décembre 2024. Source : https://www.swisstopo.admin.ch/fr/modele-du-territoire-swissboundaries3d. Géométries LV95 converties en WGS84 et simplifiées à 20 m, coordonnées arrondies à six décimales. Les surfaces officielles sont converties de ha en km². Seuls les objets Commune de pays CH sont candidats ; les codes CH préfixés évitent les collisions avec les codes INSEE. Les frontières ne coupent pas la sélection : communes françaises et suisses sont classées ensemble. Cantons accessibles dans Dépt. / canton ; régions uniquement françaises.
+## Identité
 
-## Blessés
-
-174 995 blessés rapportés au 23 septembre 2026, MoH via la même fiche OCHA que les décès. Couche jaune activable indépendamment : voisins au bord de Gaza ou des communes réservées aux décès, puis expansion par voisinage (tolérance 30 m), priorité à la proximité au centre. Communes entièrement intérieures et communes réservées aux décès exclues. Recherche bornée à 40 km du contour ; déficit affiché si nécessaire. Dernière commune fractionnée démographiquement. Aucun total décès + blessés : les catégories ne sont pas garanties disjointes.
-
-## Commandes compactes
-
-Deux boutons sous le zoom ouvrent ou ferment les filtres et la fiche Gaza / légende, repliés par défaut. Les panneaux sont exclusifs et refermables avec Échap. La comparaison est limitée à 34 % de la hauteur de carte sur ordinateur et 30 % sur mobile, avec défilement interne. Elle reste fermée pendant le calcul ; un indicateur discret signale le chargement ou propose une nouvelle tentative en cas d’erreur. Les déplacements annulent les anciennes requêtes. La fermeture manuelle est conservée jusqu’à une nouvelle demande ou un nouveau dépôt de Gaza.
-
-
-Identité : Gazala · domaine prévu : gazala.org · contact affiché : contact@gazala.org. Le raccordement DNS et la boîte e-mail nécessitent une configuration chez le fournisseur du domaine. Icône vectorielle originale dans dist/gazala.svg : disque aux couleurs du drapeau palestinien.
+Nom : GazaScale · domaine : gazascale.org · contact : contact@gazascale.org. Le raccordement DNS et la boîte e-mail se configurent chez le fournisseur du domaine. Le logo `dist/gazascale.svg` est un disque aux couleurs du drapeau palestinien ; le pack graphique complet est dans `dist/brand/`.
