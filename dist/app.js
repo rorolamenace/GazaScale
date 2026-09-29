@@ -19,9 +19,9 @@ const injuredLayer=L.geoJSON(null,{pane:'human-impact',interactive:false}).addTo
 const shape=L.geoJSON(null,{style:{color:'#0072b2',weight:3.5,fillColor:'#56b4e9',fillOpacity:.08,className:'gaza-shape'}}).addTo(map);
 const damageShape=L.geoJSON(null,{style:{color:'#454b54',weight:3,opacity:.65,dashArray:'8 5',fillColor:'#7b818a',fillOpacity:.32},interactive:false}).addTo(map);
 const toolsControl=L.control({position:'topright'});toolsControl.onAdd=()=>{const node=$('map-tools');L.DomEvent.disableClickPropagation(node);L.DomEvent.disableScrollPropagation(node);return node;};toolsControl.addTo(map);
-function setMapPanel(which){for(const [id,button] of [['map-filters','toggle-filters'],['circle-legend','toggle-info']]){const open=id===which;$(id).hidden=!open;$(button).setAttribute('aria-expanded',String(open));}}
+function setMapPanel(which){if(which){$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');}for(const [id,button] of [['map-filters','toggle-filters'],['circle-legend','toggle-info'],['placement-panel','toggle-placement']]){const open=id===which;$(id).hidden=!open;$(button).setAttribute('aria-expanded',String(open));}}
 $('toggle-filters').onclick=()=>setMapPanel($('map-filters').hidden?'map-filters':null);$('toggle-info').onclick=()=>setMapPanel($('circle-legend').hidden?'circle-legend':null);
-for(const [id,button] of [['map-filters','toggle-filters'],['circle-legend','toggle-info']])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();setMapPanel(null);$(button).focus();}});
+for(const [id,button] of [['map-filters','toggle-filters'],['circle-legend','toggle-info'],['placement-panel','toggle-placement']])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();setMapPanel(null);$(button).focus();}});
 const injuries=174995;let nearbyCommunes=[],injurySelection=null;
 let fatalities=73922,hypothesis=false,injuriesBeforeHypothesis=true;
 const communeCache={...(window.DEPARTMENT_COMMUNE_SEEDS||{}),...window.OVERSEAS_DATA.seeds};let communes=[],communeState='loading',communeTimer=null,communeAbort=null,communeSequence=0;
@@ -189,7 +189,7 @@ function syncHypothesis(enabled){
  $('lives-count').textContent=fmt(fatalities);
  $('lives-description').textContent=enabled?'Hypothèse de vies perdues à Gaza · non confirmée':'Morts palestiniens rapportés à Gaza · au 23 septembre 2026';
  $('lives-source-note').textContent=enabled?'F. Albanese, 15 septembre 2025 : estimation citée de certains chercheurs, difficile à vérifier. Elle évoque aussi 380 000 enfants de moins de cinq ans si ce chiffre était confirmé. Aucun bilan de blessés dans cette transcription.':'Depuis le 7 octobre 2023 · ministère de la Santé de Gaza, repris par OCHA. Bilan rapporté, pas une estimation de toute la mortalité indirecte.';
- $('lives-source').href=enabled?'https://www.un.org/unispal/document/press-briefing-francesca-albanese-16sep25/':'https://www.ochaopt.org/sites/default/files/Gaza_Reported_Impact_Snapshot_23_September_2026.pdf';
+ $('lives-source').href=enabled?'#source-hypothese':'#source-vies';
  $('lives-source').textContent=enabled?'Source de l’hypothèse · 15 septembre 2025':'Source et date du bilan';
 }
 $('hypothesis-toggle').onchange=e=>{syncHypothesis(e.target.checked);showLives=true;$('show-lives').checked=true;comparisonWanted=true;setLevel('communes');};

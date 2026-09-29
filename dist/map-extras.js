@@ -51,3 +51,13 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('#city-search')
 window.refreshMapExtras();
 
 $('toggle-key').onclick=()=>{const open=$('key-content').hidden;$('key-content').hidden=!open;$('toggle-key').setAttribute('aria-expanded',String(open));$('color-key').classList.toggle('collapsed',!open);};
+
+$('toggle-placement').onclick=()=>setMapPanel($('placement-panel').hidden?'placement-panel':null);
+function setSidebar(open){$('explanation-panel').hidden=!open;document.body.classList.toggle('sidebar-collapsed',!open);$('toggle-sidebar').setAttribute('aria-expanded',String(open));$('toggle-sidebar').setAttribute('aria-label',open?'Réduire le panneau explicatif':'Ouvrir le panneau explicatif');$('toggle-sidebar').title=open?'Réduire le panneau explicatif':'Chiffres clés et explications';$('toggle-sidebar').textContent=open?'‹':'›';map.invalidateSize();}
+$('toggle-sidebar').onclick=()=>setSidebar($('explanation-panel').hidden);
+if(window.matchMedia('(max-width:650px)').matches)setSidebar(false);
+let sourceOpener=null;
+function openSource(id,opener){sourceOpener=opener;const dialog=$('sources');if(!dialog.open)dialog.showModal();const target=$(id);if(target){requestAnimationFrame(()=>{target.scrollIntoView({block:'start'});target.focus({preventScroll:true});});}}
+document.addEventListener('click',event=>{const link=event.target.closest('a[data-source]');if(!link)return;event.preventDefault();openSource(link.dataset.source==='lives-current'?(hypothesis?'source-hypothese':'source-vies'):link.dataset.source,link);});
+$('sources-button').onclick=()=>{sourceOpener=$('sources-button');$('sources').showModal();$('sources').scrollTop=0;};
+$('sources').addEventListener('close',()=>sourceOpener?.focus({preventScroll:true}));
