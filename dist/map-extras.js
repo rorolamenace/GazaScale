@@ -32,9 +32,9 @@ window.refreshMapExtras=()=>{
 };
 let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
-placeAtPointer=function(event){placedAt=Date.now();clearTimeout(mapClickTimer);nativePlace(event);};
+placeAtPointer=function(event){placedAt=Date.now();clearTimeout(mapClickTimer);closeMapMenus();nativePlace(event);};
 // Single tap opens a commune; double click and long press remain placement gestures.
-map.on('click',event=>{clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{comparisonWanted=false;setComparisonOpen(false);map.closePopup();if(level!=='communes'||communeState!=='ready')return;const candidates=new Map([...communes,...nearbyCommunes,...impactRows.map(r=>r.feature)].map(f=>[f.properties.code,f]));const point=turf.point([event.latlng.lng,event.latlng.lat]);const feature=[...candidates.values()].find(f=>turf.booleanPointInPolygon(point,f));if(feature)communePopup(feature,event.latlng);},280);});
+map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{comparisonWanted=false;setComparisonOpen(false);map.closePopup();if(level!=='communes'||communeState!=='ready')return;const candidates=new Map([...communes,...nearbyCommunes,...impactRows.map(r=>r.feature)].map(f=>[f.properties.code,f]));const point=turf.point([event.latlng.lng,event.latlng.lat]);const feature=[...candidates.values()].find(f=>turf.booleanPointInPolygon(point,f));if(feature)communePopup(feature,event.latlng);},280);});
 map.on('dblclick',()=>clearTimeout(mapClickTimer));
 $('toggle-shape').onclick=()=>{representation=representation==='circle'?'contour':'circle';updateRepresentation();};
 $('toggle-overseas').onclick=()=>{const open=$('overseas-menu').hidden;$('overseas-menu').hidden=!open;$('toggle-overseas').setAttribute('aria-expanded',String(open));if(open)setMapPanel(null);};
@@ -61,3 +61,16 @@ function openSource(id,opener){sourceOpener=opener;const dialog=$('sources');if(
 document.addEventListener('click',event=>{const link=event.target.closest('a[data-source]');if(!link)return;event.preventDefault();openSource(link.dataset.source==='lives-current'?(hypothesis?'source-hypothese':'source-vies'):link.dataset.source,link);});
 $('sources-button').onclick=()=>{sourceOpener=$('sources-button');$('sources').showModal();$('sources').scrollTop=0;};
 $('sources').addEventListener('close',()=>sourceOpener?.focus({preventScroll:true}));
+
+function closeMapMenus(){setMapPanel(null);$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');$('city-results').hidden=true;}
+map.on('dblclick',closeMapMenus);
+function locationMessage(message){$('location-status').hidden=!message;$('location-status').querySelector('span').textContent=message;}
+$('close-location-status').onclick=()=>locationMessage('');
+function locateMe(){
+ if(!window.isSecureContext){locationMessage('La géolocalisation nécessite une connexion HTTPS.');return;}
+ if(!navigator.geolocation){locationMessage('Ce navigateur ne propose pas la géolocalisation. Utilisez la recherche de ville.');return;}
+ const button=$('locate-me');if(button.disabled)return;button.disabled=true;button.setAttribute('aria-busy','true');closeMapMenus();locationMessage('Recherche de votre position…');
+ const sequence=communeSequence,finish=()=>{button.disabled=false;button.removeAttribute('aria-busy');};
+ navigator.geolocation.getCurrentPosition(position=>{finish();if(sequence!==communeSequence){locationMessage('Vous avez déplacé la carte entre-temps. Cliquez à nouveau sur « Ma position » pour vous recentrer.');return;}const {latitude,longitude,accuracy}=position.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>80){locationMessage('Cette position ne peut pas être affichée sur la carte.');return;}placeCity(latitude,longitude,10);locationMessage(accuracy>1000?'Position approximative : vous pouvez ajuster le placement sur la carte.':'');},error=>{finish();locationMessage(error.code===1?'Localisation refusée. Autorisez-la dans les réglages de votre navigateur, ou recherchez votre ville.':error.code===3?'La localisation prend trop de temps. Réessayez ou recherchez votre ville.':'Position indisponible. Vérifiez les services de localisation ou recherchez votre ville.');},{enableHighAccuracy:false,timeout:12000,maximumAge:60000});
+}
+$('locate-me').onclick=locateMe;
