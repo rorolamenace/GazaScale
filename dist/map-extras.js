@@ -64,13 +64,23 @@ $('sources').addEventListener('close',()=>sourceOpener?.focus({preventScroll:tru
 
 function closeMapMenus(){setMapPanel(null);$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');$('city-results').hidden=true;}
 map.on('dblclick',closeMapMenus);
-function locationMessage(message){$('location-status').hidden=!message;$('location-status').querySelector('span').textContent=message;}
+function locationMessage(message){if(!message)$('location-browser-link').hidden=true;$('location-status').hidden=!message;$('location-status').querySelector('span').textContent=message;}
 $('close-location-status').onclick=()=>locationMessage('');
 function locateMe(){
- if(!window.isSecureContext){locationMessage('La géolocalisation nécessite une connexion HTTPS.');return;}
- if(!navigator.geolocation){locationMessage('Ce navigateur ne propose pas la géolocalisation. Utilisez la recherche de ville.');return;}
- const button=$('locate-me');if(button.disabled)return;button.disabled=true;button.setAttribute('aria-busy','true');closeMapMenus();locationMessage('Recherche de votre position…');
- const sequence=communeSequence,finish=()=>{button.disabled=false;button.removeAttribute('aria-busy');};
- navigator.geolocation.getCurrentPosition(position=>{finish();if(sequence!==communeSequence){locationMessage('Vous avez déplacé la carte entre-temps. Cliquez à nouveau sur « Ma position » pour vous recentrer.');return;}const {latitude,longitude,accuracy}=position.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>80){locationMessage('Cette position ne peut pas être affichée sur la carte.');return;}placeCity(latitude,longitude,10);locationMessage(accuracy>1000?'Position approximative : vous pouvez ajuster le placement sur la carte.':'');},error=>{finish();locationMessage(error.code===1?'Localisation refusée. Autorisez-la dans les réglages de votre navigateur, ou recherchez votre ville.':error.code===3?'La localisation prend trop de temps. Réessayez ou recherchez votre ville.':'Position indisponible. Vérifiez les services de localisation ou recherchez votre ville.');},{enableHighAccuracy:false,timeout:12000,maximumAge:60000});
+ const button=$('locate-me');if(button.disabled)return;
+ $('location-browser-link').hidden=true;
+ const unavailable=message=>{locationMessage(message);$('location-browser-link').hidden=false;};
+ if(!window.isSecureContext){unavailable('La géolocalisation nécessite une connexion HTTPS.');return;}
+ if(!navigator.geolocation){unavailable('La localisation n’est pas disponible dans ce navigateur intégré. Ouvrez le site dans Chrome, Edge, Firefox ou Safari.');return;}
+ const policy=document.permissionsPolicy||document.featurePolicy;
+ if(policy?.allowsFeature&&!policy.allowsFeature('geolocation')){unavailable('La localisation est bloquée par le cadre d’intégration de cette page. Ouvrez le site directement dans votre navigateur.');return;}
+ button.disabled=true;button.setAttribute('aria-busy','true');closeMapMenus();locationMessage('Autorisez la localisation dans le navigateur. Recherche en cours…');
+ const origin=[...center];let done=false,attempt=0,watchdog;
+ const finish=()=>{done=true;clearTimeout(watchdog);button.disabled=false;button.removeAttribute('aria-busy');};
+ const success=position=>{if(done)return;finish();if(center[0]!==origin[0]||center[1]!==origin[1]){locationMessage('Le territoire a été déplacé pendant la recherche. Cliquez à nouveau sur « Ma position » pour vous recentrer.');return;}const {latitude,longitude,accuracy}=position.coords;if(!Number.isFinite(latitude)||!Number.isFinite(longitude)||Math.abs(latitude)>80||Math.abs(longitude)>180){locationMessage('Le navigateur a renvoyé une position non utilisable.');return;}placeCity(latitude,longitude,accuracy>5000?8:11);locationMessage(accuracy>1000?'Position approximative (précision annoncée : environ '+fmt(accuracy/1000,1)+' km). Ajustez le placement si nécessaire.':'Carte centrée sur votre position.');};
+ const failed=error=>{if(done)return;if(error.code!==1&&attempt===0){attempt=1;locationMessage('Première tentative sans résultat. Nouvelle recherche plus précise…');request(true);return;}finish();unavailable(error.code===1?'Localisation refusée ou bloquée. Vérifiez l’autorisation du site et le service de localisation de votre ordinateur.':'Le navigateur n’a pas fourni de position. Vérifiez le service de localisation de votre appareil, ou utilisez la recherche de ville.');};
+ const request=precise=>{try{navigator.geolocation.getCurrentPosition(success,failed,{enableHighAccuracy:precise,timeout:precise?20000:10000,maximumAge:precise?0:60000});}catch(error){finish();unavailable('Ce navigateur empêche l’accès à la localisation. Ouvrez le site directement dans un navigateur.');}};
+ watchdog=setTimeout(()=>{if(done)return;finish();unavailable('Aucune réponse du navigateur. Vérifiez la demande d’autorisation ou ouvrez le site dans votre navigateur habituel.');},35000);
+ request(false);
 }
 $('locate-me').onclick=locateMe;
