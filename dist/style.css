@@ -2436,6 +2436,19 @@ aside {
 .hero-title {
   margin-top: 0;
 }
+/* Scale under the zoom buttons, aligned with them. */
+.leaflet-bottom.leaflet-right .leaflet-control-scale {
+  margin-right: 24px !important;
+  margin-bottom: 6px !important;
+}
+.leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  margin-bottom: 10px !important;
+}
+@media (max-width: 650px) {
+  .leaflet-bottom.leaflet-right .leaflet-control-scale {
+    margin-right: 12px !important;
+  }
+}
 /* Copy-link buttons next to each section of the sources dialog. */
 .source-heading {
   display: flex;

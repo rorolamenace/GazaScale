@@ -13,7 +13,8 @@ let showLives=true,showInjuries=true;
 let representation='circle',showDamage=true,damageKind='affected';
 let center=[6.108,46.035],angle=0,level='communes',selected=null,currentFeature,hits=[],population=2226544;
 const map=L.map('map',{zoomControl:false,doubleClickZoom:false,tapHold:false,minZoom:2,maxZoom:17}).setView([45.905,6.108],9);
-L.control.zoom({position:'bottomright'}).addTo(map);L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
+// Bottom-right controls stack upwards in the order they are added: credits, scale, zoom, then the position button.
+L.control.scale({imperial:false,position:'bottomright',maxWidth:window.matchMedia('(max-width:650px)').matches?50:100}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);
 installBasemap(map);
 map.createPane('boundaries');map.getPane('boundaries').style.zIndex=490;map.getPane('boundaries').style.pointerEvents='none';
 map.createPane('human-impact');map.getPane('human-impact').style.pointerEvents='none';
