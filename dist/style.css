@@ -2153,43 +2153,34 @@ aside .micro a {
     max-height: 46%;
   }
 }
-/* Startup tip over the map. */
-.start-tip {
-  position: absolute;
-  z-index: 1100;
-  top: 76px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(380px, calc(100% - 32px));
-  padding: 16px 44px 16px 18px;
+/* Guided tour bubble and highlighted element. */
+.tour {
+  position: fixed;
+  z-index: 3000;
+  width: min(340px, calc(100vw - 24px));
+  padding: 16px 18px 14px;
   background: var(--ink);
   color: #fff;
   border-radius: 12px;
-  box-shadow: 0 10px 30px #20313a55;
+  box-shadow: 0 10px 30px #20313a66;
 }
-.start-tip::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  width: 16px;
-  height: 16px;
-  background: var(--ink);
-  transform: translateX(-50%) rotate(45deg);
+.tour[hidden] {
+  display: none;
 }
-.start-tip strong {
+.tour strong {
   display: block;
+  padding-right: 30px;
   font-family: Manrope, sans-serif;
   font-size: 16px;
   margin-bottom: 6px;
 }
-.start-tip p {
+.tour p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
   color: #dbe5e8;
 }
-.start-tip-close {
+.tour-close {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -2202,20 +2193,49 @@ aside .micro a {
   font-size: 24px;
   line-height: 1;
 }
-.start-tip-close:hover {
+.tour-close:hover {
   background: #ffffff1f;
 }
-@media (max-width: 950px) {
-  .start-tip {
-    top: 64px;
-    left: 12px;
-    right: calc(var(--tools-offset) + 4px);
-    width: auto;
-    transform: none;
-  }
-  .start-tip::after {
-    display: none;
-  }
+.tour-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.tour-actions:has(.tour-next[hidden]) {
+  display: none;
+}
+.tour-count {
+  margin-right: auto;
+  font-size: 12px;
+  color: #b9c7cc;
+}
+.tour-skip {
+  border: 0;
+  background: transparent;
+  color: #dbe5e8;
+  padding: 8px 10px;
+}
+.tour-skip:hover {
+  background: #ffffff1f;
+}
+.tour-next {
+  border: 0;
+  background: #e97a50;
+  color: #1c2f35;
+  font-weight: 700;
+  padding: 8px 14px;
+}
+.tour-next:hover {
+  background: #f29370;
+}
+.tour-target {
+  outline: 3px solid #e97a50 !important;
+  outline-offset: 3px;
+}
+#explanation-panel.tour-target,
+#comparison-panel.tour-target {
+  outline-offset: -3px;
 }
 /* Sidebar: surface on its own row, then destroyed and damaged buildings. */
 .linked-cards .surface-card {
@@ -2231,9 +2251,39 @@ aside .micro a {
 .damaged-card.is-off {
   opacity: 0.5;
 }
+/* Screen-reader-only text never adds height to the page. */
+.sr-label {
+  top: 0;
+  left: 0;
+  margin: 0;
+}
 /* The Gaza card now opens the sidebar. */
 .gaza-card {
   margin: 0 0 22px;
+}
+/* Injuries insert inside the lives-lost card. */
+.injuries-insert {
+  margin: 16px 0 4px;
+  padding: 12px 14px;
+  background: #fff9df;
+  border-left: 4px solid #c9a100;
+  border-radius: 8px;
+}
+.injuries-insert strong {
+  display: block;
+  font-family: Manrope, sans-serif;
+  font-size: 28px;
+  color: #6f5200;
+}
+.injuries-insert p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.injuries-insert .micro {
+  font-size: 12px;
+  color: var(--muted);
 }
 /* Missile pictogram in the bombing card. */
 .bombing-label {
