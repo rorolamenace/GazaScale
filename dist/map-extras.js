@@ -66,7 +66,17 @@ let sourceOpener=null;
 function openSource(id,opener){sourceOpener=opener;const dialog=$('sources');if(!dialog.open)dialog.showModal();const target=$(id);if(target){requestAnimationFrame(()=>{target.scrollIntoView({block:'start'});target.focus({preventScroll:true});});}}
 document.addEventListener('click',event=>{const link=event.target.closest('a[data-source]');if(!link)return;event.preventDefault();openSource(link.dataset.source==='lives-current'?(hypothesis?'source-hypothese':'source-vies'):link.dataset.source,link);});
 $('sources-button').onclick=()=>{sourceOpener=$('sources-button');$('sources').showModal();$('sources').scrollTop=0;};
-$('sources').addEventListener('close',()=>sourceOpener?.focus({preventScroll:true}));
+$('sources').addEventListener('close',()=>{sourceOpener?.focus({preventScroll:true});if(/^#source-/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);});
+// Each section of the sources dialog gets a shareable link that reopens it at that section.
+async function copyText(text){try{await navigator.clipboard.writeText(text);return true;}catch{const field=document.createElement('textarea');field.value=text;field.setAttribute('readonly','');field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();const ok=document.execCommand('copy');field.remove();return ok;}}
+const copyStatus=document.createElement('p');copyStatus.className='sr-label';copyStatus.setAttribute('role','status');$('sources').append(copyStatus);
+for(const heading of $('sources').querySelectorAll('h3[id^="source-"]')){
+ const wrap=document.createElement('div'),button=document.createElement('button');wrap.className='source-heading';heading.before(wrap);wrap.append(heading,button);
+ button.type='button';button.className='copy-link';button.textContent='Copier le lien';button.setAttribute('aria-label','Copier le lien vers « '+heading.textContent+' »');
+ button.onclick=async()=>{const url=location.origin+location.pathname+'#'+heading.id;const ok=await copyText(url);button.textContent=ok?'Lien copié':'Copie impossible';button.toggleAttribute('data-copied',ok);copyStatus.textContent=ok?'Lien copié : '+heading.textContent:'Copie impossible';clearTimeout(button.timer);button.timer=setTimeout(()=>{button.textContent='Copier le lien';button.removeAttribute('data-copied');},2500);};
+}
+function openSourceFromHash(){const id=decodeURIComponent(location.hash.slice(1));if(/^source-/.test(id)&&$(id))openSource(id,null);}
+window.addEventListener('hashchange',openSourceFromHash);openSourceFromHash();
 
 function closeMapMenus(){setMapPanel(null);$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');$('city-results').hidden=true;}
 map.on('dblclick',closeMapMenus);
