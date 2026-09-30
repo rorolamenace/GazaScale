@@ -26,8 +26,6 @@ jobs:
   image:
     needs: test
     runs-on: ubuntu-latest
-    env:
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Build
@@ -45,13 +43,6 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
           docker push "${IMAGE,,}:${GITHUB_SHA}"
           docker push "${IMAGE,,}:latest"
-      - name: Push to Docker Hub (rorolamenace/gazascale)
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && env.DOCKERHUB_TOKEN != ''
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run: |
-          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          for tag in "${GITHUB_SHA}" latest; do docker tag "${IMAGE,,}:latest" "rorolamenace/gazascale:$tag"; docker push "rorolamenace/gazascale:$tag"; done
 
   deploy:
     needs: image
@@ -67,5 +58,4 @@ jobs:
           ENV_NAME: ${{ vars.JELASTIC_ENV_NAME || 'gazascale' }}
           NODE_GROUP: ${{ vars.JELASTIC_NODE_GROUP || 'cp' }}
           TAG: ${{ github.sha }}
-          ALT_IMAGE: ${{ secrets.DOCKERHUB_TOKEN != '' && 'rorolamenace/gazascale' || '' }}
         run: IMAGE="${IMAGE,,}" deploy/jelastic.sh

@@ -2125,6 +2125,27 @@ aside .micro a {
 /* The comparison panel stays on the map: the wide-screen centring shift no longer applies. */
 .comparison {
   transform: none;
+  overflow-x: hidden;
+}
+.comparison .table-scroll {
+  overflow-x: auto;
+}
+@media (min-width: 651px) and (max-width: 950px) {
+  .comparison {
+    left: 12px;
+    right: auto;
+    width: 560px;
+    max-width: calc(100% - 90px);
+  }
+  .comparison .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: auto;
+  }
+  .comparison .segmented button {
+    padding: 6px 4px;
+    line-height: 1.2;
+  }
 }
 @media (min-width: 951px) {
   .comparison {

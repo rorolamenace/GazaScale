@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates the Jelastic environment on first run, then redeploys it with the given image tag.
 # Needs: JELASTIC_TOKEN, IMAGE (without tag), TAG. Optional: API_HOST, ENV_NAME, NODE_GROUP,
-# ALT_IMAGE (same image on Docker Hub). An environment that runs another image is redeployed with that image.
+# An environment that runs another image name is redeployed with that image and its current tag.
 set -euo pipefail
 : "${JELASTIC_TOKEN:?Secret JELASTIC_TOKEN_GAZASCALE manquant}" "${IMAGE:?}" "${TAG:?}"
 API="https://${API_HOST:-app.jpe.infomaniak.com}/1.0"
@@ -25,8 +25,6 @@ case "$(jq -r .result <<<"$info")" in
   echo "Groupes de nœuds : $(jq -rc '[.nodes[]? | {group:.nodeGroup,image:(.customitem.dockerName // null),tag:(.customitem.dockerTag // null)}]' <<<"$info")"
   current=$(jq -r --arg g "$NODE_GROUP" 'first(.nodes[]? | select(.nodeGroup==$g) | .customitem.dockerName) // empty' <<<"$info")
   if [ -z "$current" ];then echo "Aucun conteneur Docker dans le groupe $NODE_GROUP de $ENV_NAME (variable JELASTIC_NODE_GROUP)";exit 1;fi
-  # The environment may point at the Docker Hub copy of the image (ALT_IMAGE) instead of GHCR.
-  if [ -n "${ALT_IMAGE:-}" ] && [ "${current#docker.io/}" = "${ALT_IMAGE#docker.io/}" ];then IMAGE=$ALT_IMAGE;fi
   # The environment runs its own image (e.g. a private Docker Hub copy): redeploy it with its current tag.
   if [ "${current#docker.io/}" != "${IMAGE#docker.io/}" ];then
    IMAGE=$current;TAG=$(jq -r --arg g "$NODE_GROUP" 'first(.nodes[]? | select(.nodeGroup==$g) | .customitem.dockerTag) // "latest"' <<<"$info")
