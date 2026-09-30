@@ -53,18 +53,17 @@ window.refreshMapExtras();
 
 $('toggle-legend').onclick=()=>setMapPanel($('color-key').hidden?'color-key':null);
 // A click or tap outside an open map panel (and its button) closes it.
-document.addEventListener('pointerdown',e=>{const open=[['map-filters','toggle-filters'],['placement-panel','toggle-placement'],['color-key','toggle-legend'],['overseas-menu','toggle-overseas']].find(([id])=>!$(id).hidden);if(open&&!e.target.closest('#'+open[0]+',#'+open[1]))closeMapMenus();},true);
+document.addEventListener('pointerdown',e=>{const open=[['map-filters','toggle-filters'],['color-key','toggle-legend'],['overseas-menu','toggle-overseas']].find(([id])=>!$(id).hidden);if(open&&!e.target.closest('#'+open[0]+',#'+open[1]))closeMapMenus();},true);
 
-$('toggle-placement').onclick=()=>setMapPanel($('placement-panel').hidden?'placement-panel':null);
 function setSidebar(open){$('explanation-panel').hidden=!open;document.body.classList.toggle('sidebar-collapsed',!open);$('toggle-sidebar').setAttribute('aria-expanded',String(open));$('toggle-sidebar').setAttribute('aria-label',open?'Réduire le panneau explicatif':'Ouvrir le panneau explicatif');$('toggle-sidebar').title=open?'Réduire le panneau explicatif':'Chiffres clés et explications';$('toggle-sidebar').textContent=open?'‹':'›';map.invalidateSize();}
 $('toggle-sidebar').onclick=()=>setSidebar($('explanation-panel').hidden);
 const compact=()=>window.matchMedia('(max-width:650px)').matches;
 if(compact())setSidebar(false);
 
 // On small screens the drawer and the map panels share the same space: opening one closes the other.
-for(const id of ['toggle-filters','toggle-placement','toggle-overseas','toggle-legend'])$(id).addEventListener('click',()=>{if(compact()&&!$('explanation-panel').hidden)setSidebar(false);});
+for(const id of ['toggle-filters','toggle-overseas','toggle-legend'])$(id).addEventListener('click',()=>{if(compact()&&!$('explanation-panel').hidden)setSidebar(false);});
 $('toggle-sidebar').addEventListener('click',()=>{if(compact()&&!$('explanation-panel').hidden)closeMapMenus();});
-document.addEventListener('keydown',e=>{if(e.key!=='Escape'||$('sources').open)return;const open=[['city-results','search-city'],['overseas-menu','toggle-overseas'],['map-filters','toggle-filters'],['placement-panel','toggle-placement'],['color-key','toggle-legend']].find(([id])=>!$(id).hidden);if(!open)return;closeMapMenus();$(open[1]).focus();});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||$('sources').open)return;const open=[['city-results','search-city'],['overseas-menu','toggle-overseas'],['map-filters','toggle-filters'],['color-key','toggle-legend']].find(([id])=>!$(id).hidden);if(!open)return;closeMapMenus();$(open[1]).focus();});
 let sourceOpener=null;
 function openSource(id,opener){sourceOpener=opener;const dialog=$('sources');if(!dialog.open)dialog.showModal();const target=$(id);if(target){requestAnimationFrame(()=>{target.scrollIntoView({block:'start'});target.focus({preventScroll:true});});}}
 document.addEventListener('click',event=>{const link=event.target.closest('a[data-source]');if(!link)return;event.preventDefault();openSource(link.dataset.source==='lives-current'?(hypothesis?'source-hypothese':'source-vies'):link.dataset.source,link);});
@@ -103,3 +102,5 @@ function locateMe(){
  request(false);
 }
 $('locate-me').onclick=locateMe;
+// Like map apps: the position button sits right above the zoom buttons (bottom-right controls stack upwards).
+const locateControl=L.control({position:'bottomright'});locateControl.onAdd=()=>{const box=L.DomUtil.create('div','leaflet-bar locate-control');box.append($('locate-me'));L.DomEvent.disableClickPropagation(box);return box;};locateControl.addTo(map);

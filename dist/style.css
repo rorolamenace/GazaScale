@@ -2363,6 +2363,71 @@ aside .micro a {
     width: auto;
   }
 }
+/* Position button above the zoom buttons, as in map apps. */
+.leaflet-bar.locate-control {
+  margin-right: 24px !important;
+  margin-bottom: 10px !important;
+  border: 0 !important;
+  border-radius: 8px;
+  box-shadow: 0 3px 15px #0002 !important;
+}
+#locate-me {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #243b48;
+}
+#locate-me:hover {
+  background: #edf1f2;
+}
+@media (max-width: 650px) {
+  .leaflet-bar.locate-control {
+    margin-right: 12px !important;
+  }
+}
+#locate-me[aria-busy="true"] svg {
+  animation: calculation-spin 1.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  #locate-me[aria-busy="true"] svg {
+    animation: none;
+  }
+}
+/* Sources dialog: wider on large screens, full width on phones; round close button like the panel's. */
+dialog {
+  max-width: 960px;
+}
+#close-sources {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #445c68;
+  font-size: 28px;
+  line-height: 1;
+}
+#close-sources:hover {
+  background: #edf1f2;
+}
+@media (max-width: 650px) {
+  dialog {
+    width: calc(100% - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: 18px 18px 24px;
+  }
+  dialog h2 {
+    font-size: 22px;
+  }
+}
 /* Copy-link buttons next to each section of the sources dialog. */
 .source-heading {
   display: flex;
