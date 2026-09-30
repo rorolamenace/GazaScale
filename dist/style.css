@@ -2217,6 +2217,41 @@ aside .micro a {
     display: none;
   }
 }
+/* Sidebar: surface on its own row, then destroyed and damaged buildings. */
+.linked-cards .surface-card {
+  grid-column: 1 / -1;
+}
+.linked-cards:before {
+  display: none;
+}
+.damaged-key {
+  background: #c3c8ce;
+  border: 2px dashed #7b818a;
+}
+.damaged-card.is-off {
+  opacity: 0.5;
+}
+/* The Gaza card now opens the sidebar. */
+.gaza-card {
+  margin: 0 0 22px;
+}
+/* Missile pictogram in the bombing card. */
+.bombing-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.missile-icon {
+  flex: 0 0 22px;
+  color: #3d4a51;
+}
+/* Filters: damaged buildings depend on the destruction layer. */
+.damaged-toggle {
+  padding-left: 26px;
+}
+.damaged-toggle:has(input:disabled) {
+  opacity: 0.55;
+}
 /* Copy-link buttons next to each section of the sources dialog. */
 .source-heading {
   display: flex;
