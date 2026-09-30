@@ -2153,6 +2153,70 @@ aside .micro a {
     max-height: 46%;
   }
 }
+/* Startup tip over the map. */
+.start-tip {
+  position: absolute;
+  z-index: 1100;
+  top: 76px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(380px, calc(100% - 32px));
+  padding: 16px 44px 16px 18px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px #20313a55;
+}
+.start-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  width: 16px;
+  height: 16px;
+  background: var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+.start-tip strong {
+  display: block;
+  font-family: Manrope, sans-serif;
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+.start-tip p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #dbe5e8;
+}
+.start-tip-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+}
+.start-tip-close:hover {
+  background: #ffffff1f;
+}
+@media (max-width: 950px) {
+  .start-tip {
+    top: 64px;
+    left: 12px;
+    right: calc(var(--tools-offset) + 4px);
+    width: auto;
+    transform: none;
+  }
+  .start-tip::after {
+    display: none;
+  }
+}
 /* Copy-link buttons next to each section of the sources dialog. */
 .source-heading {
   display: flex;
@@ -2203,7 +2267,7 @@ aside .micro a {
     padding: 0;
     justify-content: center;
   }
-  .color-key {
+  .color-key:not(.collapsed) {
     z-index: 520;
   }
   .map-tools .tool-label {

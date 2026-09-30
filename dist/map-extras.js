@@ -101,3 +101,13 @@ function locateMe(){
  request(false);
 }
 $('locate-me').onclick=locateMe;
+// Startup tip: how to move Gaza, worded for mouse or touch; any click or tap outside closes it.
+(()=>{
+ const tip=$('start-tip');
+ if(window.matchMedia('(pointer: coarse)').matches)$('start-tip-text').textContent='Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.';
+ const close=()=>{if(tip.hidden)return;tip.hidden=true;document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',escape,true);};
+ const outside=e=>{if(!tip.contains(e.target))close();};
+ const escape=e=>{if(e.key==='Escape')close();};
+ $('start-tip-close').onclick=close;
+ document.addEventListener('pointerdown',outside,true);document.addEventListener('keydown',escape,true);
+})();
