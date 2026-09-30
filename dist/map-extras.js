@@ -104,3 +104,5 @@ function locateMe(){
 $('locate-me').onclick=locateMe;
 // Like map apps: the position button sits right above the zoom buttons (bottom-right controls stack upwards).
 const locateControl=L.control({position:'bottomright'});locateControl.onAdd=()=>{const box=L.DomUtil.create('div','leaflet-bar locate-control');box.append($('locate-me'));L.DomEvent.disableClickPropagation(box);return box;};locateControl.addTo(map);
+// Under the zoom buttons, next to the map credits: a link to how the site stores data.
+map.attributionControl.addAttribution('<a href="#source-cookies" data-source="source-cookies">Sans cookies</a>');

@@ -2398,9 +2398,10 @@ aside .micro a {
     animation: none;
   }
 }
-/* Sources dialog: wider on large screens, full width on phones; round close button like the panel's. */
+/* Sources dialog: 50px from each side on large screens, full width on phones; round close button like the panel's. */
 dialog {
-  max-width: 960px;
+  max-width: none;
+  width: calc(100% - 100px);
 }
 #close-sources {
   display: grid;
@@ -2427,6 +2428,13 @@ dialog {
   dialog h2 {
     font-size: 22px;
   }
+}
+/* The sidebar title sits right under the header line. */
+aside {
+  padding-top: 18px;
+}
+.hero-title {
+  margin-top: 0;
 }
 /* Copy-link buttons next to each section of the sources dialog. */
 .source-heading {
