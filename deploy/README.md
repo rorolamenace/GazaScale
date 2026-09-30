@@ -9,7 +9,7 @@ Le workflow `.github/workflows/deploy.yml` :
 1. lance les tests (`node --test tests/*.test.mjs`) ;
 2. construit l'image et vérifie qu'elle répond (page d'accueil, type des fichiers JS, page 404) ;
 3. la publie sur `ghcr.io/rorolamenace/gazascale`, avec deux étiquettes : le commit et `latest` ;
-4. lance `deploy/jelastic.sh` : crée l'environnement `gazascale` s'il n'existe pas (un conteneur Docker, 1 cloudlet réservé, 4 dynamiques), sinon le redéploie avec l'image du commit. Le script refuse de redéployer si le conteneur du groupe `cp` utilise une autre image.
+4. lance `deploy/jelastic.sh` : crée l'environnement `gazascale` s'il n'existe pas (un conteneur Docker, 1 cloudlet réservé, 4 dynamiques), sinon le redéploie avec l'image du commit. Si le conteneur du groupe `cp` utilise une autre image, le script s'arrête ; un lancement manuel du workflow avec `replace=true` remplace ce conteneur par celui de GazaScale, sans toucher au reste de l'environnement.
 
 Adresse Jelastic : https://gazascale.jcloud-ver-jpe.ik-server.com/
 

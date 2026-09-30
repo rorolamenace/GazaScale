@@ -6,8 +6,8 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      recreate:
-        description: Supprimer et recréer l'environnement Jelastic si son conteneur utilise une autre image
+      replace:
+        description: Remplacer le conteneur Jelastic s'il utilise une autre image
         type: boolean
         default: false
 
@@ -73,6 +73,5 @@ jobs:
           NODE_GROUP: ${{ vars.JELASTIC_NODE_GROUP || 'cp' }}
           TAG: ${{ github.sha }}
           ALT_IMAGE: ${{ secrets.DOCKERHUB_TOKEN != '' && 'rorolamenace/gazascale' || '' }}
-          RECREATE: ${{ inputs.recreate || false }}
-          JELASTIC_PASSWORD: ${{ secrets.JELASTIC_PASSWORD }}
+          REPLACE: ${{ inputs.replace || false }}
         run: IMAGE="${IMAGE,,}" deploy/jelastic.sh

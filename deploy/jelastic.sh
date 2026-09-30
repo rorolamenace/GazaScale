@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates the Jelastic environment on first run, then redeploys it with the given image tag.
 # Needs: JELASTIC_TOKEN, IMAGE (without tag), TAG. Optional: API_HOST, ENV_NAME, NODE_GROUP,
-# ALT_IMAGE (same image on Docker Hub), RECREATE=true to delete and recreate an environment whose container runs another image.
+# ALT_IMAGE (same image on Docker Hub), REPLACE=true to swap a container that runs another image.
 set -euo pipefail
 : "${JELASTIC_TOKEN:?Secret JELASTIC_TOKEN_GAZASCALE manquant}" "${IMAGE:?}" "${TAG:?}"
 API="https://${API_HOST:-app.jpe.infomaniak.com}/1.0"
@@ -19,22 +19,34 @@ create(){
  echo "Environnement créé : $ENV_NAME avec $IMAGE:$TAG"
 }
 
+add_node(){
+ response=$(call environment/control/rest/addnode --data-urlencode "envName=$ENV_NAME" --data-urlencode "nodeType=docker" \
+  --data-urlencode "nodeGroup=$NODE_GROUP" --data-urlencode "dockerName=$IMAGE" --data-urlencode "dockerTag=$TAG" \
+  --data-urlencode "fixedCloudlets=1" --data-urlencode "flexibleCloudlets=4" --data-urlencode "displayName=GazaScale")
+ check "$response" "Ajout du conteneur"
+ echo "Conteneur $IMAGE:$TAG ajouté au groupe $NODE_GROUP de $ENV_NAME"
+}
+
 info=$(call environment/control/rest/getenvinfo --data-urlencode "envName=$ENV_NAME")
 case "$(jq -r .result <<<"$info")" in
  0)
   echo "Groupes de nœuds : $(jq -rc '[.nodes[]? | {group:.nodeGroup,image:(.customitem.dockerName // null),tag:(.customitem.dockerTag // null)}]' <<<"$info")"
   current=$(jq -r --arg g "$NODE_GROUP" 'first(.nodes[]? | select(.nodeGroup==$g) | .customitem.dockerName) // empty' <<<"$info")
-  if [ -z "$current" ];then echo "Aucun conteneur Docker dans le groupe $NODE_GROUP de $ENV_NAME (variable JELASTIC_NODE_GROUP)";exit 1;fi
+  if [ -z "$current" ];then
+   if [ "${REPLACE:-}" = true ];then add_node;exit 0;fi
+   echo "Aucun conteneur Docker dans le groupe $NODE_GROUP de $ENV_NAME : relancez le workflow à la main avec replace=true";exit 1
+  fi
   # The environment may point at the Docker Hub copy of the image (ALT_IMAGE) instead of GHCR.
   if [ -n "${ALT_IMAGE:-}" ] && [ "${current#docker.io/}" = "${ALT_IMAGE#docker.io/}" ];then IMAGE=$ALT_IMAGE;fi
   if [ "${current#docker.io/}" != "${IMAGE#docker.io/}" ];then
-   if [ "${RECREATE:-}" != true ];then echo "Le groupe $NODE_GROUP utilise l'image $current, pas $IMAGE : relancez le workflow à la main avec recreate=true";exit 1;fi
-   extra=();[ -n "${JELASTIC_PASSWORD:-}" ] && extra=(--data-urlencode "password=$JELASTIC_PASSWORD")
-   response=$(call environment/control/rest/deleteenv --data-urlencode "envName=$ENV_NAME" "${extra[@]}")
-   check "$response" "Suppression"
-   echo "Environnement $ENV_NAME supprimé (image $current)"
-   for _ in $(seq 30);do [ "$(jq -r .result <<<"$(call environment/control/rest/getenvinfo --data-urlencode "envName=$ENV_NAME")")" = 11 ] && break;sleep 10;done
-   create;exit 0
+   if [ "${REPLACE:-}" != true ];then echo "Le groupe $NODE_GROUP utilise l'image $current, pas $IMAGE : relancez le workflow à la main avec replace=true";exit 1;fi
+   # Swap the container: remove the nodes of the group, then add one with the right image.
+   for id in $(jq -r --arg g "$NODE_GROUP" '.nodes[]? | select(.nodeGroup==$g) | .id' <<<"$info");do
+    response=$(call environment/control/rest/removenode --data-urlencode "envName=$ENV_NAME" --data-urlencode "nodeid=$id")
+    check "$response" "Suppression du nœud $id"
+    echo "Nœud $id ($current) supprimé"
+   done
+   add_node;exit 0
   fi
   response=$(call environment/control/rest/redeploycontainersbygroup \
    --data-urlencode "envName=$ENV_NAME" --data-urlencode "nodeGroup=$NODE_GROUP" \
