@@ -17,6 +17,7 @@ Adresse Jelastic : https://gazascale.jcloud-ver-jpe.ik-server.com/
 
 - Secret `JELASTIC_TOKEN_GAZASCALE` : jeton d'accès personnel Jelastic (tableau de bord Infomaniak Jelastic, Settings > Access Tokens), avec au minimum le droit `environment.control.RedeployContainersByGroup`.
 - Variables facultatives : `JELASTIC_API_HOST` (défaut `app.jpe.infomaniak.com`), `JELASTIC_ENV_NAME` (défaut `gazascale`), `JELASTIC_NODE_GROUP` (défaut `cp`).
+- Facultatif : secrets `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` (jeton d'accès Docker Hub, droit Read & Write). L'image est alors aussi publiée sous `rorolamenace/gazascale`, et un environnement Jelastic créé avec ce nom Docker Hub est redéployé normalement.
 - Le paquet `gazascale` sur GHCR doit être public, ou l'environnement Jelastic doit avoir des identifiants de registre pour le télécharger.
 
 ## Domaine

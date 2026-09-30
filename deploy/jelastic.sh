@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Creates the Jelastic environment on first run, then redeploys it with the given image tag.
 # Needs: JELASTIC_TOKEN, IMAGE (without tag), TAG. Optional: API_HOST, ENV_NAME, NODE_GROUP,
-# RECREATE=true to delete and recreate an environment whose container runs another image.
+# ALT_IMAGE (same image on Docker Hub), RECREATE=true to delete and recreate an environment whose container runs another image.
 set -euo pipefail
 : "${JELASTIC_TOKEN:?Secret JELASTIC_TOKEN_GAZASCALE manquant}" "${IMAGE:?}" "${TAG:?}"
 API="https://${API_HOST:-app.jpe.infomaniak.com}/1.0"
@@ -25,6 +25,8 @@ case "$(jq -r .result <<<"$info")" in
   echo "Groupes de nœuds : $(jq -rc '[.nodes[]? | {group:.nodeGroup,image:(.customitem.dockerName // null),tag:(.customitem.dockerTag // null)}]' <<<"$info")"
   current=$(jq -r --arg g "$NODE_GROUP" 'first(.nodes[]? | select(.nodeGroup==$g) | .customitem.dockerName) // empty' <<<"$info")
   if [ -z "$current" ];then echo "Aucun conteneur Docker dans le groupe $NODE_GROUP de $ENV_NAME (variable JELASTIC_NODE_GROUP)";exit 1;fi
+  # The environment may point at the Docker Hub copy of the image (ALT_IMAGE) instead of GHCR.
+  if [ -n "${ALT_IMAGE:-}" ] && [ "${current#docker.io/}" = "${ALT_IMAGE#docker.io/}" ];then IMAGE=$ALT_IMAGE;fi
   if [ "${current#docker.io/}" != "${IMAGE#docker.io/}" ];then
    if [ "${RECREATE:-}" != true ];then echo "Le groupe $NODE_GROUP utilise l'image $current, pas $IMAGE : relancez le workflow à la main avec recreate=true";exit 1;fi
    extra=();[ -n "${JELASTIC_PASSWORD:-}" ] && extra=(--data-urlencode "password=$JELASTIC_PASSWORD")
