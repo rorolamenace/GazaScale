@@ -27,7 +27,8 @@ case "$(jq -r .result <<<"$info")" in
   if [ -z "$current" ];then echo "Aucun conteneur Docker dans le groupe $NODE_GROUP de $ENV_NAME (variable JELASTIC_NODE_GROUP)";exit 1;fi
   if [ "${current#docker.io/}" != "${IMAGE#docker.io/}" ];then
    if [ "${RECREATE:-}" != true ];then echo "Le groupe $NODE_GROUP utilise l'image $current, pas $IMAGE : relancez le workflow à la main avec recreate=true";exit 1;fi
-   response=$(call environment/control/rest/deleteenv --data-urlencode "envName=$ENV_NAME" --data-urlencode "password=${JELASTIC_PASSWORD:-}")
+   extra=();[ -n "${JELASTIC_PASSWORD:-}" ] && extra=(--data-urlencode "password=$JELASTIC_PASSWORD")
+   response=$(call environment/control/rest/deleteenv --data-urlencode "envName=$ENV_NAME" "${extra[@]}")
    check "$response" "Suppression"
    echo "Environnement $ENV_NAME supprimé (image $current)"
    for _ in $(seq 30);do [ "$(jq -r .result <<<"$(call environment/control/rest/getenvinfo --data-urlencode "envName=$ENV_NAME")")" = 11 ] && break;sleep 10;done
