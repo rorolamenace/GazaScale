@@ -50,19 +50,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Redeploy the Jelastic environment (Infomaniak)
+      - uses: actions/checkout@v4
+      - name: Create or redeploy the Jelastic environment (Infomaniak)
         env:
-          TOKEN: ${{ secrets.JELASTIC_TOKEN_GAZASCALE }}
+          JELASTIC_TOKEN: ${{ secrets.JELASTIC_TOKEN_GAZASCALE }}
           API_HOST: ${{ vars.JELASTIC_API_HOST || 'app.jpe.infomaniak.com' }}
           ENV_NAME: ${{ vars.JELASTIC_ENV_NAME || 'gazascale' }}
           NODE_GROUP: ${{ vars.JELASTIC_NODE_GROUP || 'cp' }}
-        run: |
-          test -n "$TOKEN" || { echo "Secret JELASTIC_TOKEN_GAZASCALE manquant"; exit 1; }
-          response=$(curl -fsS "https://${API_HOST}/1.0/environment/control/rest/redeploycontainersbygroup" \
-            --data-urlencode "session=${TOKEN}" \
-            --data-urlencode "envName=${ENV_NAME}" \
-            --data-urlencode "nodeGroup=${NODE_GROUP}" \
-            --data-urlencode "tag=${GITHUB_SHA}" \
-            --data-urlencode "useExistingVolumes=true")
-          echo "$response" | grep -q '"result":0' || { echo "$response"; exit 1; }
-          echo "Déployé : ${ENV_NAME} avec l'image ${GITHUB_SHA}"
+          TAG: ${{ github.sha }}
+        run: IMAGE="${IMAGE,,}" deploy/jelastic.sh

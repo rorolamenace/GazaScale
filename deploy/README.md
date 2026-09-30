@@ -9,7 +9,9 @@ Le workflow `.github/workflows/deploy.yml` :
 1. lance les tests (`node --test tests/*.test.mjs`) ;
 2. construit l'image et vérifie qu'elle répond (page d'accueil, type des fichiers JS, page 404) ;
 3. la publie sur `ghcr.io/rorolamenace/gazascale`, avec deux étiquettes : le commit et `latest` ;
-4. redéploie l'environnement Jelastic avec l'image du commit.
+4. lance `deploy/jelastic.sh` : crée l'environnement `gazascale` s'il n'existe pas (un conteneur Docker, 1 cloudlet réservé, 4 dynamiques), sinon le redéploie avec l'image du commit. Le script refuse de redéployer si le conteneur du groupe `cp` utilise une autre image.
+
+Adresse Jelastic : https://gazascale.jcloud-ver-jpe.ik-server.com/
 
 À configurer une fois dans GitHub, onglet Settings du dépôt :
 
@@ -17,9 +19,9 @@ Le workflow `.github/workflows/deploy.yml` :
 - Variables facultatives : `JELASTIC_API_HOST` (défaut `app.jpe.infomaniak.com`), `JELASTIC_ENV_NAME` (défaut `gazascale`), `JELASTIC_NODE_GROUP` (défaut `cp`).
 - Le paquet `gazascale` sur GHCR doit être public, ou l'environnement Jelastic doit avoir des identifiants de registre pour le télécharger.
 
-## Première création de l'environnement
+## Domaine
 
-Dans le tableau de bord Jelastic : New Environment > Custom Container Images, image `ghcr.io/rorolamenace/gazascale:latest`, nom d'environnement `gazascale`. Le conteneur écoute sur le port 80. Rattacher ensuite le domaine `gazascale.org` et activer le certificat Let's Encrypt de Jelastic.
+Le conteneur écoute sur le port 80. Pour servir `gazascale.org`, rattacher le domaine à l'environnement dans Jelastic et activer le certificat Let's Encrypt.
 
 ## À la main
 
