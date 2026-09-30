@@ -217,7 +217,7 @@ function syncHypothesis(enabled){
  if(!enabled&&hypothesis)showInjuries=injuriesBeforeHypothesis;
  hypothesis=enabled;fatalities=enabled?680000:73922;if(enabled)showInjuries=false;
  injurySelection=null;injuredLayer.clearLayers();
- $('hypothesis-toggle').checked=enabled;$('show-injuries').disabled=enabled;$('show-injuries').checked=showInjuries;
+ $('hypothesis-toggle').checked=enabled;$('show-injuries').disabled=enabled||!showLives;$('show-injuries').checked=showInjuries;
  $('scenario-injuries-note').hidden=!enabled;$('injuries-insert').hidden=enabled;$('scenario-badge').hidden=!enabled;
  $('lives-count').textContent=fmt(fatalities);
  $('lives-description').textContent=enabled?'Hypothèse de vies perdues à Gaza · non confirmée':'vies palestiniennes perdues à Gaza · bilan rapporté au 23 septembre 2026';
@@ -225,10 +225,12 @@ function syncHypothesis(enabled){
  $('lives-source').href=enabled?'#source-hypothese':'#source-vies';
  $('lives-source').textContent=enabled?'Source de l’hypothèse · 15 septembre 2025':'Source et date du bilan';
 }
-$('hypothesis-toggle').onchange=e=>{syncHypothesis(e.target.checked);showLives=true;$('show-lives').checked=true;comparisonWanted=true;setLevel('communes');};
+$('hypothesis-toggle').onchange=e=>{syncHypothesis(e.target.checked);showLives=true;$('show-lives').checked=true;$('show-injuries').disabled=hypothesis;comparisonWanted=true;setLevel('communes');};
 $('show-injuries').onchange=e=>{showInjuries=e.target.checked;if(level!=='communes'&&showInjuries)setLevel('communes');else compare();};
-$('show-lives').onchange=e=>{showLives=e.target.checked;if(showLives)setLevel('communes');else renderComparison();};
-$('city').onchange=e=>go(e.target.value);$('reset').onclick=()=>{syncHypothesis(false);showInjuries=true;$('show-injuries').checked=true;showLives=true;$('show-lives').checked=true;angle=0;representation='circle';showDamage=true;damageKind='affected';updateRepresentation();$('city').value='geneve';go('geneve');};$('center').onclick=()=>{const p=map.getCenter();center=[p.lng,p.lat];draw();comparisonWanted=true;compare();};
+// Injuries start from the lives-lost communes: without lives, the injuries layer is off and its box disabled.
+let injuriesBeforeLivesOff=true;
+$('show-lives').onchange=e=>{showLives=e.target.checked;if(!showLives){injuriesBeforeLivesOff=showInjuries;showInjuries=false;}else if(!hypothesis)showInjuries=injuriesBeforeLivesOff;$('show-injuries').checked=showInjuries;$('show-injuries').disabled=hypothesis||!showLives;if(showLives)setLevel('communes');else renderComparison();};
+$('city').onchange=e=>go(e.target.value);$('reset').onclick=()=>{syncHypothesis(false);showInjuries=true;$('show-injuries').checked=true;showLives=true;$('show-lives').checked=true;$('show-injuries').disabled=false;angle=0;representation='circle';showDamage=true;damageKind='affected';updateRepresentation();$('city').value='geneve';go('geneve');};$('center').onclick=()=>{const p=map.getCenter();center=[p.lng,p.lat];draw();comparisonWanted=true;compare();};
 function setLevel(value){level=value;selected=null;clearTimeout(communeTimer);communeAbort?.abort();communeSequence++;$('commune').setAttribute('aria-pressed',level==='communes');$('dept').setAttribute('aria-pressed',level==='departements');$('region').setAttribute('aria-pressed',level==='regions');boundaryLayer.clearLayers();const boundaries=level==='communes'?data.departements:data[level];if(boundaries)boundaryLayer.addData(boundaries);compare();}
 $('commune').onclick=()=>setLevel('communes');$('dept').onclick=()=>setLevel('departements');$('region').onclick=()=>setLevel('regions');
 function setPeriod(){population=$('period').value==='2023'?2226544:2130000;$('gaza-pop').textContent=($('period').value==='2025'?'≈ ':'')+fmt(population);$('gaza-density').textContent=fmt(population/365);$('period-note').textContent=$('period').value==='2023'?'PCBS · estimation de mi-2023, avant octobre 2023.':'PCBS · estimation arrondie de fin 2025, pas un bilan définitif.';renderComparison();}

@@ -2304,8 +2304,12 @@ aside .micro a {
 .damaged-toggle {
   padding-left: 26px;
 }
-.damaged-toggle:has(input:disabled) {
+.damaged-toggle:has(input:disabled),
+.injuries-toggle:has(input:disabled) {
   opacity: 0.55;
+}
+.injuries-toggle {
+  padding-left: 26px;
 }
 /* Legend panel opened from the tools column, placed like the filters panel. */
 #color-key.legend-panel {
