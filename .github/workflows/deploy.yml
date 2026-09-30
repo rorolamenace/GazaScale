@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      recreate:
+        description: Supprimer et recréer l'environnement Jelastic si son conteneur utilise une autre image
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -58,4 +63,6 @@ jobs:
           ENV_NAME: ${{ vars.JELASTIC_ENV_NAME || 'gazascale' }}
           NODE_GROUP: ${{ vars.JELASTIC_NODE_GROUP || 'cp' }}
           TAG: ${{ github.sha }}
+          RECREATE: ${{ inputs.recreate || false }}
+          JELASTIC_PASSWORD: ${{ secrets.JELASTIC_PASSWORD }}
         run: IMAGE="${IMAGE,,}" deploy/jelastic.sh
