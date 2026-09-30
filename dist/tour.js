@@ -12,6 +12,8 @@
   {target:()=>$('toggle-placement'),title:'Placer Gaza',text:'Choisissez une ville dans la liste ou faites pivoter le contour.'},
   {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Passez de la forme réelle de Gaza à un cercle de même surface, 365 km².'},
   {target:()=>$('toggle-overseas'),title:'Outre-mer',text:'Placez Gaza en Guadeloupe, à La Réunion, en Nouvelle-Calédonie et dans les autres territoires.'},
+  {target:()=>$('toggle-legend'),title:'Légende',text:'Ce que signifient les couleurs : bleu pour Gaza, gris pour les bâtiments, rouge pour les vies perdues, jaune pour les blessés.'},
+  {target:()=>$('toggle-comparison'),title:'Territoires touchés',text:'Affiche ou masque le détail des communes, départements ou régions touchés par Gaza.'},
   {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez un nom ou un code postal pour y placer Gaza.'},
   {target:()=>$('comparison-panel'),title:'Les communes touchées',text:'L’équivalence en habitants des vies perdues et des blessés, commune par commune. Le rouge et le jaune ne situent pas les victimes.'},
   {target:()=>$('sources-button'),title:'Sources & méthode',text:'D’où viennent les chiffres, leurs dates et leurs limites. Chaque section a un lien à partager.'},

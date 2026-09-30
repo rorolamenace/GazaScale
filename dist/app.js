@@ -24,9 +24,9 @@ const injuredLayer=L.geoJSON(null,{pane:'human-impact',interactive:false}).addTo
 const shape=L.geoJSON(null,{style:{color:'#0072b2',weight:3.5,fillColor:'#56b4e9',fillOpacity:.08,className:'gaza-shape'}}).addTo(map);
 const damageShape=L.geoJSON(null,{style:{color:'#454b54',weight:3,opacity:.65,dashArray:'8 5',fillColor:'#7b818a',fillOpacity:.32},interactive:false}).addTo(map);
 const toolsControl=L.control({position:'topright'});toolsControl.onAdd=()=>{const node=$('map-tools');L.DomEvent.disableClickPropagation(node);L.DomEvent.disableScrollPropagation(node);return node;};toolsControl.addTo(map);
-function setMapPanel(which){if(which){$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');}for(const [id,button] of [['map-filters','toggle-filters'],['placement-panel','toggle-placement']]){const open=id===which;$(id).hidden=!open;$(button).setAttribute('aria-expanded',String(open));}}
+function setMapPanel(which){if(which){$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');}for(const [id,button] of [['map-filters','toggle-filters'],['placement-panel','toggle-placement'],['color-key','toggle-legend']]){const open=id===which;$(id).hidden=!open;$(button).setAttribute('aria-expanded',String(open));}}
 $('toggle-filters').onclick=()=>setMapPanel($('map-filters').hidden?'map-filters':null);
-for(const [id,button] of [['map-filters','toggle-filters'],['placement-panel','toggle-placement']])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();setMapPanel(null);$(button).focus();}});
+for(const [id,button] of [['map-filters','toggle-filters'],['placement-panel','toggle-placement'],['color-key','toggle-legend']])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();setMapPanel(null);$(button).focus();}});
 const injuries=174995;let nearbyCommunes=[],injurySelection=null;
 let fatalities=73922,hypothesis=false,injuriesBeforeHypothesis=true;
 const communeCache={...(window.DEPARTMENT_COMMUNE_SEEDS||{})};let communes=[],communeState='loading',communeTimer=null,communeAbort=null,communeSequence=0;
@@ -146,7 +146,7 @@ function renderInjuries(){
 
 let placementPaintTimer=null;
 let comparisonOpen=false,comparisonWanted=true,resultsReady=false,lastMoveCompare=0;
-function setComparisonOpen(open,focusButton=false){comparisonOpen=Boolean(open&&resultsReady);$('comparison-panel').hidden=!comparisonOpen;$('comparison-reopen').hidden=comparisonOpen||!resultsReady;$('comparison-reopen').setAttribute('aria-expanded',String(comparisonOpen));if(focusButton&&resultsReady)$('comparison-reopen').focus({preventScroll:true});}
+function setComparisonOpen(open,focusButton=false){comparisonOpen=Boolean(open&&resultsReady);$('comparison-panel').hidden=!comparisonOpen;$('toggle-comparison').disabled=!resultsReady;$('toggle-comparison').setAttribute('aria-expanded',String(comparisonOpen));if(focusButton&&resultsReady)$('toggle-comparison').focus({preventScroll:true});}
 function requestComparisonOpen(){comparisonWanted=true;setComparisonOpen(true);}
 function closeComparison(){comparisonWanted=false;setComparisonOpen(false,true);}
 function settleComparison(){
@@ -156,7 +156,7 @@ function settleComparison(){
 }
 function moved(){clearTimeout(placementPaintTimer);map.closePopup();comparisonWanted=false;resultsReady=false;clearTimeout(communeTimer);communeAbort?.abort();communeSequence++;setComparisonOpen(false);$('comparison-state').hidden=true;document.body.classList.add('gaza-dragging');}
 function placed(){document.body.classList.remove('gaza-dragging');comparisonWanted=true;const badge=$('comparison-state');badge.hidden=false;badge.classList.add('is-loading');badge.querySelector('span').textContent='Calcul des communes…';$('comparison-retry').hidden=true;$('map').setAttribute('aria-busy','true');const sequence=communeSequence;clearTimeout(placementPaintTimer);placementPaintTimer=setTimeout(()=>{if(sequence===communeSequence)compare();},50);}
-$('comparison-close').onclick=closeComparison;$('comparison-reopen').onclick=()=>{requestComparisonOpen();if(comparisonOpen)$('comparison-close').focus({preventScroll:true});};$('comparison-retry').onclick=()=>{comparisonWanted=true;compare();};$('comparison-panel').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeComparison();}});
+$('comparison-close').onclick=closeComparison;$('toggle-comparison').onclick=()=>{if(comparisonOpen)closeComparison();else{requestComparisonOpen();if(comparisonOpen)$('comparison-close').focus({preventScroll:true});}};$('comparison-retry').onclick=()=>{comparisonWanted=true;compare();};$('comparison-panel').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();closeComparison();}});
 const icon=(cls,text,size)=>L.divIcon({className:cls,html:text,iconSize:[size,size],iconAnchor:[size/2,size/2]});
 const anchor=L.marker([center[1],center[0]],{icon:icon('center-handle','<span class="grab-dot"></span>',36),interactive:false,title:'Gaza : flèches du clavier pour déplacer',zIndexOffset:1000}).addTo(map);
 const rotation=L.marker([center[1],center[0]],{icon:icon('rotate-handle','↻',27),draggable:true,title:'Faire pivoter Gaza',zIndexOffset:1000}).addTo(map);
