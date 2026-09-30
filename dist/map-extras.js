@@ -6,7 +6,8 @@ function impactSummary(){
  const injuriesRows=showInjuries?injurySelection?.selected||[]:[];
  const merged=new Map();
  for(const [kind,rows] of [['lives',lives],['injured',injuriesRows]])for(const row of rows){const code=row.feature.properties.code,item=merged.get(code)||{feature:row.feature,population:row.population,lives:0,injured:0};item[kind]=row.represented;merged.set(code,item);}
- return [...merged.values()].sort((a,b)=>(b.lives+b.injured)-(a.lives+a.injured)||b.lives-a.lives||a.feature.properties.nom.localeCompare(b.feature.properties.nom,'fr'));
+ // Lives lost first, in decreasing order, then injuries in decreasing order.
+ return [...merged.values()].sort((a,b)=>b.lives-a.lives||b.injured-a.injured||a.feature.properties.nom.localeCompare(b.feature.properties.nom,'fr'));
 }
 function communePopup(feature,latlng){
  const row=impactRows.find(r=>r.feature.properties.code===feature.properties.code),content=document.createElement('div');content.className='commune-popup';
@@ -28,7 +29,7 @@ window.refreshMapExtras=()=>{
  const summary=document.createElement('summary');summary.textContent=impactRows.length>1?'Détail des '+fmt(impactRows.length)+' communes retenues':'Détail de la commune retenue';section.append(summary);
  const scroll=document.createElement('div');scroll.className='table-scroll';const table=document.createElement('table');table.innerHTML='<thead><tr><th>Commune</th><th>Habitants</th><th class="text-lives">Vies perdues</th><th class="text-injuries">Blessés</th></tr></thead>';const tbody=document.createElement('tbody');
  for(const row of impactRows){const tr=document.createElement('tr'),name=document.createElement('td'),button=document.createElement('button');button.textContent=row.feature.properties.nom;button.onclick=()=>{const point=turf.pointOnFeature(row.feature).geometry.coordinates;communePopup(row.feature,[point[1],point[0]]);};name.append(button);tr.append(name);for(const key of ['population','lives','injured']){const td=document.createElement('td');td.textContent=fmt(row[key]);if(key!=='population'){td.className=key==='lives'?'text-lives':'text-injuries';const small=document.createElement('small');small.textContent=fmt(row[key]/row.population*100,1)+' %';td.append(small);}tr.append(td);}tbody.append(tr);}
- table.append(tbody);scroll.append(table);section.append(scroll);const note=document.createElement('p');note.className='group-note';note.textContent='Classement par nombre de personnes représentées (rouge + jaune). 100 % : toute la population de la commune est utilisée. Ce classement n’additionne pas les bilans des vies perdues et des blessés.';section.append(note);$('comparison-body').append(section);
+ table.append(tbody);scroll.append(table);section.append(scroll);const note=document.createElement('p');note.className='group-note';note.textContent='Classement : vies perdues d’abord, puis blessés, par nombre décroissant. 100 % : toute la population de la commune est utilisée. Les deux bilans ne sont pas additionnés.';section.append(note);$('comparison-body').append(section);
 };
 let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
