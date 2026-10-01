@@ -1,0 +1,19 @@
+name: Release v1.3.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.3.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.3.0 --repo "$GITHUB_REPOSITORY" \
+            --target 3d76d90c217ebfce22d4b56e9f07b4ab5ea630ce \
+            --title "GazaScale 1.3" --latest \
+            --notes "Menu latéral repensé : Bombardements, Vies perdues, Blessés puis Bande de Gaza. Les notes et sources de chaque vignette sont dans un accordéon « Source et détails », fermé par défaut. La vignette Bande de Gaza adopte le style des autres, au bleu du contour de la carte, et intègre les bâtiments détruits (≈ 50 %) et endommagés (≈ 31 %) dans une barre de répartition ; le bloc séparé « Surface et bâtiments » disparaît."
