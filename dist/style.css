@@ -2730,3 +2730,57 @@ aside {
     max-height: 56%;
   }
 }
+
+/* v1.3 · Card notes and sources fold into a closed accordion, so every theme shows at a glance. */
+.card-more {
+  margin-top: 12px;
+  border-top: 1px solid #0000001a;
+}
+.card-more summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.card-more summary::-webkit-details-marker {
+  display: none;
+}
+.card-more summary::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.15s;
+}
+.card-more[open] summary::after {
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+.card-more > :last-child {
+  margin-bottom: 0;
+}
+.bombing-card .card-more summary {
+  color: #385563;
+}
+.lives-card .card-more summary {
+  color: #9c1733;
+}
+.injuries-card .card-more summary {
+  color: #725300;
+}
+.card-more a.micro {
+  display: block;
+  margin-top: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-more summary::after {
+    transition: none;
+  }
+}
