@@ -1,0 +1,19 @@
+name: Release v1.2.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.2.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.2.0 --repo "$GITHUB_REPOSITORY" \
+            --target 859fe9787a980278f8d7b1c157d6ccacfe6642b1 \
+            --title "GazaScale 1.2" --latest \
+            --notes "Panneau « Victimes » : vies perdues et blessés côte à côte, liste des communes en accordéon, décompte dynamique des communes concernées sans doublon. Vue de départ avec le contour de Gaza ; les blessés couvrent d'abord les communes sous la forme. Bombardements en tête du menu latéral. Légende déplacée en bas, avec des symboles identiques à ceux de la carte. Panneau « Affichage » (anciennement Filtres) mieux hiérarchisé. Libellés de la population de référence clarifiés. Bouton « ? » pour relancer la visite guidée. Déploiement Jelastic rétabli."
