@@ -2924,3 +2924,8 @@ aside {
 .gaza-buildings:has(#damaged-card.is-off) .bld-bar .m {
   opacity: 0.3;
 }
+
+/* v1.3 · The rotation arrow is drawn, so it sits exactly in the middle of its circle. */
+.rotate-handle svg {
+  display: block;
+}
