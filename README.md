@@ -61,6 +61,14 @@ Les communes voisines se chargent après celles qui sont sous la forme : les vie
 
 Les 2 110 communes et 26 cantons de `dist/swiss.js` viennent de swissBOUNDARIES3D (© swisstopo, janvier 2026), avec les populations de l'OFS au 31 décembre 2024. Les géométries LV95 ont été converties en WGS84, simplifiées à 20 m et arrondies à six décimales. Les surfaces officielles sont converties d'hectares en km². Seuls les objets Commune du pays CH sont candidats ; leurs codes sont préfixés par `CH-` pour ne pas entrer en collision avec les codes INSEE. La frontière ne coupe pas la sélection : communes françaises et suisses sont classées ensemble.
 
+## Mesure d'audience
+
+Le site est mesuré avec [zstats](https://github.com/rorolamenace/ZStats), un outil sans cookie auto-hébergé sur `https://www.zstats.fr` (`data-site="gazascale.org"`). La politique de sécurité (`dist/index.html` et `deploy/nginx.conf`) autorise ce domaine dans `script-src` et `connect-src`.
+
+- Les boutons et liens sont suivis automatiquement ; les outils de la carte et les filtres portent un libellé `data-zstats`.
+- `app.js` signale deux actions sans bouton : « Gaza placée sur la carte » (double-clic ou appui long) et « Population de référence : 2023/2025 ».
+- La rubrique « Cookies et données » de « Sources & méthode » décrit ce qui est mesuré. Elle doit rester à jour si la mesure change.
+
 ## Sources et bibliothèques
 
 - [OpenFreeMap](https://openfreemap.org/) (style Liberty) et [OpenStreetMap](https://www.openstreetmap.org/copyright) : fond de carte, avec repli sur les tuiles OpenStreetMap si le fond vectoriel ne charge pas.

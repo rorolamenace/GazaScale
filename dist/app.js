@@ -201,7 +201,7 @@ function installMapPlacement(element,place){
  element.addEventListener('contextmenu',event=>{if(!excluded(event.target)&&Date.now()-lastTouch<1500)event.preventDefault();});
 }
 function placeAtPointer(event){
- const point=map.mouseEventToLatLng(event);moved();
+ window.zstats?.('Gaza placée sur la carte');const point=map.mouseEventToLatLng(event);moved();
  center=[point.lng,Math.max(-80,Math.min(80,point.lat))];
  draw();map.setView([center[1],center[0]],map.getZoom(),{animate:false});placed();
 }
@@ -238,7 +238,7 @@ function setPeriod(){population=$('period').value==='2023'?2226544:2130000;$('ga
 function updateRepresentation(){const isCircle=representation==='circle';$('toggle-shape').querySelector('.icon-gaza').toggleAttribute('hidden',!isCircle);$('toggle-shape').querySelector('.icon-circle').toggleAttribute('hidden',isCircle);$('toggle-shape').querySelector('.tool-label').textContent=isCircle?'Contour':'Cercle';$('toggle-shape').title=isCircle?'Afficher le contour de Gaza':'Afficher le cercle équivalent';$('show-damage').checked=showDamage;$('show-damaged').checked=damageKind==='affected';$('show-damaged').disabled=!showDamage;$('damage-panel').hidden=!showDamage;$('damaged-card').classList.toggle('is-off',damageKind!=='affected');draw();compare();}
 // Destroyed buildings, plus damaged ones when that box is ticked (UNOSAT 'affected' share).
 $('show-damaged').onchange=e=>{damageKind=e.target.checked?'affected':'destroyed';updateRepresentation();};$('show-damage').onchange=e=>{showDamage=e.target.checked;updateRepresentation();};
-$('period').onchange=setPeriod;$('close-sources').onclick=()=>$('sources').close();$('sources').onclick=e=>{if(e.target===$('sources')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}};
+$('period').onchange=()=>{setPeriod();window.zstats?.('Population de référence : '+$('period').value);};$('close-sources').onclick=()=>$('sources').close();$('sources').onclick=e=>{if(e.target===$('sources')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}};
 $('map').addEventListener('keydown',e=>{if(e.target!==$('map')&&e.target!==anchor.getElement())return;const changes={ArrowLeft:[-1000,0],ArrowRight:[1000,0],ArrowUp:[0,1000],ArrowDown:[0,-1000]};if(changes[e.key]){e.preventDefault();e.stopPropagation();center=GazaGeometry.inverse(changes[e.key],center);draw();comparisonWanted=true;compare();}},true);
 syncHypothesis(false);updateRepresentation();setPeriod();new ResizeObserver(()=>map.invalidateSize()).observe($('map'));
 window.atlas={place:(lat,lng,rotationAngle=0)=>{if(!Number.isFinite(lat)||!Number.isFinite(lng)||!Number.isFinite(rotationAngle)||lat<-80||lat>80||lng<-180||lng>180)throw new Error('Coordonnées invalides');center=[lng,lat];angle=(rotationAngle%360+360)%360;draw();comparisonWanted=true;compare();return {latitude:lat,longitude:lng,angle,areaKm2:turf.area(currentFeature)/1e6,territories:level==='communes'?communes.map(f=>f.properties.nom):hits.map(f=>f.properties.nom)};},read:()=>({center,angle,level,comparisonOpen,representation,showDamage,showLives,showInjuries,hypothesis,fatalities,damageKind,communeState,communeCount:communes.length,coveredPopulation:communes.every(f=>Number.isFinite(f.properties.population))?communes.reduce((s,f)=>s+f.properties.population,0):null,areaKm2:turf.area(currentFeature)/1e6,territories:level==='communes'?communes.map(f=>f.properties.nom):hits.map(f=>f.properties.nom)})};
