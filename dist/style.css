@@ -2541,3 +2541,192 @@ aside {
     line-height: 1.2;
   }
 }
+
+/* v1.2 · Bombardements open the sidebar, above the Gaza card. */
+.bombing-card {
+  margin: 0 0 22px;
+}
+
+/* v1.2 · Guided tour and legend buttons share the position button's style, in the bottom-right column. */
+.leaflet-bar.help-control,
+.leaflet-bar.legend-control {
+  margin-right: 24px !important;
+  margin-bottom: 10px !important;
+  border: 0 !important;
+  border-radius: 8px;
+  box-shadow: 0 3px 15px #0002 !important;
+}
+#help-tour,
+#toggle-legend {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #243b48;
+  font: 700 20px/1 Manrope, sans-serif;
+}
+#help-tour:hover,
+#toggle-legend:hover {
+  background: #edf1f2;
+}
+#toggle-legend[aria-expanded="true"] {
+  background: #eaf4fa;
+  color: var(--gaza);
+  box-shadow: inset 0 0 0 2px var(--gaza);
+}
+@media (max-width: 650px) {
+  .leaflet-bar.help-control,
+  .leaflet-bar.legend-control {
+    margin-right: 12px !important;
+  }
+}
+
+/* v1.2 · The legend opens next to its button, at the bottom of the map. */
+#color-key.legend-panel {
+  top: auto;
+  bottom: 46px;
+  right: 80px;
+  width: 330px;
+  max-height: calc(100% - 56px);
+}
+.legend-panel svg.key {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 16px;
+}
+@media (max-width: 650px) {
+  #color-key.legend-panel {
+    top: auto;
+    bottom: 24px;
+    left: 12px;
+    right: 66px;
+    width: auto;
+  }
+}
+
+/* v1.2 · Display panel: each sub-option sits right under its parent, slightly indented. */
+.shape-toolbar {
+  width: 330px;
+}
+.shape-toolbar .damage-toggle.sub-toggle {
+  margin: -12px 0 0 26px;
+  min-height: 36px;
+}
+.shape-toolbar .damage-toggle.lives-toggle {
+  margin-top: 6px;
+}
+.shape-toolbar .scenario-toggle {
+  margin-top: 10px;
+  padding-top: 16px;
+}
+@media (max-width: 650px) {
+  .shape-toolbar .damage-toggle.sub-toggle {
+    margin-left: 22px;
+  }
+}
+
+/* v1.2 · Victims panel: wider on desktop, lives and injuries side by side. */
+#territory-detail {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.victims-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-top: 12px;
+}
+.comparison .victims-grid .life-equivalence,
+.comparison .victims-grid .injury-equivalence {
+  margin: 0;
+  min-width: 0;
+}
+.injury-equivalence > span {
+  font-size: 13px;
+  color: #725300;
+}
+.comparison .injury-equivalence > strong {
+  display: block;
+  color: #725300;
+  font-size: 16px;
+  line-height: 1.35;
+  margin: 3px 0;
+}
+.victim-gap {
+  font-size: 12px;
+  margin: 4px 0;
+  color: #454b54;
+}
+.life-equivalence > small,
+.injury-equivalence > small {
+  display: block;
+}
+.victim-list {
+  margin-top: 8px;
+  border-top: 1px solid #0000001a;
+  padding-top: 6px;
+}
+.victim-list summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 0;
+  min-height: 32px;
+}
+.life-equivalence .victim-list summary {
+  color: #9c1733;
+}
+.injury-equivalence .victim-list summary {
+  color: #725300;
+}
+.victim-list ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  max-height: 180px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.victim-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  padding: 2px 0;
+  border-bottom: 1px solid #00000010;
+}
+.victim-list li button {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: #0003;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  min-width: 0;
+}
+.victim-list li span {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+@media (min-width: 951px) {
+  .comparison {
+    width: 940px;
+    max-width: calc(100% - 240px);
+    max-height: 56%;
+  }
+}

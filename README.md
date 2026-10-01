@@ -35,7 +35,7 @@ Le déploiement sur Jelastic (Infomaniak) est décrit dans `deploy/README.md`.
 
 ## Fonctionnement
 
-- À l'ouverture, Gaza est placée au sud de Genève, en mode cercle, avec les destructions visibles.
+- À l'ouverture, Gaza est placée au sud de Genève avec son contour réel, et les destructions visibles. Un bouton la remplace par un cercle de même surface.
 - Un double-clic sur la carte, ou un appui long sur mobile, place Gaza à cet endroit. Les flèches du clavier la déplacent d'un kilomètre. En mode contour, la poignée ronde la fait pivoter.
 - La surface reste exacte grâce à une projection azimutale équivalente ; la rotation se fait dans un plan local.
 - Le panneau de comparaison se ferme pendant un déplacement et se rouvre quand le calcul est prêt.
@@ -53,7 +53,7 @@ Le bilan humain est un instantané : 73 922 vies palestiniennes perdues au 23 se
 
 ## Blessés
 
-La même fiche OCHA rapporte 174 995 blessés. La couche jaune part de la population restante de la dernière commune utilisée pour les vies perdues, puis s'étend de commune voisine en commune voisine (tolérance de contact de 30 m), en privilégiant la proximité au centre. Les communes entièrement réservées aux vies perdues sont exclues. La recherche s'arrête à 40 km autour de Gaza ; un manque éventuel est affiché. Les deux bilans ne sont jamais additionnés, car rien ne garantit que les deux groupes soient distincts.
+La même fiche OCHA rapporte 174 995 blessés. La couche jaune part de la population restante de la dernière commune utilisée pour les vies perdues, couvre ensuite les autres communes touchées par la forme de Gaza, par proximité du centre, puis s'étend de commune voisine en commune voisine (tolérance de contact de 30 m). Les communes entièrement réservées aux vies perdues sont exclues. La recherche s'arrête à 40 km autour de Gaza ; un manque éventuel est affiché. Les deux bilans ne sont jamais additionnés, car rien ne garantit que les deux groupes soient distincts.
 
 Les communes voisines se chargent après celles qui sont sous la forme : les vies perdues s'affichent même si ce second chargement échoue, et un bouton permet de réessayer.
 

@@ -1,7 +1,7 @@
-/* Yellow equivalence grows through neighboring municipalities from the reserved communes. */
+/* Yellow equivalence first covers the communes under Gaza's outline, then grows through neighboring municipalities. */
 (function(root){
 function within(feature,footprint,turf){const parts=turf.flatten(feature).features,containers=turf.flatten(footprint).features;return parts.every(part=>containers.some(container=>turf.booleanWithin(part,container)));}
-function selectNeighbors(features,footprint,origin,target,excluded,turf){
+function selectNeighbors(features,footprint,origin,target,excluded,turf,covered=[]){
  const reservations=excluded.map(row=>row.feature?row:{feature:row,represented:row.properties.population});
  const reservedFeatures=reservations.map(row=>row.feature);
  const excludedCodes=new Set(reservedFeatures.map(f=>f.properties.code));
@@ -10,11 +10,13 @@ function selectNeighbors(features,footprint,origin,target,excluded,turf){
  const ranked=pool.map(f=>{f.bbox??=turf.bbox(f);f._comparisonPoint??=turf.pointOnFeature(f);return {feature:f,distance:turf.distance(point,f._comparisonPoint),available:false};}).sort((a,b)=>a.distance-b.distance||a.feature.properties.code.localeCompare(b.feature.properties.code));
  // A narrow tolerance accommodates independently simplified shared borders.
  function connect(feature){const expanded=feature._contact??=turf.buffer(feature,.03,{units:'kilometers',steps:2});if(!expanded)return;const bounds=turf.bbox(expanded);for(const row of ranked)if(!row.available&&!row.used&&overlap(row.feature.bbox,bounds)&&turf.booleanIntersects(row.feature,expanded))row.available=true;}
+ const coveredCodes=new Set(covered.map(f=>f.properties.code));for(const row of ranked)if(coveredCodes.has(row.feature.properties.code))row.available=row.inside=true;
  if(reservedFeatures.length){for(const f of reservedFeatures)connect(f);}else if(ranked.length){ranked[0].available=true;}
  let remaining=target;const selected=[];
  // Reuse the unrepresented population before expanding to adjacent towns.
  for(const row of reservations){const population=row.feature.properties.population,available=population-row.represented;if(remaining<=0||available<=0)continue;const represented=Math.min(remaining,available);selected.push({feature:row.feature,population,represented,fraction:represented/population,shared:true,livesRepresented:row.represented});remaining-=represented;}
- while(remaining>0){const next=ranked.find(row=>row.available&&!row.used);if(!next)break;next.used=true;const population=next.feature.properties.population,represented=Math.min(remaining,population);selected.push({feature:next.feature,population,represented,fraction:represented/population});remaining-=represented;if(remaining>0)connect(next.feature);}
+ // Communes under the outline come first, closest to the centre; only then do neighbors extend the area.
+ while(remaining>0){const next=ranked.find(row=>row.inside&&!row.used)??ranked.find(row=>row.available&&!row.used);if(!next)break;next.used=true;const population=next.feature.properties.population,represented=Math.min(remaining,population);selected.push({feature:next.feature,population,represented,fraction:represented/population});remaining-=represented;if(remaining>0)connect(next.feature);}
  return {selected,remaining,total:selected.reduce((sum,row)=>sum+row.population,0)};
 }
 root.GazaSelection.within=within;root.GazaSelection.selectNeighbors=selectNeighbors;

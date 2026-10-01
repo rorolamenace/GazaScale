@@ -18,18 +18,11 @@ function communePopup(feature,latlng){
  L.popup({maxWidth:window.matchMedia('(max-width:650px)').matches?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);
 }
 window.refreshMapExtras=()=>{
- $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage;
+ $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage;$('color-key').querySelector('.key-hatch').parentElement.hidden=!showLives||!showInjuries||level!=='communes';
  $('color-key').querySelector('.key-grey').parentElement.lastChild.textContent='≈ '+fmt(damageData[damageKind].ratio*100)+' % · '+(damageKind==='affected'?'bâtiments détruits ou endommagés*':'bâtiments détruits*');
  impactRows=[];if(level!=='communes'||communeState!=='ready')return;
  impactRows=impactSummary();
- // Replace overlapping lists with one sortable-by-size, non-duplicated table.
- $('comparison-body').querySelectorAll('.communes-details').forEach(n=>n.remove());
- if(!impactRows.length)return;
- const section=document.createElement('details');section.className='combined-communes';section.open=false;
- const summary=document.createElement('summary');summary.textContent=impactRows.length>1?'Détail des '+fmt(impactRows.length)+' communes retenues':'Détail de la commune retenue';section.append(summary);
- const scroll=document.createElement('div');scroll.className='table-scroll';const table=document.createElement('table');table.innerHTML='<thead><tr><th>Commune</th><th>Habitants</th><th class="text-lives">Vies perdues</th><th class="text-injuries">Blessés</th></tr></thead>';const tbody=document.createElement('tbody');
- for(const row of impactRows){const tr=document.createElement('tr'),name=document.createElement('td'),button=document.createElement('button');button.textContent=row.feature.properties.nom;button.onclick=()=>{const point=turf.pointOnFeature(row.feature).geometry.coordinates;communePopup(row.feature,[point[1],point[0]]);};name.append(button);tr.append(name);for(const key of ['population','lives','injured']){const td=document.createElement('td');td.textContent=fmt(row[key]);if(key!=='population'){td.className=key==='lives'?'text-lives':'text-injuries';const small=document.createElement('small');small.textContent=fmt(row[key]/row.population*100,1)+' %';td.append(small);}tr.append(td);}tbody.append(tr);}
- table.append(tbody);scroll.append(table);section.append(scroll);const note=document.createElement('p');note.className='group-note';note.textContent='Classement : vies perdues d’abord, puis blessés, par nombre décroissant. 100 % : toute la population de la commune est utilisée. Les deux bilans ne sont pas additionnés.';section.append(note);$('comparison-body').append(section);
+ // The commune lists live in the victims panel; these rows serve map clicks and popups.
 };
 let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
@@ -103,6 +96,8 @@ function locateMe(){
 }
 $('locate-me').onclick=locateMe;
 // Like map apps: the position button sits right above the zoom buttons (bottom-right controls stack upwards).
-const locateControl=L.control({position:'bottomright'});locateControl.onAdd=()=>{const box=L.DomUtil.create('div','leaflet-bar locate-control');box.append($('locate-me'));L.DomEvent.disableClickPropagation(box);return box;};locateControl.addTo(map);
+// From the bottom up: zoom, guided tour, position, legend.
+const barControl=(id,extra)=>{const control=L.control({position:'bottomright'});control.onAdd=()=>{const box=L.DomUtil.create('div','leaflet-bar '+extra);box.append($(id));L.DomEvent.disableClickPropagation(box);return box;};return control.addTo(map);};
+barControl('help-tour','help-control');barControl('locate-me','locate-control');barControl('toggle-legend','legend-control');
 // Under the zoom buttons, next to the map credits: a link to how the site stores data.
 map.attributionControl.addAttribution('<a href="#source-cookies" data-source="source-cookies">Sans cookies</a>');

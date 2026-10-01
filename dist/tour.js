@@ -6,15 +6,16 @@
  const move=touch?'Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.':'Double-cliquez sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.';
  const steps=[
   {title:'Déplacez Gaza où vous voulez',text:move},
-  {target:()=>compact()||$('explanation-panel').hidden?$('toggle-sidebar'):$('explanation-panel'),title:'Les chiffres clés',text:'Superficie, population, vies perdues, blessés et bâtiments détruits, chacun avec sa source et sa date.'},
-  {target:()=>$('toggle-filters'),title:'Filtres',text:'Affichez ou masquez les bâtiments détruits, les bâtiments endommagés, les vies perdues et les blessés. L’hypothèse de 680 000 vies perdues, non confirmée, s’active ici.'},
-  {target:()=>$('locate-me'),title:'Ma position',text:'Au-dessus du zoom : place Gaza là où vous êtes, si votre navigateur l’autorise.'},
-  {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Passez de la forme réelle de Gaza à un cercle de même surface, 365 km².'},
+  {target:()=>compact()||$('explanation-panel').hidden?$('toggle-sidebar'):$('explanation-panel'),title:'Les chiffres clés',text:'Bombardements, superficie, population, vies perdues, blessés et bâtiments détruits, chacun avec sa source et sa date.'},
+  {target:()=>$('toggle-filters'),title:'Affichage',text:'Choisissez ce que montre la carte : bâtiments détruits et endommagés, vies perdues et blessés. L’hypothèse de 680 000 vies perdues, non confirmée, s’active ici.'},
+  {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Gaza s’affiche avec son contour réel. Ce bouton la remplace par un cercle de même surface, 365 km², et inversement.'},
   {target:()=>$('toggle-overseas'),title:'Outre-mer',text:'Placez Gaza en Guadeloupe, à La Réunion, en Nouvelle-Calédonie et dans les autres territoires.'},
-  {target:()=>$('toggle-legend'),title:'Légende',text:'Ce que signifient les couleurs : bleu pour Gaza, gris pour les bâtiments, rouge pour les vies perdues, jaune pour les blessés.'},
-  {target:()=>$('toggle-comparison'),title:'Territoires touchés',text:'Affiche ou masque le détail des communes, départements ou régions touchés par Gaza.'},
+  {target:()=>$('toggle-comparison'),title:'Victimes',text:'Affiche ou masque le détail des vies perdues et des blessés, commune par commune.'},
   {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez un nom ou un code postal pour y placer Gaza.'},
-  {target:()=>$('comparison-panel'),title:'Les communes touchées',text:'L’équivalence en habitants des vies perdues et des blessés, commune par commune. Le rouge et le jaune ne situent pas les victimes.'},
+  {target:()=>$('comparison-panel'),title:'Les victimes, commune par commune',text:'À gauche les vies perdues, à droite les blessés, avec la liste des communes. Le rouge et le jaune ne situent pas les victimes.'},
+  {target:()=>$('locate-me'),title:'Ma position',text:'Place Gaza là où vous êtes, si votre navigateur l’autorise.'},
+  {target:()=>$('toggle-legend'),title:'Légende',text:'Ce que signifient les couleurs et les traits de la carte : Gaza, bâtiments, vies perdues, blessés.'},
+  {target:()=>$('help-tour'),title:'Revoir la visite',text:'Ce bouton relance cette visite à tout moment.'},
   {target:()=>$('sources-button'),title:'Sources & méthode',text:'D’où viennent les chiffres, leurs dates et leurs limites. Chaque section a un lien à partager.'},
  ];
  const visible=el=>el&&!el.hidden&&el.getClientRects().length>0&&el.getBoundingClientRect().width>0;
@@ -70,6 +71,6 @@
  window.addEventListener('resize',place);
  let seen=false;try{seen=localStorage.getItem(doneKey)==='1';}catch{}
  start(!seen);
- $('replay-tour')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setTimeout(()=>start(true),0);});
+ $('help-tour')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setTimeout(()=>start(true),0);});
  window.gazaTour={start};
 })();
