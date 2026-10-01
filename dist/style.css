@@ -2832,3 +2832,95 @@ aside {
 .gaza-card .card-more summary {
   color: #0b5c8c;
 }
+
+/* v1.3 · Buildings join the Gaza card: one bar for destroyed and damaged shares. */
+.gaza-card .circle-eq {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #3d6377;
+}
+.gaza-buildings[hidden] {
+  display: none;
+}
+.bld-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #3d6377;
+}
+.bld-title b {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0b4f7a;
+}
+.bld-bar {
+  display: flex;
+  height: 14px;
+  overflow: hidden;
+  border: 1px solid #9cc6df;
+  border-radius: 4px;
+  background: #fff;
+}
+.bld-bar i {
+  display: block;
+  height: 100%;
+}
+.bld-bar .d {
+  width: 50%;
+  background: #5b616a;
+}
+.bld-bar .m,
+.bld-rows .k.m {
+  background: repeating-linear-gradient(135deg, #a3a9b1 0 4px, #c7cbd1 4px 8px);
+}
+.bld-bar .m {
+  width: 31%;
+}
+.bld-rows {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+.bld-rows > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+.bld-rows p {
+  margin: 0;
+}
+.bld-rows .k {
+  flex: 0 0 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 3px;
+}
+.bld-rows .k.d {
+  background: #5b616a;
+}
+.bld-rows strong {
+  display: block;
+  font-family: Manrope, sans-serif;
+  font-size: 20px;
+  line-height: 1.1;
+  color: #0b4f7a;
+}
+.bld-rows span {
+  font-size: 12px;
+  line-height: 1.35;
+  color: #3d6377;
+}
+.bld-note {
+  margin: 9px 0 0;
+  font-size: 12px;
+  color: #3d6377;
+}
+/* Damaged buildings switched off in the display panel: their share fades out. */
+#damaged-card.is-off,
+.gaza-buildings:has(#damaged-card.is-off) .bld-bar .m {
+  opacity: 0.3;
+}
