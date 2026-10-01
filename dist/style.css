@@ -2784,3 +2784,51 @@ aside {
     transition: none;
   }
 }
+
+/* v1.3 · The Gaza card takes the same structure as the other cards, in the blue of the map outline. */
+.gaza-card {
+  background: #eef6fb;
+  color: var(--ink);
+  border: 1px solid #cfe3ef;
+  border-left: 3px solid var(--gaza);
+  border-radius: 9px;
+  padding: 18px;
+}
+.gaza-card .card-top > span:first-child {
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: #0b5c8c;
+}
+.gaza-card .dot {
+  background: var(--gaza);
+}
+.gaza-card .tag {
+  border-color: #9cc6df;
+  color: #0b5c8c;
+  background: #ffffff88;
+}
+.gaza-card .big,
+.gaza-card .stats strong {
+  color: #0b4f7a;
+}
+.gaza-card .big span,
+.gaza-card .hectares,
+.gaza-card label,
+.gaza-card .stats small {
+  color: #3d6377;
+}
+.gaza-card .line {
+  background: #cfe3ef;
+}
+.gaza-card select {
+  background: #fff;
+  border-color: #9cc6df;
+  color: var(--ink);
+}
+.gaza-card .micro {
+  color: var(--muted);
+}
+.gaza-card a.micro,
+.gaza-card .card-more summary {
+  color: #0b5c8c;
+}
