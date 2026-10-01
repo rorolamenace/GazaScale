@@ -1,0 +1,19 @@
+name: Release v1.2.1 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.2.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.2.1 --repo "$GITHUB_REPOSITORY" \
+            --target 23572ce1500f488547b5e18bffcfd8b4e8b70d82 \
+            --title "GazaScale 1.2.1" --latest \
+            --notes "Nouvelle image de partage : le contour de Gaza en bleu sur Chambéry, avec le calcul de la v1.2 (blessés d'abord sous le contour), une légende à l'opacité de la carte et un format 1200 × 560. Le reste du site est inchangé depuis la version 1.2."
