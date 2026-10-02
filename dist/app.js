@@ -1,7 +1,6 @@
 const $=id=>document.getElementById(id),fmt=(v,d=0)=>new Intl.NumberFormat(window.LANG==='en'?'en-GB':'fr-FR',{maximumFractionDigits:d}).format(v);
 const data=window.ATLAS_DATA,xy=GazaGeometry.prepare(data.gaza);
-const swiss=window.SWISS_DATA;for(const f of swiss.cantons.features){data.departements.features.push(f);data.stats.departements[f.properties.code]={population:f.properties.population,surface:f.properties.surface};}for(const f of swiss.communes.features)f.bbox=turf.bbox(f);
-// Italian provinces only say which file of comuni to load; the comuni come from it/<province>.json.
+const swiss=window.SWISS_DATA;for(const f of swiss.cantons.features){data.departements.features.push(f);data.stats.departements[f.properties.code]={population:f.properties.population,surface:f.properties.surface};}// Italian provinces only say which file of comuni to load; the comuni come from it/<province>.json.
 for(const f of [...(window.ITALY_DATA?.provinces.features||[]),...(window.EUROPE_DATA?.features||[]),...(window.MIDDLE_EAST_DATA?.regions.features||[])]){data.departements.features.push(f);data.stats.departements[f.properties.code]={population:f.properties.population,surface:f.properties.surface};}
 // Regions and overseas territories load on demand; the metropolitan data is enough to start.
 const homeBounds=turf.bbox(data.departements),overseasRegionCodes={'971':'01','972':'02','973':'03','974':'04','976':'06'};data.regions=null;
@@ -21,7 +20,7 @@ installBasemap(map);
 map.createPane('boundaries');map.getPane('boundaries').style.zIndex=490;map.getPane('boundaries').style.pointerEvents='none';
 map.createPane('human-impact');map.getPane('human-impact').style.pointerEvents='none';
 map.getPane('human-impact').style.zIndex='450';
-let boundaryLayer=L.geoJSON(data.departements,{pane:'boundaries',style:{color:'#596f7e',weight:1.5,opacity:.85,fillOpacity:0},interactive:false}).addTo(map);
+let boundaryLayer=L.geoJSON(data.departements,{filter:f=>!f.properties.loose,pane:'boundaries',style:{color:'#596f7e',weight:1.5,opacity:.85,fillOpacity:0},interactive:false}).addTo(map);
 let highlighted=L.geoJSON(null,{pane:'human-impact',style:{color:'#426779',weight:2,fillColor:'#93b7c9',fillOpacity:.13},interactive:false}).addTo(map);
 const injuredLayer=L.geoJSON(null,{pane:'human-impact',interactive:false}).addTo(map);
 const shape=L.geoJSON(null,{style:{color:'#0072b2',weight:3.5,fillColor:'#56b4e9',fillOpacity:.08,className:'gaza-shape'}}).addTo(map);
@@ -37,10 +36,10 @@ function bboxOverlap(a,b){return a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1];
 // A vertex inside the shape proves the intersection cheaply; only border cases need the full test.
 function firstVertex(f){f._vertex??=turf.point(turf.coordAll(f)[0]);return f._vertex;}
 function touches(f,shape){return turf.booleanPointInPolygon(firstVertex(f),shape)||turf.booleanIntersects(f,shape);}
-function communeGroup(shape,departments){const bounds=turf.bbox(shape),unique=new Map();for(const code of departments)for(const f of communeCache[code]||[]){f.bbox??=turf.bbox(f);if(bboxOverlap(f.bbox,bounds)&&touches(f,shape))unique.set(f.properties.code,f);}for(const f of swiss.communes.features)if(bboxOverlap(f.bbox,bounds)&&touches(f,shape))unique.set(f.properties.code,f);return [...unique.values()].sort((a,b)=>a.properties.nom.localeCompare(b.properties.nom,'fr'));}
+function communeGroup(shape,departments){const bounds=turf.bbox(shape),unique=new Map();for(const code of departments)for(const f of communeCache[code]||[]){f.bbox??=turf.bbox(f);if(bboxOverlap(f.bbox,bounds)&&touches(f,shape))unique.set(f.properties.code,f);}return [...unique.values()].sort((a,b)=>a.properties.nom.localeCompare(b.properties.nom,'fr'));}
 // Each department is cached as soon as it arrives, so a partial failure keeps the successful downloads.
-async function fetchDepartment(code,signal){const local={'IT-':'it/','EU-':'eu/','ME-':'me/'}[code.slice(0,3)];if(local){const response=await fetch(local+code.slice(3)+'.json',{signal});if(!response.ok)throw Error('Données indisponibles');const payload=await response.json();if(!Array.isArray(payload.features))throw Error('Réponse invalide');communeCache[code]=payload.features;return;}const query=new URLSearchParams({fields:'nom,code,population,surface',format:'geojson',geometry:'contour'});const response=await fetch('https://geo.api.gouv.fr/departements/'+encodeURIComponent(code)+'/communes?'+query,{signal});if(!response.ok)throw Error('API indisponible');const payload=await response.json();if(!Array.isArray(payload.features))throw Error('Réponse invalide');communeCache[code]=payload.features;}
-function touchedDepartments(shape){const bounds=turf.bbox(shape);return data.departements.features.filter(f=>f.properties.country!=='CH'&&bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,shape))).map(f=>f.properties.code);}
+async function fetchDepartment(code,signal){const local={'IT-':'it/','EU-':'eu/','ME-':'me/','CH-':'ch/'}[code.slice(0,3)];if(local){const response=await fetch(local+code.slice(3)+'.json',{signal});if(!response.ok)throw Error('Données indisponibles');const payload=await response.json();if(!Array.isArray(payload.features))throw Error('Réponse invalide');communeCache[code]=payload.features;return;}const query=new URLSearchParams({fields:'nom,code,population,surface',format:'geojson',geometry:'contour'});const response=await fetch('https://geo.api.gouv.fr/departements/'+encodeURIComponent(code)+'/communes?'+query,{signal});if(!response.ok)throw Error('API indisponible');const payload=await response.json();if(!Array.isArray(payload.features))throw Error('Réponse invalide');communeCache[code]=payload.features;}
+function touchedDepartments(shape){const bounds=turf.bbox(shape);return data.departements.features.filter(f=>bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,shape))).map(f=>f.properties.code);}
 let injuryState='ready';
 // Lives only need the communes under the shape; the 40 km ring for injuries may finish later or fail on its own.
 function requestCommune(){
@@ -77,7 +76,7 @@ function requestExpandedMortality(){
    for(const radius of [0,10,25,50,100,200,400,800,1600]){
     if(!current())return;
     const search=radius?turf.buffer(footprint,radius,{units:'kilometers'}):footprint,bounds=turf.bbox(search);
-    const departments=data.departements.features.filter(f=>f.properties.country!=='CH'&&bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,search))).map(f=>f.properties.code);
+    const departments=data.departements.features.filter(f=>bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,search))).map(f=>f.properties.code);
     const missing=departments.filter(code=>!communeCache[code]);
     // Limit concurrent downloads; never display an incomplete successful result.
     for(let i=0;i<missing.length;i+=4){
@@ -173,7 +172,7 @@ async function requestPopulationZone(){
   for(const radius of [0,20,40,60,90,130,180,250]){
    if(!current())return;
    const search=radius?turf.buffer(footprint,radius,{units:'kilometers'}):footprint,bounds=turf.bbox(search);
-   const departments=data.departements.features.filter(f=>f.properties.country!=='CH'&&bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,search))).map(f=>f.properties.code);
+   const departments=data.departements.features.filter(f=>bboxOverlap(f.bbox,bounds)&&(f.properties.loose||turf.booleanIntersects(f,search))).map(f=>f.properties.code);
    const missing=departments.filter(code=>!communeCache[code]);
    for(let i=0;i<missing.length;i+=4){if(!current())return;await Promise.all(missing.slice(i,i+4).map(code=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),25000);return fetchDepartment(code,controller.signal).finally(()=>clearTimeout(timer));}));}
    if(!current())return;
