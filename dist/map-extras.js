@@ -159,3 +159,21 @@ document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims()
 (()=>{if(compact())map.attributionControl.setPosition('bottomleft');const box=map.attributionControl.getContainer(),button=document.createElement('button');button.type='button';button.className='credits-toggle';button.textContent='i';button.setAttribute('aria-label',t('Crédits de la carte'));button.setAttribute('aria-expanded','false');
  // Leaflet rewrites the credits on each update: put the button back every time.
  const control=map.attributionControl,update=control._update;control._update=function(){update.call(this);this._container?.prepend(button);};control._update();L.DomEvent.disableClickPropagation(box);button.onclick=()=>{const open=box.classList.toggle('credits-open');button.setAttribute('aria-expanded',String(open));};})();
+
+// Switching language reloads the page: keep Gaza, the map view and the display choices across that reload.
+window.gazaSnapshot=()=>({center,angle,representation,view:map.getCenter(),zoom:map.getZoom(),period:$('period').value,
+ checks:Object.fromEntries(['show-damage','show-damaged','show-lives','show-injuries','hypothesis-toggle','show-population'].map(id=>[id,$(id).checked])),
+ panel:comparisonOpen||comparisonWanted,sidebar:!$('explanation-panel').hidden});
+(()=>{let saved=null;try{saved=JSON.parse(sessionStorage.getItem('gazascale-restore'));sessionStorage.removeItem('gazascale-restore');}catch{}
+ if(!saved||!Array.isArray(saved.center))return;
+ window.gazaRestored=true;
+ try{
+  for(const [id,on] of Object.entries(saved.checks||{})){const box=$(id);if(box&&box.checked!==on&&!box.disabled)box.click();}
+  if(saved.period&&$('period').value!==saved.period){$('period').value=saved.period;$('period').dispatchEvent(new Event('change'));}
+  if(saved.representation&&saved.representation!==representation)$('toggle-shape').click();
+  panelChoice=Boolean(saved.panel);atlas.place(saved.center[1],saved.center[0],saved.angle||0);
+  fitOnOpen=false;popFitPending=false;if(saved.panel)hintPending=false;
+  if(saved.view)map.setView(saved.view,saved.zoom,{animate:false});
+  if(!saved.sidebar&&!$('explanation-panel').hidden)setSidebar(false);
+ }catch(e){console.warn(e);}
+})();

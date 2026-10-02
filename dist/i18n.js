@@ -24,7 +24,7 @@
   if(lang==='en'){document.title=t(document.title);window.translatePage(document.body);}
   const button=document.getElementById('lang-toggle');
   if(button){button.textContent=lang==='en'?'FR':'EN';button.setAttribute('aria-label',lang==='en'?'Afficher le site en français':'Show the site in English');button.lang=lang==='en'?'fr':'en';
-   button.onclick=()=>{const next=lang==='en'?'fr':'en';try{localStorage.setItem('gazascale-lang',next);}catch{}const url=new URL(location.href);url.searchParams.set('lang',next);location.replace(url);};}
+   button.onclick=()=>{const next=lang==='en'?'fr':'en';try{localStorage.setItem('gazascale-lang',next);sessionStorage.setItem('gazascale-restore',JSON.stringify(window.gazaSnapshot?.()??null));}catch{}const url=new URL(location.href);url.searchParams.set('lang',next);location.replace(url);};}
  };
  // Loaded at the end of <body>, so the page is already there: translate it before the other scripts read it.
  apply();
