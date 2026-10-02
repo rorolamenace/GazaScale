@@ -1,0 +1,19 @@
+name: Release v1.8.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.8.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.8.0 --repo "$GITHUB_REPOSITORY" \
+            --target e7a9fccc71eab871a9efb787df4d77467f10f270 \
+            --title "GazaScale 1.8" --latest \
+            --notes "Toute l'Europe, Israël et la Cisjordanie. Europe : une trentaine de pays et 53 000 communes issues des unités administratives locales d'Eurostat GISCO (2024 ; 2023 pour l'Espagne et l'Albanie, 2021 pour la Serbie, édition 2020 en districts pour le Royaume-Uni), chargées par région NUTS 3. Israël et Cisjordanie : localités du CBS israélien (2024) et du recensement palestinien de 2017 (PCBS, via OCHA), avec des contours approchés autour de chaque localité ; le Golan et la bande de Gaza ne sont pas couverts. Recherche de ville dans tous ces pays. Le changement de langue garde désormais la position de Gaza, la vue et les options. Nouvelles sections dans Sources & méthode."
