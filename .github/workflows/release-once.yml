@@ -1,0 +1,19 @@
+name: Release v1.8.1 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.8.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.8.1 --repo "$GITHUB_REPOSITORY" \
+            --target 7c63d831b7cd3bd550e1941e0fb532c44e5756ea \
+            --title "GazaScale 1.8.1" --latest \
+            --notes "Chargement nettement plus rapide : 1,7 Mo au démarrage au lieu de 5,2 Mo, carte prête en 3,6 s au lieu de 10,4 s en 4G simulée. Contours des départements et des cantons simplifiés, communes suisses chargées par canton à la demande, régions européennes et italiennes réduites à leur emprise, liste de recherche chargée à la première recherche. Résultats inchangés."
