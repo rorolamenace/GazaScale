@@ -140,14 +140,14 @@ function victimCard(kind,label,figure,what){
  const lab=document.createElement('span'),mini=document.createElement('span'),chevron=document.createElement('i');lab.className='vcard-label';lab.textContent=label;mini.className='vcard-mini';mini.textContent=figure;chevron.className='vcard-chev';chevron.setAttribute('aria-hidden','true');top.append(lab,mini,chevron);
  const body=document.createElement('div'),big=document.createElement('strong');body.className='vcard-body';body.id=id;big.className='vcard-big';big.textContent=figure;body.append(big);cardText(body,'vcard-what',what);
  const set=open=>{top.setAttribute('aria-expanded',String(open));body.hidden=!open;card.classList.toggle('is-folded',!open);};set(cardOpen(kind));card.setOpen=set;card.dataset.kind=kind;
- top.onclick=()=>{const open=body.hidden;set(open);cardState[kind]=open;try{localStorage.setItem(cardKey,JSON.stringify(cardState));}catch{}window.zstats?.((open?'Ouvre':'Replie')+' : '+label);};
+ top.onclick=()=>{const open=body.hidden;set(open);cardState[kind]=open;try{localStorage.setItem(cardKey,JSON.stringify(cardState));}catch{}window.zstats?.((open?'Ouvre':'Replie')+' : '+({lives:'Vies perdues',injuries:'Blessés',population:'Population de Gaza'}[kind]||kind));};
  card.append(top,body);return {card,body};
 }
 function victimsGrid(){const grid=document.createElement('div');grid.className='victims-grid';refreshPopulationCard();return grid;}
 // Gaza's whole population, gathered from the nearest communes: the space it would take at local density.
 function populationCard(){
  const recent=population!==2226544,card=victimCard('population',t('Population de Gaza'),(recent?'≈ ':'')+fmt(population),recent?t('habitants · estimation fin 2025'):t('habitants · avant le 7 octobre 2023'));
- card.card.querySelector('.vcard-mini').textContent=(recent?'≈ ':'')+fmt(population/1e6,2)+' M';
+ card.card.querySelector('.vcard-mini').textContent=(recent?'≈ ':'')+fmt(population/1e6,2)+(window.LANG==='en'?'M':' M');
  const sub=cardText(card.body,'vcard-sub','');
  if(popState==='loading')sub.textContent=t('Recherche des communes qui réunissent cette population…');
  else if(popState==='outside')sub.textContent=t('Placez Gaza sur la France, la Suisse ou l’Italie pour voir l’espace qu’occupe sa population.');
