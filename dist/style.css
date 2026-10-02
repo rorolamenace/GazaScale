@@ -3613,3 +3613,18 @@ aside {
     display: none;
   }
 }
+
+/* Language switch next to Sources & method */
+#sources-button { margin-left: auto; }
+.lang-toggle {
+  margin-left: 8px;
+  min-width: 42px;
+  padding: 6px 11px;
+  border: 1px solid var(--line) !important;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+@media (max-width: 650px) {
+  .lang-toggle { margin-left: 4px; min-width: 38px; padding: 6px 9px; }
+}

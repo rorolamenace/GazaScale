@@ -3,7 +3,7 @@
 (function(){
  const $=id=>document.getElementById(id),doneKey='gazascale-tour-done';
  const touch=window.matchMedia('(pointer: coarse)').matches,compact=()=>window.matchMedia('(max-width:650px)').matches;
- const move=touch?'Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.':'Double-cliquez sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.';
+ const move=t(touch?'Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.':'Double-cliquez sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.');
  const steps=[
   {title:'Déplacez Gaza où vous voulez',text:move},
   {target:()=>$('explanation-panel').hidden?(compact()?$('welcome-bar'):$('toggle-sidebar')):$('explanation-panel'),title:'Les chiffres clés',text:'Bombardements, superficie, population, vies perdues, blessés et bâtiments détruits, chacun avec sa source et sa date.'},
@@ -24,7 +24,7 @@
  function build(){
   bubble=document.createElement('div');bubble.id='tour';bubble.className='tour';bubble.setAttribute('role','dialog');bubble.setAttribute('aria-labelledby','tour-title');bubble.setAttribute('aria-describedby','tour-text');
   bubble.innerHTML='<button type="button" class="tour-close" aria-label="Fermer la visite">×</button><strong id="tour-title"></strong><p id="tour-text"></p><div class="tour-actions"><span class="tour-count"></span><button type="button" class="tour-skip">Passer</button><button type="button" class="tour-next">Suivant</button></div>';
-  document.body.append(bubble);
+  document.body.append(bubble);window.translatePage?.(bubble);
   bubble.querySelector('.tour-close').onclick=end;bubble.querySelector('.tour-skip').onclick=end;
   bubble.querySelector('.tour-next').onclick=()=>show(index+1);
  }
@@ -47,10 +47,10 @@
   if(i>=active.length){end();return;}
   index=i;const step=active[i],el=step.target?.();
   if(step.target&&!visible(el)){active.splice(i,1);show(i);return;}
-  bubble.querySelector('#tour-title').textContent=step.title;bubble.querySelector('#tour-text').textContent=step.text;
+  bubble.querySelector('#tour-title').textContent=t(step.title);bubble.querySelector('#tour-text').textContent=t(step.text);
   const many=active.length>1;bubble.querySelector('.tour-count').textContent=many?(i+1)+' / '+active.length:'';
   bubble.querySelector('.tour-skip').hidden=!many||i===active.length-1;
-  const next=bubble.querySelector('.tour-next');next.hidden=!many;next.textContent=i===active.length-1?'Terminer':'Suivant';
+  const next=bubble.querySelector('.tour-next');next.hidden=!many;next.textContent=i===active.length-1?t('Terminer'):t('Suivant');
   if(el){highlighted=el;el.classList.add('tour-target');}
   bubble.hidden=false;place();(many?next:bubble.querySelector('.tour-close')).focus({preventScroll:true});
  }
