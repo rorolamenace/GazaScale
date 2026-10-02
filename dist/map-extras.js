@@ -50,10 +50,11 @@ $('toggle-legend').onclick=()=>setMapPanel($('color-key').hidden?'color-key':nul
 // A click or tap outside an open map panel (and its button) closes it.
 document.addEventListener('pointerdown',e=>{const open=[['map-filters','toggle-filters'],['color-key','toggle-legend'],['overseas-menu','toggle-overseas']].find(([id])=>!$(id).hidden);if(open&&!e.target.closest('#'+open[0]+',#'+open[1]))closeMapMenus();},true);
 
-function setSidebar(open){$('explanation-panel').hidden=!open;document.body.classList.toggle('sidebar-collapsed',!open);$('toggle-sidebar').setAttribute('aria-expanded',String(open));$('toggle-sidebar').setAttribute('aria-label',open?'Réduire le panneau explicatif':'Ouvrir le panneau explicatif');$('toggle-sidebar').title=open?'Réduire le panneau explicatif':'Chiffres clés et explications';$('toggle-sidebar').textContent=open?'‹':'›';map.invalidateSize();}
+function setSidebar(open){$('explanation-panel').hidden=!open;if(open)$('explanation-panel').classList.replace('sheet-full','sheet-half')||$('explanation-panel').classList.add('sheet-half');$('explanation-panel').scrollTop=0;$('welcome-bar').setAttribute('aria-expanded',String(open));document.body.classList.toggle('sidebar-collapsed',!open);$('toggle-sidebar').setAttribute('aria-expanded',String(open));$('toggle-sidebar').setAttribute('aria-label',open?'Réduire le panneau explicatif':'Ouvrir le panneau explicatif');$('toggle-sidebar').title=open?'Réduire le panneau explicatif':'Chiffres clés et explications';$('toggle-sidebar').textContent=open?'‹':'›';map.invalidateSize();}
 $('toggle-sidebar').onclick=()=>setSidebar($('explanation-panel').hidden);
 const compact=()=>window.matchMedia('(max-width:650px)').matches;
-if(compact())setSidebar(false);
+// On a phone the key figures open as a half-screen welcome sheet over the map.
+if(compact())document.getElementById('explanation-panel').classList.add('sheet-half');
 
 // On small screens the drawer and the map panels share the same space: opening one closes the other.
 for(const id of ['toggle-filters','toggle-overseas','toggle-legend'])$(id).addEventListener('click',()=>{if(compact()&&!$('explanation-panel').hidden)setSidebar(false);});
@@ -105,13 +106,8 @@ barControl('help-tour','help-control');barControl('locate-me','locate-control');
 map.attributionControl.addAttribution('<a href="#source-cookies" data-source="source-cookies">Sans cookies</a>');
 
 // On a phone the victims panel is a bottom sheet: map buttons line up just above it (pinch replaces the zoom buttons), and step aside only if the sheet leaves no room.
-const sheetObserver=new ResizeObserver(()=>{
- const panel=$('comparison-panel'),workspace=document.querySelector('.workspace'),stack=document.querySelector('.leaflet-bottom.leaflet-right'),height=window.matchMedia('(max-width:950px)').matches&&!panel.hidden?panel.offsetHeight:0;
- workspace.style.setProperty('--sheet-h',height+'px');workspace.classList.toggle('sheet-open',height>0);workspace.classList.remove('sheet-full');
- if(!height)return;
- const room=workspace.offsetHeight-height-($('map-tools').getBoundingClientRect().bottom-workspace.getBoundingClientRect().top)-8;
- workspace.classList.toggle('sheet-full',stack.offsetHeight>room);
-});
+// Bottom sheets simply cover the bottom map buttons; the page only records which sheet is up.
+const sheetObserver=new ResizeObserver(()=>{document.body.classList.toggle('victims-open',!$('comparison-panel').hidden);});
 sheetObserver.observe($('comparison-panel'));sheetObserver.observe(document.querySelector('.workspace'));
 
 const sheetMode=()=>window.matchMedia('(max-width:950px)').matches;
@@ -144,3 +140,21 @@ window.callVictims=()=>{
 document.addEventListener('pointerdown',e=>{if($('victims-hint')&&!e.target.closest('#victims-hint,#toggle-comparison'))hideVictimsHint();},true);
 window.addEventListener('resize',hideVictimsHint);
 document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims(),300));
+
+// Welcome sheet (phone): half screen first, swipe up to read everything, swipe down or tap the map to fold it into a bar.
+(()=>{const sheet=$('explanation-panel');let swipe=null;
+ const setFull=full=>{sheet.classList.toggle('sheet-full',full);sheet.classList.toggle('sheet-half',!full);sheet.scrollTop=0;};
+ $('welcome-bar').onclick=()=>$('toggle-sidebar').click();
+ $('welcome-more').onclick=()=>setFull(true);
+ sheet.addEventListener('touchstart',e=>{swipe=compact()&&e.touches.length===1&&sheet.scrollTop<=0?{y:e.touches[0].clientY,dy:0}:null;},{passive:true});
+ sheet.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=e.touches[0].clientY-swipe.y;if(swipe.dy>0)sheet.style.transform='translateY('+swipe.dy+'px)';},{passive:true});
+ const end=()=>{if(!swipe)return;const dy=swipe.dy;swipe=null;sheet.style.transform='';
+  if(dy<-50&&sheet.classList.contains('sheet-half'))setFull(true);
+  else if(dy>70){if(sheet.classList.contains('sheet-full'))setFull(false);else $('toggle-sidebar').click();}};
+ sheet.addEventListener('touchend',end);sheet.addEventListener('touchcancel',end);
+ map.on('click',()=>{if(compact()&&!sheet.hidden)$('toggle-sidebar').click();});
+})();
+// Map credits fold into an "i" on a phone and stay at the very bottom.
+(()=>{if(compact())map.attributionControl.setPosition('bottomleft');const box=map.attributionControl.getContainer(),button=document.createElement('button');button.type='button';button.className='credits-toggle';button.textContent='i';button.setAttribute('aria-label','Crédits de la carte');button.setAttribute('aria-expanded','false');
+ // Leaflet rewrites the credits on each update: put the button back every time.
+ const control=map.attributionControl,update=control._update;control._update=function(){update.call(this);this._container?.prepend(button);};control._update();L.DomEvent.disableClickPropagation(box);button.onclick=()=>{const open=box.classList.toggle('credits-open');button.setAttribute('aria-expanded',String(open));};})();

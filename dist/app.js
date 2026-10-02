@@ -158,7 +158,7 @@ function refreshPopulationCard(){$('population-slot').replaceChildren(...(showPo
 let showPopulation=true,popZone=null,popState='idle',popSequence=0,popKey='',popFitPending=true;
 map.createPane('population');map.getPane('population').style.zIndex=390;map.getPane('population').style.pointerEvents='none';
 const populationLayer=L.geoJSON(null,{pane:'population',interactive:false}).addTo(map);
-function populationPadding(){const panel=$('comparison-panel'),compactView=window.matchMedia('(max-width:950px)').matches,open=!panel.hidden;return compactView?{paddingTopLeft:[12,70],paddingBottomRight:[60,Math.min(Math.max(open?panel.offsetHeight:0,map.getSize().y*.4),map.getSize().y*.6)+12]}:{paddingTopLeft:[Math.min(open?panel.offsetWidth+32:24,map.getSize().x*.45),70],paddingBottomRight:[Math.min(150,map.getSize().x*.15),30]};}
+function populationPadding(){const panel=$('comparison-panel'),welcome=$('explanation-panel'),compactView=window.matchMedia('(max-width:950px)').matches,open=!panel.hidden,sheet=Math.max(open?panel.offsetHeight:0,window.matchMedia('(max-width:650px)').matches&&!welcome.hidden?welcome.offsetHeight:0);return compactView?{paddingTopLeft:[12,70],paddingBottomRight:[24,Math.min(Math.max(sheet,map.getSize().y*.3),map.getSize().y*.6)+12]}:{paddingTopLeft:[Math.min(open?panel.offsetWidth+32:24,map.getSize().x*.45),70],paddingBottomRight:[Math.min(150,map.getSize().x*.15),30]};}
 function fitPopulation(){if(!popZone?.count)return;const bounds=populationLayer.getBounds();if(bounds.isValid())map.fitBounds(bounds,{...populationPadding(),maxZoom:12});}
 // Same rule as for lives lost: nearest communes first, cumulated until the population is reached.
 async function requestPopulationZone(){

@@ -3184,51 +3184,6 @@ aside {
   .vcard-big {
     font-size: 30px;
   }
-  /* Map buttons line up just above the sheet; pinch replaces the zoom buttons there. */
-  .workspace .leaflet-bottom {
-    bottom: var(--sheet-h, 0px);
-  }
-  .workspace.sheet-open .leaflet-bottom.leaflet-right {
-    display: flex;
-    flex-wrap: wrap-reverse;
-    justify-content: flex-end;
-    align-items: flex-end;
-    max-width: 100%;
-  }
-  .workspace.sheet-open .leaflet-bottom.leaflet-right .leaflet-control {
-    float: none;
-    clear: none;
-    margin: 0 8px 6px 0 !important;
-  }
-  .workspace.sheet-open .leaflet-control-attribution {
-    order: 0;
-    flex-basis: 100%;
-    margin: 0 !important;
-    text-align: right;
-  }
-  .workspace.sheet-open .legend-control {
-    order: 1;
-  }
-  .workspace.sheet-open .locate-control {
-    order: 2;
-  }
-  .workspace.sheet-open .help-control {
-    order: 3;
-    margin-right: 12px !important;
-  }
-  .workspace.sheet-open .leaflet-control-zoom,
-  .workspace.sheet-open .leaflet-control-scale {
-    display: none;
-  }
-  .workspace.sheet-full .leaflet-bottom.leaflet-right .leaflet-bar {
-    display: none;
-  }
-}
-@media (max-width: 950px) {
-  .workspace.sheet-open #color-key.legend-panel {
-    bottom: calc(var(--sheet-h, 0px) + 60px);
-    max-height: calc(100% - var(--sheet-h, 0px) - 130px);
-  }
 }
 
 /* v1.5 · Population of Gaza on top, then one "victims" block holding the lives-lost and injuries cards. */
@@ -3350,25 +3305,240 @@ aside {
     transition: transform 0.2s ease-out;
   }
 }
+
+/* v1.6 · Bottom sheets cover the bottom map buttons instead of pushing them up. */
+@media (max-width: 950px) {
+  #comparison-panel.comparison {
+    z-index: 1100;
+  }
+}
+#welcome-bar,
+#welcome-more,
+.credits-toggle {
+  display: none;
+}
 @media (max-width: 650px) {
-  /* The explanation drawer covers the whole map, its close chevron beside the title. */
+  /* The key figures become a welcome sheet: half the screen, then the whole of it, folded into a bar otherwise. */
+  #toggle-sidebar {
+    display: none !important;
+  }
   #explanation-panel {
+    position: absolute;
+    z-index: 1150;
+    top: auto;
+    bottom: 0;
+    left: 0;
     width: 100%;
     max-height: none;
-    bottom: 0;
-    padding-top: 22px;
-    z-index: 1200;
+    padding: 22px 12px 0;
+    background: #f5f7f7;
+    border-right: 0;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 22px #20313a33;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 8px;
+    align-content: start;
+    transition: transform 0.2s ease-out, height 0.2s ease-out;
+  }
+  #explanation-panel[hidden] {
+    display: none;
   }
   body:not(.sidebar-collapsed) #explanation-panel {
     padding-top: 22px;
   }
-  #explanation-panel .hero-title {
-    padding-right: 52px;
+  #explanation-panel::before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #b9c3c7;
   }
-  body:not(.sidebar-collapsed) #toggle-sidebar {
-    left: auto;
-    right: 14px;
-    top: 18px;
-    z-index: 1210;
+  #explanation-panel.sheet-half {
+    height: 50%;
+    overflow: hidden;
+  }
+  #explanation-panel.sheet-full {
+    height: 88%;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 16px;
+  }
+  #explanation-panel > * {
+    grid-column: 1 / -1;
+  }
+  #explanation-panel > .lives-card {
+    grid-column: 1;
+  }
+  #explanation-panel > .injuries-card {
+    grid-column: 2;
+  }
+  #explanation-panel .hero-title {
+    margin: 0 4px 2px;
+    font-size: 20px;
+    line-height: 1.2;
+  }
+  #explanation-panel .hero-title br {
+    display: none;
+  }
+  #explanation-panel .intro {
+    margin: 0 4px 10px;
+    font-size: 12.5px;
+    line-height: 1.4;
+  }
+  #explanation-panel .bombing-card,
+  #explanation-panel .lives-card,
+  #explanation-panel .injuries-card,
+  #explanation-panel .gaza-card {
+    margin: 0 0 8px;
+    padding: 11px 12px;
+    border-radius: 10px;
+  }
+  #explanation-panel .bombing-total {
+    font-size: 24px;
+  }
+  #explanation-panel .hiroshima-stat {
+    margin: 4px 0 0;
+  }
+  #explanation-panel .lives-card > strong,
+  #explanation-panel .injuries-card > strong {
+    font-size: 26px;
+  }
+  #explanation-panel .lives-card #lives-description,
+  #explanation-panel .injuries-card > p:not(.micro) {
+    font-size: 12px;
+    line-height: 1.35;
+    margin: 2px 0 0;
+  }
+  #explanation-panel .section-label {
+    font-size: 11.5px;
+  }
+  #explanation-panel .card-more summary {
+    min-height: 32px;
+    font-size: 12px;
+  }
+  #explanation-panel.sheet-half #welcome-more {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 58px;
+    padding-top: 28px;
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(#f5f7f700, #f5f7f7 55%);
+    font: 700 12.5px Manrope, sans-serif;
+    color: #0b5c8c;
+    grid-column: 1 / -1;
+  }
+  #explanation-panel.sheet-half #welcome-more::before {
+    content: "⌃ ";
+  }
+  body.sidebar-collapsed:not(.victims-open) #welcome-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: absolute;
+    z-index: 1140;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 48px;
+    padding: 10px 16px 12px;
+    border: 0;
+    border-radius: 16px 16px 0 0;
+    background: #fff;
+    box-shadow: 0 -3px 16px #20313a2a;
+    font: 800 15px Manrope, sans-serif;
+    color: var(--ink);
+    text-align: left;
+  }
+  #welcome-bar span {
+    flex: 1;
+  }
+  #welcome-bar i {
+    width: 9px;
+    height: 9px;
+    margin-top: 5px;
+    border-right: 2.4px solid #445c68;
+    border-bottom: 2.4px solid #445c68;
+    transform: rotate(-135deg);
+  }
+  #comparison-panel.comparison {
+    z-index: 1160;
+  }
+  /* Credits fold into an "i" at the bottom left, under any sheet. */
+  .leaflet-control-attribution {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 !important;
+    background: none !important;
+    font-size: 0;
+  }
+  .leaflet-control-attribution > :not(.credits-toggle) {
+    display: none;
+  }
+  .leaflet-control-attribution .credits-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid #c9d3d6;
+    border-radius: 50%;
+    background: #fffd;
+    font: 700 13px Manrope, sans-serif;
+    color: #445c68;
+    box-shadow: 0 1px 5px #0002;
+  }
+  .leaflet-control-attribution.credits-open {
+    display: block;
+    font-size: 12px;
+    padding: 3px 10px 3px 3px !important;
+    border-radius: 14px;
+    background: #fff !important;
+    box-shadow: 0 1px 5px #0002;
+  }
+  .leaflet-control-attribution.credits-open > * {
+    display: inline;
+  }
+  .leaflet-control-attribution.credits-open .credits-toggle {
+    display: inline-grid;
+    place-items: center;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  body.sidebar-collapsed:not(.victims-open) .leaflet-bottom {
+    bottom: 50px;
+  }
+}
+
+@media (max-width: 650px) {
+  /* Half sheet: the three key figures at a glance; notes and sources wait for the full sheet. */
+  #explanation-panel.sheet-half .intro,
+  #explanation-panel.sheet-half .card-more {
+    display: none;
+  }
+  #explanation-panel.sheet-half .bombing-card > span,
+  #explanation-panel.sheet-half .hiroshima-stat {
+    display: inline;
+    font-size: 12.5px;
+  }
+  #explanation-panel.sheet-half .hiroshima-stat::before {
+    content: " · ";
+  }
+  #explanation-panel.sheet-half .hiroshima-stat b {
+    font-size: 15px;
+  }
+  #explanation-panel.sheet-half .bombing-total {
+    margin: 2px 0;
+  }
+  #explanation-panel .hero-title {
+    margin-bottom: 10px;
   }
 }
