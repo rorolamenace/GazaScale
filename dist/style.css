@@ -3230,3 +3230,145 @@ aside {
     max-height: calc(100% - var(--sheet-h, 0px) - 130px);
   }
 }
+
+/* v1.5 · Population of Gaza on top, then one "victims" block holding the lives-lost and injuries cards. */
+#population-slot:not(:empty) {
+  margin-bottom: 10px;
+}
+#comparison-panel .victims-block {
+  position: relative;
+  background: #fff;
+  border-left: 4px solid #445c68;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px #20313a26;
+  padding-bottom: 2px;
+}
+#comparison-panel .victims-block .comparison-heading,
+#comparison-panel .victims-block .comparison-foot,
+#comparison-panel .victims-block #territory-tabs:not(:empty),
+#comparison-panel .victims-block #comparison-body > :not(.victims-grid) {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+#comparison-panel .victims-block .comparison-foot,
+#comparison-panel .victims-block #comparison-body > :not(.victims-grid) {
+  margin-top: 0;
+}
+#comparison-panel .victims-block #comparison-eyebrow {
+  color: #445c68;
+}
+#comparison-panel .victims-block .victims-grid {
+  gap: 8px;
+  margin: 0 10px 4px;
+}
+#comparison-panel .victims-block .vcard {
+  border-radius: 8px;
+  box-shadow: none;
+}
+#comparison-panel .victims-block .vcard-top {
+  min-height: 40px;
+  background: var(--tint);
+}
+#comparison-panel .victims-block .vcard-big {
+  font-size: 28px;
+}
+#comparison-panel .vcard .victim-list ul {
+  max-height: 160px;
+}
+
+/* The Victimes button calls once after the tour and after each move, while its panel is closed. */
+@keyframes victims-call {
+  0% { box-shadow: 0 0 0 0 #0072b2aa; }
+  70% { box-shadow: 0 0 0 14px #0072b200; }
+  100% { box-shadow: 0 0 0 0 #0072b200; }
+}
+#toggle-comparison.is-calling {
+  border-color: var(--gaza);
+  animation: victims-call 1.6s ease-out infinite;
+}
+.victims-hint {
+  position: absolute;
+  z-index: 600;
+  width: 250px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: #20313a;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.45;
+  box-shadow: 0 6px 24px #0004;
+  cursor: pointer;
+}
+.victims-hint strong {
+  display: block;
+  margin-bottom: 3px;
+  font: 800 15px Manrope, sans-serif;
+}
+.victims-hint small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c6d1d4;
+}
+.victims-hint::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  right: -7px;
+  border: 8px solid transparent;
+  border-right: 0;
+  border-left-color: #20313a;
+}
+.victims-hint.below {
+  width: 240px;
+}
+.victims-hint.below::after {
+  top: -7px;
+  right: 18px;
+  border: 8px solid transparent;
+  border-top: 0;
+  border-bottom-color: #20313a;
+}
+@media (prefers-reduced-motion: reduce) {
+  #toggle-comparison.is-calling {
+    animation: none;
+    box-shadow: 0 0 0 4px #0072b255;
+  }
+}
+@media (max-width: 950px) {
+  /* The sheet closes by swiping down or tapping the map: no cross needed. */
+  #comparison-panel .comparison-close {
+    display: none;
+  }
+  #comparison-panel .victims-block .comparison-heading {
+    padding: 10px 12px 6px;
+  }
+  #comparison-panel.comparison {
+    max-height: 68%;
+    padding-top: 20px;
+    transition: transform 0.2s ease-out;
+  }
+}
+@media (max-width: 650px) {
+  /* The explanation drawer covers the whole map, its close chevron beside the title. */
+  #explanation-panel {
+    width: 100%;
+    max-height: none;
+    bottom: 0;
+    padding-top: 22px;
+    z-index: 1200;
+  }
+  body:not(.sidebar-collapsed) #explanation-panel {
+    padding-top: 22px;
+  }
+  #explanation-panel .hero-title {
+    padding-right: 52px;
+  }
+  body:not(.sidebar-collapsed) #toggle-sidebar {
+    left: auto;
+    right: 14px;
+    top: 18px;
+    z-index: 1210;
+  }
+}

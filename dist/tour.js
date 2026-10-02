@@ -10,13 +10,13 @@
   {target:()=>$('toggle-filters'),title:'Affichage',text:'Choisissez ce que montre la carte : bâtiments détruits et endommagés, vies perdues, blessés et population de Gaza. L’hypothèse de 680 000 vies perdues, non confirmée, s’active ici.'},
   {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Gaza s’affiche avec son contour réel. Ce bouton la remplace par un cercle de même surface, 365 km², et inversement.'},
   {target:()=>$('toggle-overseas'),title:'Outre-mer',text:'Placez Gaza en Guadeloupe, à La Réunion, en Nouvelle-Calédonie et dans les autres territoires.'},
-  {target:()=>$('toggle-comparison'),title:'Victimes',text:'Affiche ou masque le détail des vies perdues et des blessés, commune par commune.'},
+  {target:()=>$('toggle-comparison'),title:'Victimes',text:'Ouvre le détail : la population de Gaza, puis les vies perdues et les blessés transposés chez vous, commune par commune.'},
   {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez un nom ou un code postal pour y placer Gaza.'},
   {target:()=>$('comparison-panel'),title:'Population et victimes',text:'La population de Gaza, les vies perdues et les blessés, chacun traduit en communes. Touchez une vignette pour la replier ou l’ouvrir. Le bleu, le rouge et le jaune ne situent personne.'},
   {target:()=>$('locate-me'),title:'Ma position',text:'Place Gaza là où vous êtes, si votre navigateur l’autorise.'},
   {target:()=>$('toggle-legend'),title:'Légende',text:'Ce que signifient les couleurs et les traits de la carte : Gaza, bâtiments, vies perdues, blessés.'},
-  {target:()=>$('help-tour'),title:'Revoir la visite',text:'Ce bouton relance cette visite à tout moment.'},
   {target:()=>$('sources-button'),title:'Sources & méthode',text:'D’où viennent les chiffres, leurs dates et leurs limites. Chaque section a un lien à partager.'},
+  {target:()=>$('help-tour'),title:'Revoir la visite',text:'Ce bouton « ? » relance cette visite à tout moment.'},
  ];
  const visible=el=>el&&!el.hidden&&el.getClientRects().length>0&&el.getBoundingClientRect().width>0;
  let bubble=null,index=0,active=[],highlighted=null;
@@ -61,6 +61,7 @@
   bubble.hidden=true;highlighted?.classList.remove('tour-target');highlighted=null;
   try{localStorage.setItem(doneKey,'1');}catch{}
   document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',key,true);
+  document.dispatchEvent(new Event('gazatour:end'));
  }
  function start(full){
   if(!bubble)build();

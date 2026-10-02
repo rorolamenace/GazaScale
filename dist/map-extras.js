@@ -28,7 +28,7 @@ let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
 placeAtPointer=function(event){placedAt=Date.now();clearTimeout(mapClickTimer);closeMapMenus();nativePlace(event);};
 // Single tap opens a commune; double click and long press remain placement gestures.
-map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{if(compact()){comparisonWanted=false;setComparisonOpen(false);}map.closePopup();const point=turf.point([event.latlng.lng,event.latlng.lat]),inside=f=>{f.bbox??=turf.bbox(f);return event.latlng.lng>=f.bbox[0]&&event.latlng.lng<=f.bbox[2]&&event.latlng.lat>=f.bbox[1]&&event.latlng.lat<=f.bbox[3]&&turf.booleanPointInPolygon(point,f);};if(level==='communes'&&communeState==='ready'){const feature=impactRows.filter(r=>r.lives>0||r.injured>0).map(r=>r.feature).find(inside);if(feature){communePopup(feature,event.latlng);return;}}const zoneFeature=showPopulation&&popZone?.features.find(inside);if(zoneFeature)populationPopup(zoneFeature,event.latlng);},280);});
+map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{if(sheetMode()&&comparisonOpen){panelChoice=false;comparisonWanted=false;setComparisonOpen(false);return;}map.closePopup();const point=turf.point([event.latlng.lng,event.latlng.lat]),inside=f=>{f.bbox??=turf.bbox(f);return event.latlng.lng>=f.bbox[0]&&event.latlng.lng<=f.bbox[2]&&event.latlng.lat>=f.bbox[1]&&event.latlng.lat<=f.bbox[3]&&turf.booleanPointInPolygon(point,f);};if(level==='communes'&&communeState==='ready'){const feature=impactRows.filter(r=>r.lives>0||r.injured>0).map(r=>r.feature).find(inside);if(feature){communePopup(feature,event.latlng);return;}}const zoneFeature=showPopulation&&popZone?.features.find(inside);if(zoneFeature)populationPopup(zoneFeature,event.latlng);},280);});
 // The blue zone answers a tap with its own figures.
 function populationPopup(feature,latlng){const content=document.createElement('div');content.className='commune-popup';const title=document.createElement('strong');title.textContent=feature.properties.nom;const people=document.createElement('p');people.textContent=Number.isFinite(feature.properties.population)?fmt(feature.properties.population)+' habitants':'Population indisponible';const zone=document.createElement('p');zone.className='text-population';zone.textContent='L’une des '+fmt(popZone.count)+' communes qui réunissent '+(population!==2226544?'≈ ':'')+fmt(population)+' habitants, la population de Gaza.';const note=document.createElement('small');note.textContent='Équivalence de population, pas un déplacement ni un lieu réel.';content.append(title,people,zone,note);L.popup({maxWidth:compact()?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);}
 map.on('dblclick',()=>clearTimeout(mapClickTimer));
@@ -113,3 +113,34 @@ const sheetObserver=new ResizeObserver(()=>{
  workspace.classList.toggle('sheet-full',stack.offsetHeight>room);
 });
 sheetObserver.observe($('comparison-panel'));sheetObserver.observe(document.querySelector('.workspace'));
+
+const sheetMode=()=>window.matchMedia('(max-width:950px)').matches;
+// The victims panel and the explanation sidebar take turns: opening one folds the other.
+$('toggle-comparison').addEventListener('click',()=>{hideVictimsHint();if(!comparisonOpen)return;hintPending=false;if(!$('explanation-panel').hidden)setSidebar(false);if(fitOnOpen&&popZone?.count){fitOnOpen=false;fitPopulation();}});
+$('toggle-sidebar').addEventListener('click',()=>{if(!$('explanation-panel').hidden&&comparisonOpen){panelChoice=false;comparisonWanted=false;setComparisonOpen(false);}});
+// A bottom sheet closes with a swipe down from its top, like the map apps.
+(()=>{const panel=$('comparison-panel');let swipe=null;
+ panel.addEventListener('touchstart',e=>{swipe=sheetMode()&&panel.scrollTop<=0&&e.touches.length===1?{y:e.touches[0].clientY,dy:0}:null;},{passive:true});
+ panel.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=Math.max(0,e.touches[0].clientY-swipe.y);panel.style.transform=swipe.dy?'translateY('+swipe.dy+'px)':'';},{passive:true});
+ const end=()=>{if(!swipe)return;const close=swipe.dy>70;swipe=null;panel.style.transform='';if(close){panelChoice=false;comparisonWanted=false;setComparisonOpen(false);}};
+ panel.addEventListener('touchend',end);panel.addEventListener('touchcancel',end);})();
+// After the tour, and after each move while the panel is closed, the Victimes button calls once.
+let victimsHintTimer=null;
+window.hideVictimsHint=hideVictimsHint;function hideVictimsHint(){clearTimeout(victimsHintTimer);$('victims-hint')?.remove();$('toggle-comparison').classList.remove('is-calling');}
+window.callVictims=()=>{
+ const tour=$('tour');
+ if(!hintPending||comparisonOpen||!resultsReady||level!=='communes'||communeState!=='ready'||(showInjuries&&injuryState!=='ready')||(tour&&!tour.hidden)||document.body.classList.contains('gaza-dragging')||$('sources').open)return;
+ hintPending=false;hideVictimsHint();
+ const button=$('toggle-comparison'),workspace=document.querySelector('.workspace'),count=communes.length?($('territory-name').textContent.match(/^[\d\s\u202f\u00a0]+/)?.[0].trim()||''):'';
+ const home=communes.find(f=>{f.bbox??=turf.bbox(f);return center[0]>=f.bbox[0]&&center[0]<=f.bbox[2]&&center[1]>=f.bbox[1]&&center[1]<=f.bbox[3]&&turf.booleanPointInPolygon(turf.point(center),f);});
+ const hint=document.createElement('div');hint.id='victims-hint';hint.className='victims-hint'+(sheetMode()?' below':'');hint.setAttribute('role','status');
+ const title=document.createElement('strong'),text=document.createElement('span'),action=document.createElement('small');
+ title.textContent='Transposé chez vous';text.textContent='Vies perdues et blessés de Gaza, rapportés aux habitants de '+(count?count+' communes':'communes')+(home?', autour de '+home.properties.nom:'')+'.';action.textContent=sheetMode()?'Touchez pour voir le détail':'Cliquez pour voir le détail';
+ hint.append(title,text,action);hint.onclick=()=>{button.click();};workspace.append(hint);
+ const b=button.getBoundingClientRect(),w=workspace.getBoundingClientRect();
+ if(sheetMode()){hint.style.right=Math.max(8,w.right-b.right)+'px';hint.style.top=(b.bottom-w.top+12)+'px';}else{hint.style.right=(w.right-b.left+14)+'px';hint.style.top=(b.top-w.top-6)+'px';}
+ button.classList.add('is-calling');victimsHintTimer=setTimeout(hideVictimsHint,8000);
+};
+document.addEventListener('pointerdown',e=>{if($('victims-hint')&&!e.target.closest('#victims-hint,#toggle-comparison'))hideVictimsHint();},true);
+window.addEventListener('resize',hideVictimsHint);
+document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims(),300));
