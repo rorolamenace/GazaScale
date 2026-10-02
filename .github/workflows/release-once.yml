@@ -1,0 +1,19 @@
+name: Release v1.7.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.7.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.7.0 --repo "$GITHUB_REPOSITORY" \
+            --target 10527d5be96bd68e087326e27658587078dd0d9c \
+            --title "GazaScale 1.7" --latest \
+            --notes "Version anglaise et Italie. Bouton EN / FR dans l'en-tête : le site suit la langue du navigateur, se force avec ?lang=en ou ?lang=fr et retient le dernier choix ; textes, vignettes, visite guidée, messages et sources traduits, nombres au format anglais. L'Italie rejoint la France et la Suisse : 7 900 communes issues des unités administratives locales 2024 d'Eurostat GISCO (© EuroGeographics), chargées par province ; vies perdues, blessés, zone population, hypothèse de 680 000 et recherche de ville fonctionnent comme ailleurs, y compris aux frontières. Nouvelle section « Les territoires italiens » dans Sources & méthode."
