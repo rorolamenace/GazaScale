@@ -3551,3 +3551,35 @@ aside {
     max-width: none;
   }
 }
+
+/* v1.6.2 · Lives and injuries cards share the same left stripe, and their "Source et détails" rows line up. */
+.lives-card {
+  border-left: 4px solid #b21836;
+}
+.shape-toolbar .population-toggle {
+  margin-bottom: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #d4dde0;
+}
+@media (max-width: 650px) {
+  #explanation-panel > .lives-card,
+  #explanation-panel > .injuries-card {
+    display: flex;
+    flex-direction: column;
+  }
+  #explanation-panel > .lives-card > .card-more,
+  #explanation-panel > .injuries-card > .card-more {
+    margin-top: auto;
+    padding-top: 0;
+  }
+  #explanation-panel > .lives-card > .card-more summary,
+  #explanation-panel > .injuries-card > .card-more summary {
+    margin-top: 12px;
+  }
+}
+@media (max-width: 650px) {
+  body.sidebar-collapsed:not(.victims-open) #color-key.legend-panel {
+    bottom: 62px;
+    max-height: calc(100% - 140px);
+  }
+}
