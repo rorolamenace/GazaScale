@@ -129,16 +129,16 @@ const selection=hypothesis&&expandedMortality?expandedMortality:GazaSelection.se
  victimTitle(chosen,[]);renderInjuries(chosen);}
 function cardText(parent,cls,text){const p=document.createElement('p');p.className=cls;p.textContent=text;parent.append(p);return p;}
 // Cards fold one by one; each visitor's choice is remembered (open on a computer, folded on a phone by default).
-const cardKey='gazascale-card-open';let openCard=null;
-function cardOpen(kind){if(openCard===null){try{openCard=localStorage.getItem(cardKey)??'population';}catch{openCard='population';}}return openCard===kind;}
+const cardKey='gazascale-cards';let cardState=null;
+// Each card keeps its own open or folded state; the population card opens whenever the blue zone is switched on.
+function cardOpen(kind){if(!cardState){try{cardState=JSON.parse(localStorage.getItem(cardKey))||{};}catch{cardState={};}}return cardState[kind]??(kind==='population');}
 function victimCard(kind,label,figure,what){
  const card=document.createElement('section');card.className='vcard vcard-'+kind;
  const top=document.createElement('button'),id='vcard-'+kind+'-body';top.type='button';top.className='vcard-top';top.setAttribute('aria-controls',id);
  const lab=document.createElement('span'),mini=document.createElement('span'),chevron=document.createElement('i');lab.className='vcard-label';lab.textContent=label;mini.className='vcard-mini';mini.textContent=figure;chevron.className='vcard-chev';chevron.setAttribute('aria-hidden','true');top.append(lab,mini,chevron);
  const body=document.createElement('div'),big=document.createElement('strong');body.className='vcard-body';body.id=id;big.className='vcard-big';big.textContent=figure;body.append(big);cardText(body,'vcard-what',what);
  const set=open=>{top.setAttribute('aria-expanded',String(open));body.hidden=!open;card.classList.toggle('is-folded',!open);};set(cardOpen(kind));card.setOpen=set;card.dataset.kind=kind;
- // One card open at a time keeps the column within the screen.
- top.onclick=()=>{const open=body.hidden;$('comparison-panel').querySelectorAll('.vcard').forEach(other=>{if(other!==card)other.setOpen?.(false);});set(open);openCard=open?kind:'';try{localStorage.setItem(cardKey,openCard);}catch{}window.zstats?.((open?'Ouvre':'Replie')+' : '+label);};
+ top.onclick=()=>{const open=body.hidden;set(open);cardState[kind]=open;try{localStorage.setItem(cardKey,JSON.stringify(cardState));}catch{}window.zstats?.((open?'Ouvre':'Replie')+' : '+label);};
  card.append(top,body);return {card,body};
 }
 function victimsGrid(){const grid=document.createElement('div');grid.className='victims-grid';refreshPopulationCard();return grid;}
@@ -322,7 +322,7 @@ function setPeriod(){population=$('period').value==='2023'?2226544:2130000;reque
 function updateRepresentation(){const isCircle=representation==='circle';$('toggle-shape').querySelector('.icon-gaza').toggleAttribute('hidden',!isCircle);$('toggle-shape').querySelector('.icon-circle').toggleAttribute('hidden',isCircle);$('toggle-shape').querySelector('.tool-label').textContent=isCircle?'Contour':'Cercle';$('toggle-shape').title=isCircle?'Afficher le contour de Gaza':'Afficher le cercle équivalent';$('show-damage').checked=showDamage;$('show-damaged').checked=damageKind==='affected';$('show-damaged').disabled=!showDamage;$('damage-panel').hidden=!showDamage;$('damaged-card').classList.toggle('is-off',damageKind!=='affected');draw();compare();}
 // Destroyed buildings, plus damaged ones when that box is ticked (UNOSAT 'affected' share).
 $('show-damaged').onchange=e=>{damageKind=e.target.checked?'affected':'destroyed';updateRepresentation();};$('show-damage').onchange=e=>{showDamage=e.target.checked;updateRepresentation();};
-$('show-population').onchange=e=>{showPopulation=e.target.checked;popFitPending=showPopulation;popKey='';requestPopulationZone();renderComparison();window.zstats?.('Filtre : population de Gaza '+(showPopulation?'affichée':'masquée'));};
+$('show-population').onchange=e=>{showPopulation=e.target.checked;if(showPopulation){cardOpen('population');cardState.population=true;try{localStorage.setItem(cardKey,JSON.stringify(cardState));}catch{}}popFitPending=showPopulation;popKey='';requestPopulationZone();renderComparison();window.zstats?.('Filtre : population de Gaza '+(showPopulation?'affichée':'masquée'));};
 $('period').onchange=()=>{setPeriod();window.zstats?.('Population de référence : '+$('period').value);};$('close-sources').onclick=()=>$('sources').close();$('sources').onclick=e=>{if(e.target===$('sources')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}};
 $('map').addEventListener('keydown',e=>{if(e.target!==$('map')&&e.target!==anchor.getElement())return;const changes={ArrowLeft:[-1000,0],ArrowRight:[1000,0],ArrowUp:[0,1000],ArrowDown:[0,-1000]};if(changes[e.key]){e.preventDefault();e.stopPropagation();center=GazaGeometry.inverse(changes[e.key],center);draw();comparisonWanted=panelChoice;compare();}},true);
 syncHypothesis(false);updateRepresentation();setPeriod();new ResizeObserver(()=>map.invalidateSize()).observe($('map'));

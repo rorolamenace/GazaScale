@@ -3583,3 +3583,33 @@ aside {
     max-height: calc(100% - 140px);
   }
 }
+
+/* v1.6.3 · Column scrollbar: thin, outside the cards, in a gutter kept even when not needed, so nothing shifts. */
+@media (min-width: 951px) {
+  #comparison-panel.comparison {
+    width: 352px;
+    padding-right: 12px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: #20313a55 transparent;
+  }
+  #comparison-panel.comparison::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+  #comparison-panel.comparison::-webkit-scrollbar-thumb {
+    background: #20313a55;
+    border-radius: 3px;
+  }
+  #comparison-panel.comparison::-webkit-scrollbar-thumb:hover {
+    background: #20313a88;
+  }
+}
+@media (max-width: 950px) {
+  #comparison-panel.comparison {
+    scrollbar-width: none;
+  }
+  #comparison-panel.comparison::-webkit-scrollbar {
+    display: none;
+  }
+}
