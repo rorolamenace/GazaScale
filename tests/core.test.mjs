@@ -8,6 +8,9 @@ const turf=globalThis.turf=require('../dist/turf.min.js');
 for(const file of ['data','communes','swiss','geometry','selection','neighbors'])require(`../dist/${file}.js`);
 const {GazaGeometry,GazaSelection}=globalThis,data=window.ATLAS_DATA;
 const km2=f=>turf.area(f)/1e6,geneva=[6.108,46.035];
+// Swiss communes are split by canton in dist/ch/, loaded on demand by the site.
+const fs=require('node:fs'),chDir=new URL('../dist/ch/',import.meta.url);
+const swissCommunes=fs.readdirSync(chDir).flatMap(file=>JSON.parse(fs.readFileSync(new URL(file,chDir))).features);
 
 test('le cercle et le contour gardent 365 km² partout', ()=>{
  const xy=GazaGeometry.prepare(data.gaza);
@@ -18,7 +21,7 @@ test('le cercle et le contour gardent 365 km² partout', ()=>{
 });
 
 test('la sélection atteint exactement le bilan sans dépasser', ()=>{
- const shape=GazaGeometry.circle(geneva),candidates=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...window.SWISS_DATA.communes.features].filter(f=>turf.booleanIntersects(f,shape));
+ const shape=GazaGeometry.circle(geneva),candidates=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...swissCommunes].filter(f=>turf.booleanIntersects(f,shape));
  const selection=GazaSelection.selectCommunes(candidates,geneva,73922,turf);
  assert.equal(selection.remaining,0);
  assert.equal(selection.selected.reduce((s,r)=>s+r.represented,0),73922);
@@ -26,7 +29,7 @@ test('la sélection atteint exactement le bilan sans dépasser', ()=>{
 });
 
 test('les blessés ne reprennent pas une commune entièrement réservée aux vies perdues', ()=>{
- const shape=GazaGeometry.circle(geneva),ring=turf.buffer(shape,40,{units:'kilometers'}),pool=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...window.SWISS_DATA.communes.features];
+ const shape=GazaGeometry.circle(geneva),ring=turf.buffer(shape,40,{units:'kilometers'}),pool=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...swissCommunes];
  const lives=GazaSelection.selectCommunes(pool.filter(f=>turf.booleanIntersects(f,shape)),geneva,73922,turf);
  const injuries=GazaSelection.selectNeighbors(pool.filter(f=>turf.booleanIntersects(f,ring)),shape,geneva,174995,lives.selected,turf);
  const full=new Set(lives.selected.filter(r=>r.fraction===1).map(r=>r.feature.properties.code));
@@ -35,7 +38,7 @@ test('les blessés ne reprennent pas une commune entièrement réservée aux vie
 });
 
 test('le raccourci par sommet donne les mêmes communes que le test complet', ()=>{
- const pool=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...window.SWISS_DATA.communes.features];
+ const pool=[...window.DEPARTMENT_COMMUNE_SEEDS['74'],...swissCommunes];
  const fast=(f,s)=>turf.booleanPointInPolygon(turf.point(turf.coordAll(f)[0]),s)||turf.booleanIntersects(f,s);
  for(const center of [geneva,[6.6323,46.5197]]){
   const shape=turf.buffer(GazaGeometry.circle(center),40,{units:'kilometers'}),box=turf.bbox(shape);
