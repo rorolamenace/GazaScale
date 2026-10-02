@@ -18,7 +18,7 @@ function communePopup(feature,latlng){
  L.popup({maxWidth:window.matchMedia('(max-width:650px)').matches?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);
 }
 window.refreshMapExtras=()=>{
- $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage;$('color-key').querySelector('.key-hatch').parentElement.hidden=!showLives||!showInjuries||level!=='communes';
+ $('color-key').querySelector('.key-red').parentElement.hidden=!showLives||level!=='communes';$('color-key').querySelector('.key-yellow').parentElement.hidden=!showInjuries||level!=='communes';$('color-key').querySelector('.key-grey').parentElement.hidden=!showDamage;$('color-key').querySelector('.key-population').parentElement.hidden=!showPopulation;$('color-key').querySelector('.key-hatch').parentElement.hidden=!showLives||!showInjuries||level!=='communes';
  $('color-key').querySelector('.key-grey').parentElement.lastChild.textContent='≈ '+fmt(damageData[damageKind].ratio*100)+' % · '+(damageKind==='affected'?'bâtiments détruits ou endommagés*':'bâtiments détruits*');
  impactRows=[];if(level!=='communes'||communeState!=='ready')return;
  impactRows=impactSummary();
@@ -28,11 +28,13 @@ let mapClickTimer,placedAt=0;
 const nativePlace=placeAtPointer;
 placeAtPointer=function(event){placedAt=Date.now();clearTimeout(mapClickTimer);closeMapMenus();nativePlace(event);};
 // Single tap opens a commune; double click and long press remain placement gestures.
-map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{comparisonWanted=false;setComparisonOpen(false);map.closePopup();if(level!=='communes'||communeState!=='ready')return;const candidates=new Map(impactRows.filter(r=>r.lives>0||r.injured>0).map(r=>[r.feature.properties.code,r.feature]));const point=turf.point([event.latlng.lng,event.latlng.lat]);const feature=[...candidates.values()].find(f=>turf.booleanPointInPolygon(point,f));if(feature)communePopup(feature,event.latlng);},280);});
+map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()-placedAt<850)return;mapClickTimer=setTimeout(()=>{if(compact()){comparisonWanted=false;setComparisonOpen(false);}map.closePopup();const point=turf.point([event.latlng.lng,event.latlng.lat]),inside=f=>{f.bbox??=turf.bbox(f);return event.latlng.lng>=f.bbox[0]&&event.latlng.lng<=f.bbox[2]&&event.latlng.lat>=f.bbox[1]&&event.latlng.lat<=f.bbox[3]&&turf.booleanPointInPolygon(point,f);};if(level==='communes'&&communeState==='ready'){const feature=impactRows.filter(r=>r.lives>0||r.injured>0).map(r=>r.feature).find(inside);if(feature){communePopup(feature,event.latlng);return;}}const zoneFeature=showPopulation&&popZone?.features.find(inside);if(zoneFeature)populationPopup(zoneFeature,event.latlng);},280);});
+// The blue zone answers a tap with its own figures.
+function populationPopup(feature,latlng){const content=document.createElement('div');content.className='commune-popup';const title=document.createElement('strong');title.textContent=feature.properties.nom;const people=document.createElement('p');people.textContent=Number.isFinite(feature.properties.population)?fmt(feature.properties.population)+' habitants':'Population indisponible';const zone=document.createElement('p');zone.className='text-population';zone.textContent='L’une des '+fmt(popZone.count)+' communes qui réunissent '+(population!==2226544?'≈ ':'')+fmt(population)+' habitants, la population de Gaza.';const note=document.createElement('small');note.textContent='Équivalence de population, pas un déplacement ni un lieu réel.';content.append(title,people,zone,note);L.popup({maxWidth:compact()?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);}
 map.on('dblclick',()=>clearTimeout(mapClickTimer));
 $('toggle-shape').onclick=()=>{representation=representation==='circle'?'contour':'circle';updateRepresentation();};
 $('toggle-overseas').onclick=()=>{const open=$('overseas-menu').hidden;$('overseas-menu').hidden=!open;$('toggle-overseas').setAttribute('aria-expanded',String(open));if(open)setMapPanel(null);};
-function placeCity(lat,lng,zoom=10){moved();center=[lng,lat];draw();map.setView([lat,lng],zoom,{animate:false});placed();}
+function placeCity(lat,lng,zoom=10){popFitPending=true;moved();center=[lng,lat];draw();map.setView([lat,lng],zoom,{animate:false});placed();}
 // Menu icons come from the small precomputed index; the full overseas data loads when needed.
 for(const p of window.OVERSEAS_INDEX.territories){const button=document.createElement('button');button.className='territory-icon';button.setAttribute('aria-label',p.nom);button.title=p.nom;
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');svg.setAttribute('viewBox','0 0 64 64');svg.setAttribute('aria-hidden','true');path.setAttribute('d',p.path);svg.append(path);const name=document.createElement('span');name.className='territory-tooltip';name.textContent=p.nom;button.append(svg,name);button.onclick=()=>{$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');placeCity(p.lat,p.lng,p.zoom);};$('overseas-options').append(button);}
@@ -101,3 +103,13 @@ const barControl=(id,extra)=>{const control=L.control({position:'bottomright'});
 barControl('help-tour','help-control');barControl('locate-me','locate-control');barControl('toggle-legend','legend-control');
 // Under the zoom buttons, next to the map credits: a link to how the site stores data.
 map.attributionControl.addAttribution('<a href="#source-cookies" data-source="source-cookies">Sans cookies</a>');
+
+// On a phone the victims panel is a bottom sheet: map buttons line up just above it (pinch replaces the zoom buttons), and step aside only if the sheet leaves no room.
+const sheetObserver=new ResizeObserver(()=>{
+ const panel=$('comparison-panel'),workspace=document.querySelector('.workspace'),stack=document.querySelector('.leaflet-bottom.leaflet-right'),height=window.matchMedia('(max-width:950px)').matches&&!panel.hidden?panel.offsetHeight:0;
+ workspace.style.setProperty('--sheet-h',height+'px');workspace.classList.toggle('sheet-open',height>0);workspace.classList.remove('sheet-full');
+ if(!height)return;
+ const room=workspace.offsetHeight-height-($('map-tools').getBoundingClientRect().bottom-workspace.getBoundingClientRect().top)-8;
+ workspace.classList.toggle('sheet-full',stack.offsetHeight>room);
+});
+sheetObserver.observe($('comparison-panel'));sheetObserver.observe(document.querySelector('.workspace'));

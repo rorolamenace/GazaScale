@@ -2929,3 +2929,304 @@ aside {
 .rotate-handle svg {
   display: block;
 }
+
+/* v1.4 · The victims panel becomes a column of foldable cards: on the left of the map on a computer, a bottom sheet on a phone. */
+#comparison-panel.comparison {
+  position: absolute;
+  z-index: 510;
+  top: 72px;
+  bottom: 28px;
+  left: 16px;
+  right: auto;
+  width: 340px;
+  max-width: calc(100% - 100px);
+  max-height: none;
+  padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+  pointer-events: none;
+}
+#comparison-panel.comparison > * {
+  pointer-events: auto;
+}
+#comparison-panel .comparison-heading {
+  display: block;
+  position: relative;
+  padding: 11px 44px 11px 14px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px #20313a26;
+}
+#comparison-panel .comparison-close {
+  top: 4px;
+  right: 4px;
+}
+#comparison-panel h2 {
+  font-size: 17px;
+  margin: 2px 0 0;
+}
+#comparison-panel #territory-detail {
+  font-size: 12px;
+  margin-top: 3px;
+}
+#comparison-panel .segmented {
+  display: flex;
+  margin-top: 8px;
+  width: 100%;
+}
+#comparison-panel .segmented button {
+  flex: 1;
+  min-height: 34px;
+  padding: 5px 4px;
+  font-size: 12px;
+  line-height: 1.2;
+}
+#comparison-panel #territory-tabs:not(:empty),
+#comparison-panel #comparison-body > :not(.victims-grid),
+#comparison-panel .comparison-foot {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px #20313a26;
+}
+#comparison-panel #territory-tabs:not(:empty) {
+  margin-top: 10px;
+  padding: 8px;
+}
+#comparison-panel #comparison-body > :not(.victims-grid) {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+}
+#comparison-panel .comparison-foot {
+  margin-top: 10px;
+  padding: 9px 14px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+#comparison-panel .victims-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.vcard {
+  --c: #20313a;
+  --tint: #fff;
+  overflow: hidden;
+  background: #fff;
+  border-left: 4px solid var(--c);
+  border-radius: 10px;
+  box-shadow: 0 4px 18px #20313a26;
+}
+.vcard-population {
+  --c: #2b3f9e;
+  --tint: #f2f4fd;
+}
+.vcard-lives {
+  --c: #b21836;
+  --tint: #fff1f3;
+}
+.vcard-injuries {
+  --c: #725300;
+  --tint: #fff9df;
+}
+.vcard-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  background: #fff;
+  color: var(--c);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.vcard-top:hover {
+  background: #f6f8f9;
+}
+.vcard-label {
+  flex: 1;
+  font: 700 12px Manrope, sans-serif;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+.vcard-mini {
+  font: 800 17px Manrope, sans-serif;
+}
+.vcard:not(.is-folded) .vcard-mini {
+  display: none;
+}
+.vcard-chev {
+  width: 9px;
+  height: 9px;
+  margin: 5px 3px 0 2px;
+  border-right: 2.4px solid #445c68;
+  border-bottom: 2.4px solid #445c68;
+  transform: rotate(-135deg);
+}
+.vcard.is-folded .vcard-chev {
+  margin-top: -4px;
+  transform: rotate(45deg);
+}
+.vcard-body {
+  padding: 2px 14px 12px;
+  background: var(--tint);
+}
+.vcard-body[hidden] {
+  display: none;
+}
+.vcard-big {
+  display: block;
+  padding-top: 8px;
+  font: 800 34px/1.05 Manrope, sans-serif;
+  letter-spacing: -1px;
+  color: var(--c);
+}
+.vcard-injuries .vcard-big {
+  color: #8a6400;
+}
+.vcard-what {
+  margin: 3px 0 6px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.vcard-sub {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #454b54;
+}
+.vcard-sub b {
+  color: var(--ink);
+}
+.vcard-note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.vcard-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--c);
+}
+.vcard-retry {
+  margin-top: 8px;
+  min-height: 36px;
+}
+.vcard .victim-list {
+  margin-top: 8px;
+}
+.vcard-lives .victim-list summary {
+  color: #9c1733;
+}
+.vcard-injuries .victim-list summary {
+  color: #725300;
+}
+.text-population {
+  color: #2b3f9e;
+}
+@media (max-width: 950px) {
+  #comparison-panel.comparison {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    max-height: 58%;
+    padding: 18px 10px 12px;
+    background: #f5f7f7;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 22px #20313a33;
+    pointer-events: auto;
+  }
+  #comparison-panel.comparison::before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #b9c3c7;
+  }
+  #comparison-panel .comparison-heading {
+    padding: 4px 44px 4px 4px;
+    background: none;
+    box-shadow: none;
+  }
+  #comparison-panel .comparison-foot {
+    background: none;
+    box-shadow: none;
+    padding: 4px;
+  }
+  #comparison-panel .victims-grid {
+    gap: 8px;
+    margin-top: 8px;
+  }
+  #comparison-panel .segmented {
+    margin-top: 6px;
+  }
+  .vcard {
+    box-shadow: 0 2px 10px #20313a1a;
+  }
+  .vcard-big {
+    font-size: 30px;
+  }
+  /* Map buttons line up just above the sheet; pinch replaces the zoom buttons there. */
+  .workspace .leaflet-bottom {
+    bottom: var(--sheet-h, 0px);
+  }
+  .workspace.sheet-open .leaflet-bottom.leaflet-right {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    justify-content: flex-end;
+    align-items: flex-end;
+    max-width: 100%;
+  }
+  .workspace.sheet-open .leaflet-bottom.leaflet-right .leaflet-control {
+    float: none;
+    clear: none;
+    margin: 0 8px 6px 0 !important;
+  }
+  .workspace.sheet-open .leaflet-control-attribution {
+    order: 0;
+    flex-basis: 100%;
+    margin: 0 !important;
+    text-align: right;
+  }
+  .workspace.sheet-open .legend-control {
+    order: 1;
+  }
+  .workspace.sheet-open .locate-control {
+    order: 2;
+  }
+  .workspace.sheet-open .help-control {
+    order: 3;
+    margin-right: 12px !important;
+  }
+  .workspace.sheet-open .leaflet-control-zoom,
+  .workspace.sheet-open .leaflet-control-scale {
+    display: none;
+  }
+  .workspace.sheet-full .leaflet-bottom.leaflet-right .leaflet-bar {
+    display: none;
+  }
+}
+@media (max-width: 950px) {
+  .workspace.sheet-open #color-key.legend-panel {
+    bottom: calc(var(--sheet-h, 0px) + 60px);
+    max-height: calc(100% - var(--sheet-h, 0px) - 130px);
+  }
+}
