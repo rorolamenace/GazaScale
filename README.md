@@ -40,7 +40,6 @@ Le déploiement sur Jelastic (Infomaniak) est décrit dans `deploy/README.md`.
 - La surface reste exacte grâce à une projection azimutale équivalente ; la rotation se fait dans un plan local.
 - Le panneau Victimes se ferme pendant un déplacement et se rouvre quand le calcul est prêt. Sur ordinateur, c'est une colonne à gauche de la carte ; sur mobile, un panneau en bas. Ses vignettes (population de Gaza, vies perdues, blessés) se replient une à une, et le navigateur retient ce choix.
 - La zone bleue réunit autant d'habitants que Gaza (estimation PCBS la plus récente par défaut), en additionnant les communes les plus proches du centre. Elle se masque dans « Affichage ».
-- On compare par commune, par département ou canton, ou par région française.
 
 ## Lire les chiffres
 

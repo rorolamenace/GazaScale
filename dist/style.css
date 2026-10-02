@@ -3542,3 +3542,12 @@ aside {
     margin-bottom: 10px;
   }
 }
+@media (max-width: 650px) {
+  /* No sidebar chevron on a phone: the search box takes its place on the left. */
+  .city-search {
+    left: 12px;
+    width: auto;
+    right: 70px;
+    max-width: none;
+  }
+}
