@@ -130,7 +130,7 @@ $('toggle-sidebar').addEventListener('click',()=>{if(!$('explanation-panel').hid
 // A bottom sheet closes with a swipe down from its top, like the map apps.
 (()=>{const panel=$('comparison-panel');let swipe=null;
  panel.addEventListener('touchstart',e=>{swipe=sheetMode()&&panel.scrollTop<=0&&e.touches.length===1?{y:e.touches[0].clientY,dy:0}:null;},{passive:true});
- panel.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=Math.max(0,e.touches[0].clientY-swipe.y);panel.style.transform=swipe.dy?'translateY('+swipe.dy+'px)':'';},{passive:true});
+ panel.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=Math.max(0,e.touches[0].clientY-swipe.y);panel.style.transform=swipe.dy?'translateY('+swipe.dy+'px)':'';if(swipe.dy&&e.cancelable)e.preventDefault();},{passive:false});
  const end=()=>{if(!swipe)return;const close=swipe.dy>70;swipe=null;panel.style.transform='';if(close){panelChoice=false;comparisonWanted=false;setComparisonOpen(false);}};
  panel.addEventListener('touchend',end);panel.addEventListener('touchcancel',end);})();
 // After the tour, and after each move while the panel is closed, the Victimes button calls once.
@@ -160,7 +160,8 @@ document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims()
  $('welcome-bar').onclick=()=>$('toggle-sidebar').click();
  $('welcome-more').onclick=()=>setFull(true);
  sheet.addEventListener('touchstart',e=>{swipe=compact()&&e.touches.length===1&&sheet.scrollTop<=0?{y:e.touches[0].clientY,dy:0}:null;},{passive:true});
- sheet.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=e.touches[0].clientY-swipe.y;if(swipe.dy>0)sheet.style.transform='translateY('+swipe.dy+'px)';},{passive:true});
+ // Not passive: a downward swipe on the sheet must not become the browser's pull-to-refresh.
+ sheet.addEventListener('touchmove',e=>{if(!swipe)return;swipe.dy=e.touches[0].clientY-swipe.y;if(swipe.dy>0){sheet.style.transform='translateY('+swipe.dy+'px)';if(e.cancelable)e.preventDefault();}},{passive:false});
  const end=()=>{if(!swipe)return;const dy=swipe.dy;swipe=null;sheet.style.transform='';
   if(dy<-50&&sheet.classList.contains('sheet-half'))setFull(true);
   else if(dy>70){if(sheet.classList.contains('sheet-full'))setFull(false);else $('toggle-sidebar').click();}};

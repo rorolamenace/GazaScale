@@ -3681,3 +3681,6 @@ aside {
   .sources-long { display: none; }
   .sources-short { display: inline; }
 }
+
+/* No pull-to-refresh: on phones a downward swipe folds the sheets instead */
+html, body { overscroll-behavior-y: none; }
