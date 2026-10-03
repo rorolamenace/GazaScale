@@ -16,7 +16,7 @@ const damageData={destroyed:{ratio:123464/198273*.81,count:123464,title:t('Bâti
 let showLives=true,showInjuries=true;
 let representation='contour',showDamage=true,damageKind='affected';
 let center=[6.108,46.035],angle=0,level='communes',selected=null,currentFeature,hits=[],population=2130000;
-const map=L.map('map',{zoomControl:false,doubleClickZoom:false,tapHold:false,minZoom:2,maxZoom:17}).setView([45.905,6.108],9);
+const map=L.map('map',{zoomControl:false,doubleClickZoom:false,tapHold:false,worldCopyJump:true,minZoom:2,maxZoom:17}).setView([45.905,6.108],9);
 // Bottom-right controls stack upwards in the order they are added: credits, scale, zoom, then the position button.
 L.control.scale({imperial:false,position:'bottomright',maxWidth:window.matchMedia('(max-width:650px)').matches?50:100}).addTo(map);L.control.zoom({position:'bottomright'}).addTo(map);
 installBasemap(map);
@@ -289,9 +289,10 @@ function installMapPlacement(element,place){
  element.addEventListener('contextmenu',event=>{if(!excluded(event.target)&&Date.now()-lastTouch<1500)event.preventDefault();});
 }
 function placeAtPointer(event){
- window.zstats?.('Gaza placée sur la carte');const point=map.mouseEventToLatLng(event);moved();
+ window.zstats?.('Gaza placée sur la carte');// The basemap repeats the world when panned far; wrap the point back so Gaza lands on the copy that carries the data.
+ const point=map.wrapLatLng(map.mouseEventToLatLng(event));moved();
  center=[point.lng,Math.max(-80,Math.min(80,point.lat))];
- draw();map.setView([center[1],center[0]],map.getZoom(),{animate:false});placed();
+ draw();map.setView([center[1],center[0]],Math.max(map.getZoom(),9),{animate:map.getZoom()<9});placed();
 }
 installMapPlacement(map.getContainer(),event=>placeAtPointer(event));
 function compare(){resultsReady=false;setComparisonOpen(false);const pending=!worldReady?loadWorld():!window.OVERSEAS_DATA&&!bboxOverlap(turf.bbox(currentFeature),homeBounds)?loadOverseas():level==='regions'&&!data.regions?loadRegions():null;if(pending){const token=++dataToken;dataState='loading';hits=[];communes=[];communeState='loading';highlighted.clearLayers();renderComparison();pending.then(()=>{if(token===dataToken){dataState='ready';compare();}},()=>{if(token===dataToken){dataState='error';communeState='error';renderComparison();}});return;}dataToken++;dataState='ready';requestPopulationZone();if(level==='communes'){requestCommune();renderComparison();return;}const b=turf.bbox(currentFeature);hits=data[level].features.filter(f=>{const a=f.bbox;return a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1]&&turf.booleanIntersects(f,currentFeature);});hits.sort((a,b)=>a.properties.nom.localeCompare(b.properties.nom,'fr'));if(!hits.some(f=>f.properties.code===selected))selected=(hits.find(f=>turf.booleanPointInPolygon(turf.point(center),f))??hits[0])?.properties.code;renderComparison();}
