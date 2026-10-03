@@ -1,0 +1,19 @@
+name: Release v1.11.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.11.0 --repo "$GITHUB_REPOSITORY" \
+            --target 20b71fbd9a47c8776f914d22306555c69f1c4571 \
+            --title "GazaScale 1.11" --latest \
+            --notes "Départements français chargés seulement quand la carte ou Gaza approche de la France : carte prête en 2,8 s au lieu de 3,8 s en 4G simulée. Royaume-Uni entier en quartiers électoraux : Écosse (estimations NRS 2024) et Irlande du Nord (recensement 2021) s'ajoutent à l'Angleterre et au pays de Galles. Image de partage anglaise pour les liens ?lang=en, et script qui redessine les deux images à chaque nouveau bilan. En-tête mobile sur une ligne (« Sources »)."
