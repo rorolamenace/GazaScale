@@ -19,7 +19,15 @@ async function send(req,res,file,status=200){
 }
 http.createServer(async(req,res)=>{
  try{
-  const url=new URL(req.url,'http://localhost'),name=decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname),file=path.resolve(root,'.'+name);
+  const url=new URL(req.url,'http://localhost');
+  // Same as production: /live/ comes from the live-data branch (LIVE_DIR=folder to test a local copy).
+  if(url.pathname.startsWith('/live/')){
+   const rel=url.pathname.slice(6);if(rel.includes('..')){res.writeHead(403).end();return;}
+   if(process.env.LIVE_DIR){await send(req,res,path.join(process.env.LIVE_DIR,rel));return;}
+   const r=await fetch('https://raw.githubusercontent.com/rorolamenace/GazaScale/live-data/'+rel);
+   res.writeHead(r.status,{'Content-Type':r.headers.get('content-type')||'application/octet-stream','Cache-Control':'no-cache'}).end(Buffer.from(await r.arrayBuffer()));return;
+  }
+  const name=decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname),file=path.resolve(root,'.'+name);
   if(!file.startsWith(path.resolve(root)+path.sep)){res.writeHead(403).end();return;}
   await send(req,res,file);
  }catch{

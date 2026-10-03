@@ -46,3 +46,10 @@ test('the English page differs from the French one only in its head', ()=>{
  const body=html=>html.replace(/<head>[\s\S]*<\/head>/,'').replace('<html lang="fr">','').replace('<html lang="en">','');
  assert.equal(body(read('index.en.html')),body(read('index.html')),'run node tools/make-en.mjs');
 });
+
+test('the toll built into live.js matches tools/toll.json', ()=>{
+ const toll=JSON.parse(fs.readFileSync(new URL('../tools/toll.json',import.meta.url),'utf8'));
+ const m=read('live.js').match(/BUILT_IN=\{date:'([\d-]+)',killed:(\d+),injured:(\d+)\}/);
+ assert.ok(m,'BUILT_IN not found');
+ assert.deepEqual({date:m[1],killed:+m[2],injured:+m[3]},toll);
+});

@@ -1,0 +1,52 @@
+# Keeps the reported toll up to date without redeploying the site:
+# reads the latest OCHA snapshot, then updates manifest.json and the share images on the live-data branch.
+name: Bilan OCHA (données vivantes)
+on:
+  schedule:
+    - cron: '23 5,11,17,23 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency: live-data
+jobs:
+  toll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: live-data
+          path: live
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Outils PDF
+        run: sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+      - name: Lire la dernière fiche OCHA
+        id: toll
+        run: node tools/live/fetch-toll.mjs live/manifest.json
+      - name: Redessiner les images de partage
+        if: steps.toll.outputs.changed == 'true'
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1
+          npx playwright install --with-deps chromium
+          TOLL_FILE=live/manifest.json OUT_DIR=live/brand node tools/og/render.mjs
+      - name: Publier
+        if: steps.toll.outputs.changed == 'true'
+        working-directory: live
+        run: |
+          git config user.name "gazascale-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Bilan OCHA du ${{ steps.toll.outputs.date }}"
+          git push
+      - name: Signaler un problème
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Bilan OCHA : mise à jour automatique impossible"
+          if [ -z "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[].number')" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "La lecture automatique de la dernière fiche OCHA a échoué : le site garde le bilan précédent. Détails : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          fi

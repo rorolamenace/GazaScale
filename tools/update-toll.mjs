@@ -1,5 +1,7 @@
 // Updates the reported toll everywhere on the site from a new OCHA "Reported impact snapshot".
 // Usage: node tools/update-toll.mjs 2026-09-30 74100 175300
+// Normally not needed: the live manifest (branch live-data) updates the site without redeploying.
+// This rewrites the figures built into the site, used when the live data cannot be reached.
 // Checks first that the snapshot PDF exists, then rewrites dist/ and regenerates the English page.
 // It then redraws the share images (tools/og/render.mjs, needs Playwright).
 import fs from 'node:fs';
@@ -18,9 +20,10 @@ const from=forms(old.date,old.killed,old.injured),to=forms(date,+killed,+injured
 const url=`https://www.ochaopt.org/sites/default/files/Gaza_Reported_Impact_Snapshot_${to.dates[4]}.pdf`;
 try{const code=execFileSync('curl',['-s','-o','/dev/null','-w','%{http_code}','-m','30',url]).toString();if(code!=='200')throw Error(code);}catch(e){console.error('Fiche OCHA introuvable : '+url+' ('+e.message+')');process.exit(1);}
 const pairs=[];from.dates.forEach((d,i)=>pairs.push([d,to.dates[i]]));
+pairs.push([old.date,date]);
 for(const k of [0,1])from.numbers[k].forEach((n,i)=>pairs.push([n,to.numbers[k][i]]));
 const dist=new URL('../dist/',import.meta.url);let total=0;
-for(const file of ['index.html','app.js','map-extras.js','en.js','tour.js']){
+for(const file of ['index.html','app.js','map-extras.js','en.js','tour.js','live.js']){
  let s=fs.readFileSync(new URL(file,dist),'utf8'),n=0;
  // whole numbers only, so that 73922 inside a longer number is left alone
  for(const [a,b] of pairs){const re=new RegExp('(?<![\\d.,])'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\d])','g');s=s.replace(re,()=>{n++;return b;});}

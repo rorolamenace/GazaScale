@@ -5,7 +5,10 @@ import fs from 'node:fs';
 const playwright=process.env.PLAYWRIGHT_MODULE||'playwright';
 const {chromium}=await import(playwright);
 const here=new URL('./',import.meta.url),dist=new URL('../../dist/',import.meta.url);
-const toll=JSON.parse(fs.readFileSync(new URL('../toll.json',import.meta.url),'utf8'));
+// TOLL_FILE: a toll.json or a live manifest ({toll:{…}}); OUT_DIR: where to write (default dist/brand).
+const tollSource=JSON.parse(fs.readFileSync(process.env.TOLL_FILE||new URL('../toll.json',import.meta.url),'utf8'));
+const toll=tollSource.toll||tollSource;
+const outDir=process.env.OUT_DIR?new URL('file://'+fs.realpathSync(process.env.OUT_DIR)+'/'):new URL('brand/',dist);
 const [y,m,d]=toll.date.split('-').map(Number);
 const MFR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'],MEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const nfr=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '),nen=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');
@@ -21,7 +24,7 @@ for(const [lang,t] of Object.entries(texts)){
   const f=u.startsWith('/fonts/')?new URL('.'+u,dist):new URL('.'+u,here);
   r.fulfill({body:fs.readFileSync(f),contentType:u.endsWith('.woff2')?'font/woff2':u.endsWith('.jpg')?'image/jpeg':'image/png'});});
  await page.goto('http://og.local/');await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(300);
- const out=new URL(lang==='fr'?'brand/partage.png':'brand/partage-en.png',dist);
+ const out=new URL(lang==='fr'?'partage.png':'partage-en.png',outDir);
  await page.screenshot({path:out.pathname});console.log('written',out.pathname);await page.close();
 }
 await browser.close();
