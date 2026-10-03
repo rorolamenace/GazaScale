@@ -34,7 +34,8 @@ map.on('click',event=>{closeMapMenus();clearTimeout(mapClickTimer);if(Date.now()
 // The blue zone answers a tap with its own figures.
 function populationPopup(feature,latlng){const content=document.createElement('div');content.className='commune-popup';const title=document.createElement('strong');title.textContent=feature.properties.nom;const people=document.createElement('p');people.textContent=Number.isFinite(feature.properties.population)?t('{n} habitants',{n:fmt(feature.properties.population)}):t('Population indisponible');const zone=document.createElement('p');zone.className='text-population';zone.textContent=t('L’une des {n} communes qui réunissent {pop} habitants, la population de Gaza.',{n:fmt(popZone.count),pop:(population!==2226544?'≈ ':'')+fmt(population)});const note=document.createElement('small');note.textContent=t('Équivalence de population, pas un déplacement ni un lieu réel.');content.append(title,people,zone,note);L.popup({maxWidth:compact()?200:290,autoPan:true}).setLatLng(latlng).setContent(content).openOn(map);}
 map.on('dblclick',()=>clearTimeout(mapClickTimer));
-$('toggle-shape').onclick=()=>{representation=representation==='circle'?'contour':'circle';updateRepresentation();};
+// Back to the outline: Gaza returns to its real orientation, slightly oblique.
+$('toggle-shape').onclick=()=>{representation=representation==='circle'?'contour':'circle';if(representation==='contour')angle=0;updateRepresentation();};
 $('toggle-overseas').onclick=()=>{const open=$('overseas-menu').hidden;$('overseas-menu').hidden=!open;$('toggle-overseas').setAttribute('aria-expanded',String(open));if(open)setMapPanel(null);};
 function placeCity(lat,lng,zoom=10){popFitPending=true;moved();center=[lng,lat];draw();map.setView([lat,lng],zoom,{animate:false});placed();}
 // Menu icons come from the small precomputed index; the full overseas data loads when needed.

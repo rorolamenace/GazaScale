@@ -8,7 +8,7 @@
   {title:'Déplacez Gaza où vous voulez',text:move},
   {target:()=>$('explanation-panel').hidden?(compact()?$('welcome-bar'):$('toggle-sidebar')):$('explanation-panel'),title:'Les chiffres clés',text:'Bombardements, superficie, population, vies perdues, blessés et bâtiments détruits, chacun avec sa source et sa date.'},
   {target:()=>$('toggle-filters'),title:'Affichage',text:'Choisissez ce que montre la carte : bâtiments détruits et endommagés, vies perdues, blessés et population de Gaza. L’hypothèse de 680 000 vies perdues, non confirmée, s’active ici.'},
-  {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Gaza s’affiche avec son contour réel. Ce bouton la remplace par un cercle de même surface, 365 km², et inversement.'},
+  {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Gaza s’affiche avec son contour réel. Ce bouton la remplace par un cercle de même surface, 365 km². Revenir au contour lui rend son orientation réelle.'},
   {target:()=>$('toggle-overseas'),title:'Outre-mer',text:'Placez Gaza en Guadeloupe, à La Réunion, en Nouvelle-Calédonie et dans les autres territoires.'},
   {target:()=>$('toggle-comparison'),title:'Victimes',text:'Ouvre le détail : la population de Gaza, puis les vies perdues et les blessés transposés chez vous, commune par commune.'},
   {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez le nom d’une ville, n’importe où dans le monde, ou un code postal français pour y placer Gaza.'},
