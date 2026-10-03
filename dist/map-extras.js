@@ -43,7 +43,7 @@ for(const p of window.OVERSEAS_INDEX.territories){const button=document.createEl
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');svg.setAttribute('viewBox','0 0 64 64');svg.setAttribute('aria-hidden','true');path.setAttribute('d',p.path);svg.append(path);const name=document.createElement('span');name.className='territory-tooltip';name.textContent=p.nom;button.append(svg,name);button.onclick=()=>{$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');placeCity(p.lat,p.lng,p.zoom);};$('overseas-options').append(button);}
 $('overseas-menu').addEventListener('keydown',e=>{if(e.key==='Escape'){$('overseas-menu').hidden=true;$('toggle-overseas').setAttribute('aria-expanded','false');$('toggle-overseas').focus();}});
 let searchTimer,searchAbort,searchSequence=0;
-const normalize=value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const normalize=value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[ıł]/g,c=>c==='ı'?'i':'l').replace(/ø/g,'o').replace(/đ/g,'d');
 let extraPlaces=null,europePlaces=null,europePlacesLoading=null;
 const placeRows=(rows,country)=>rows.map(([nom,code,population,lon,lat,cc])=>({properties:{nom,code,population,country:cc||country,centre:{type:'Point',coordinates:[lon,lat]}}}));
 // World and United States names are split by their first two letters (wd/places/<xx>.json), fetched as the visitor types.
