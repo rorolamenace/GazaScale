@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-135.1328,68.2257],[-135.1015,68.2344],[-135.0412,68.2561],[-134.9488,68.2222],[-135.0096,68.1937],[-135.1328,68.2257]]]},"properties":{"nom":"Aklavik","code":"WD-CA-51904","country":"CA","population":599,"surface":25.9,"populationYear":2023,"modelled":true}}]}

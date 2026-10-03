@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-133.5123,62.2743],[-133.1987,62.2711],[-133.1991,62.1553],[-133.5092,62.1555],[-133.5123,62.2743]]]},"properties":{"nom":"Faro","code":"WD-CA-51707","country":"CA","population":382,"surface":212.1,"populationYear":2023,"modelled":true}}]}
