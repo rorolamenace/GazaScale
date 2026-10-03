@@ -175,7 +175,15 @@ document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims()
 window.gazaSnapshot=()=>({center,angle,representation,view:map.getCenter(),zoom:map.getZoom(),period:$('period').value,
  checks:Object.fromEntries(['show-damage','show-damaged','show-lives','show-injuries','hypothesis-toggle','show-population'].map(id=>[id,$(id).checked])),
  panel:comparisonOpen||comparisonWanted,sidebar:!$('explanation-panel').hidden});
+// A shared view travels in the address as #v=lat,lng,angle,zoom,viewLat,viewLng,shape,period,flags.
+const shareFlags={'show-damage':'d','show-damaged':'a','show-lives':'l','show-injuries':'i','hypothesis-toggle':'h','show-population':'p'};
+const shareCode=()=>{const s=window.gazaSnapshot();const flags=Object.entries(shareFlags).filter(([id])=>s.checks[id]).map(([,c])=>c).join('')+(s.panel?'v':'');return [s.center[1].toFixed(4),s.center[0].toFixed(4),Math.round(s.angle),s.zoom,s.view.lat.toFixed(4),s.view.lng.toFixed(4),s.representation==='circle'?'c':'o',s.period,flags].join(',');};
+// The address is typed by anyone: accept only numbers in range and known letters.
+function readShareCode(code){const p=code.split(',');if(p.length!==9)return null;const n=p.slice(0,6).map(Number);if(n.some(v=>!Number.isFinite(v)))return null;const [lat,lng,a,z,vlat,vlng]=n;if(Math.abs(lat)>80||Math.abs(lng)>180||Math.abs(vlat)>85||Math.abs(vlng)>540)return null;const flags=/^[dalihpv]*$/.test(p[8])?p[8]:'';
+ return {center:[lng,lat],angle:a,zoom:Math.max(2,Math.min(17,Math.round(z))),view:{lat:vlat,lng:vlng},representation:p[6]==='c'?'circle':'contour',period:p[7]==='2023'?'2023':'2025',checks:Object.fromEntries(Object.entries(shareFlags).map(([id,c])=>[id,flags.includes(c)])),panel:flags.includes('v'),sidebar:null};}
 (()=>{let saved=null;try{saved=JSON.parse(sessionStorage.getItem('gazascale-restore'));sessionStorage.removeItem('gazascale-restore');}catch{}
+ const shared=location.hash.match(/^#v=([-0-9.,a-z]+)$/);
+ if(!saved&&shared){saved=readShareCode(shared[1]);history.replaceState(null,'',location.pathname+location.search);if(saved)window.zstats?.('Vue partagée ouverte');}
  if(!saved||!Array.isArray(saved.center))return;
  window.gazaRestored=true;
  try{
@@ -185,6 +193,31 @@ window.gazaSnapshot=()=>({center,angle,representation,view:map.getCenter(),zoom:
   panelChoice=Boolean(saved.panel);atlas.place(saved.center[1],saved.center[0],saved.angle||0);
   fitOnOpen=false;popFitPending=false;if(saved.panel)hintPending=false;
   if(saved.view)map.setView(saved.view,saved.zoom,{animate:false});
-  if(!saved.sidebar&&!$('explanation-panel').hidden)setSidebar(false);
+  if(saved.sidebar===false&&!$('explanation-panel').hidden)setSidebar(false);
  }catch(e){console.warn(e);}
+})();
+
+// Share this view: the phone's own share menu on touch screens, a small panel elsewhere.
+(()=>{const button=$('share-button'),panel=$('share-panel');
+ const url=()=>location.origin+location.pathname+(window.LANG==='en'?'?lang=en':'')+'#v='+shareCode();
+ const place=()=>{const pt=turf.point(center);return communes.find(f=>{try{return turf.booleanPointInPolygon(pt,f);}catch{return false;}})?.properties.nom||'';};
+ const close=()=>{panel.hidden=true;button.setAttribute('aria-expanded','false');};
+ button.onclick=async event=>{event.stopPropagation();window.zstats?.('Partager la vue');
+  const link=url(),where=place(),text=where?t('La bande de Gaza, ses vies perdues et ses blessés, posés sur {place}.',{place:where}):t('La bande de Gaza, ses vies perdues et ses blessés, posés à votre échelle.');
+  if(navigator.share&&window.matchMedia('(pointer: coarse)').matches){try{await navigator.share({title:document.title,text,url:link});}catch{}return;}
+  if(!panel.hidden){close();return;}
+  $('share-text').textContent=where?t('Le lien rouvre la carte exactement ici : Gaza sur {place}, même zoom, mêmes options.',{place:where}):t('Le lien rouvre la carte exactement ici : même position de Gaza, même zoom, mêmes options.');
+  $('share-url').value=link;$('share-copy').textContent=t('Copier');
+  const e=encodeURIComponent;
+  $('share-x').href='https://x.com/intent/post?text='+e(text)+'&url='+e(link);
+  $('share-whatsapp').href='https://wa.me/?text='+e(text+' '+link);
+  $('share-bluesky').href='https://bsky.app/intent/compose?text='+e(text+' '+link);
+  $('share-mail').href='mailto:?subject='+e(document.title)+'&body='+e(text+'\n\n'+link);
+  panel.hidden=false;button.setAttribute('aria-expanded','true');$('share-copy').focus();};
+ $('share-copy').onclick=async()=>{const ok=await copyText($('share-url').value);$('share-copy').textContent=ok?t('Lien copié'):t('Copie impossible');if(!ok)$('share-url').select();};
+ $('share-url').onfocus=e=>e.target.select();
+ $('share-close').onclick=close;
+ for(const a of panel.querySelectorAll('.share-links a'))a.addEventListener('click',()=>window.zstats?.('Partage : '+a.textContent));
+ document.addEventListener('pointerdown',e=>{if(!panel.hidden&&!panel.contains(e.target)&&!button.contains(e.target))close();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){close();button.focus();}});
 })();
