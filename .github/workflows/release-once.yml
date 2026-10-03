@@ -1,0 +1,19 @@
+name: Release v1.10.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.10.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.10.0 --repo "$GITHUB_REPOSITORY" \
+            --target ae3e8399ed0121cf09ae7c54ce52cd0ab1908505 \
+            --title "GazaScale 1.10" --latest \
+            --notes "Bouton « Partager cette vue » : un lien qui rouvre la carte exactement au même endroit (panneau avec lien, X, WhatsApp, Bluesky et e-mail sur ordinateur, menu de partage sur téléphone). Correction du décalage des contours après un tour de globe ; double-clic dézoomé qui centre et zoome. Recherche des villes du monde (GeoNames, noms français des grandes villes). Royaume-Uni en quartiers électoraux (recensement 2021), Brésil en communes officielles (IBGE 2024), Golan, nord de Chypre et îles américaines couverts. Aperçu de partage en anglais pour ?lang=en, données servies compressées avec cache, tests automatiques étendus, outil de mise à jour du bilan OCHA."
