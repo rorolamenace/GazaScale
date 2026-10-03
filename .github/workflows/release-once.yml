@@ -1,0 +1,19 @@
+name: Release v1.12.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.12.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.12.0 --repo "$GITHUB_REPOSITORY" \
+            --target 9a7e59373d81de0fd4c7b5e53169ec221c13312a \
+            --title "GazaScale 1.12" --latest \
+            --notes "Données vivantes, sans redéploiement : le bilan OCHA est relu quatre fois par jour (avec les images de partage FR et EN), et les populations sont vérifiées chaque mois auprès des sources officielles (Eurostat, CBS Israël, IBGE, US Census, Statistique Canada, ministère japonais des Affaires intérieures). Déjà publiés : États-Unis 2025 et Brésil 2026. Unités officielles pour le Mexique (2 457 municipios, CONAPO 2024), la Turquie (973 districts, TÜİK 2022), le Canada (5 161 subdivisions de recensement, StatCan 2025) et le Japon (1 892 municipalités et arrondissements, 1er janvier 2026). Recherche tolérante au ı turc."
