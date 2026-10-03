@@ -1,0 +1,44 @@
+# Checks every month whether the official sources published newer populations
+# (Eurostat LAU, Israel CBS, IBGE, US Census) and publishes them on the live-data branch: no redeploy.
+name: Populations (données vivantes)
+on:
+  schedule:
+    - cron: '41 4 2 * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency: live-data
+jobs:
+  populations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: live-data
+          path: live
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install openpyxl
+      - name: Chercher des populations plus récentes
+        run: python3 tools/live/update-populations.py dist live
+      - name: Publier
+        working-directory: live
+        run: |
+          git add -A
+          if git diff --cached --quiet; then echo "Rien de nouveau"; exit 0; fi
+          git config user.name "gazascale-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Populations mises à jour ($(date -u +%Y-%m-%d))"
+          git push
+      - name: Signaler un problème
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Populations : mise à jour automatique impossible"
+          if [ -z "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[].number')" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "La mise à jour mensuelle des populations a échoué ; le site garde les chiffres précédents. Détails : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          fi

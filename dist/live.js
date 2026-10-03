@@ -14,6 +14,9 @@
  const valid=t=>t&&/^\d{4}-\d{2}-\d{2}$/.test(t.date)&&Number.isInteger(t.killed)&&Number.isInteger(t.injured)&&t.killed>=BUILT_IN.killed&&t.injured>=BUILT_IN.injured&&t.killed<10000000&&t.injured<10000000&&t.date>=BUILT_IN.date;
  const fix=s=>{if(!pairs.length||typeof s!=='string')return s;for(const [a,b] of pairs)if(s.includes(a))s=s.split(a).join(b);return s;};
  window.TOLL={...BUILT_IN};
+ // Commune files updated since the release (yearly populations): manifest.datasets[dir].files, or every file of dir.
+ const DIRS=['eu','it','ch','me','wd','us'];window.LIVE_DATASETS={};
+ window.dataUrl=path=>{const [dir,...rest]=path.split('/'),set=window.LIVE_DATASETS[dir];return set&&(!set.files||set.files.has(rest.join('/')))?'live/'+path:path;};
  window.tollFix=fix;
  const t0=window.t;if(t0)window.t=(fr,vars)=>fix(t0(fr,vars));
  const rewrite=root=>{const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){const v=fix(n.textContent);if(v!==n.textContent)n.textContent=v;}
@@ -22,6 +25,7 @@
   const timer=setTimeout(()=>resolve(null),3000);
   fetch('live/manifest.json',{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(m=>{
    clearTimeout(timer);
+   if(m&&m.datasets&&typeof m.datasets==='object')for(const dir of DIRS){const d=m.datasets[dir];if(d&&Number.isInteger(d.year))window.LIVE_DATASETS[dir]={year:d.year,files:Array.isArray(d.files)?new Set(d.files.filter(f=>typeof f==='string'&&/^[\w./-]+\.json$/.test(f)&&!f.includes('..'))):null};}
    if(m&&valid(m.toll)&&(m.toll.date!==BUILT_IN.date||m.toll.killed!==BUILT_IN.killed||m.toll.injured!==BUILT_IN.injured)){
     const a=forms(BUILT_IN),b=forms(m.toll);pairs=a.flatMap((list,k)=>list.map((v,j)=>[v,b[k][j]])).sort((x,y)=>y[0].length-x[0].length);
     window.TOLL={date:m.toll.date,killed:m.toll.killed,injured:m.toll.injured,source:typeof m.toll.source==='string'&&/^https:\/\/www\.ochaopt\.org\//.test(m.toll.source)?m.toll.source:null};
