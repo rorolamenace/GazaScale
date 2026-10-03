@@ -1,0 +1,19 @@
+name: Release v1.11.1 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.11.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.11.1 --repo "$GITHUB_REPOSITORY" \
+            --target b5cab3a816367249ae1aa9c48d3fd5ec710c094f \
+            --title "GazaScale 1.11.1" --latest \
+            --notes "Sur téléphone, glisser vers le bas replie le panneau d'accueil (et le panneau Victimes) au lieu de rafraîchir la page : le tirer-pour-rafraîchir du navigateur est désactivé sur le site."
