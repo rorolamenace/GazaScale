@@ -1,7 +1,7 @@
 // Updates the reported toll everywhere on the site from a new OCHA "Reported impact snapshot".
 // Usage: node tools/update-toll.mjs 2026-09-30 74100 175300
 // Checks first that the snapshot PDF exists, then rewrites dist/ and regenerates the English page.
-// The share image (dist/brand/partage.png) shows the figures too and has to be redrawn separately.
+// It then redraws the share images (tools/og/render.mjs, needs Playwright).
 import fs from 'node:fs';
 import {execFileSync} from 'node:child_process';
 const [date,killed,injured]=process.argv.slice(2);
@@ -28,4 +28,5 @@ for(const file of ['index.html','app.js','map-extras.js','en.js','tour.js']){
 }
 fs.writeFileSync(stateFile,JSON.stringify({date,killed:+killed,injured:+injured})+'\n');
 execFileSync('node',[new URL('make-en.mjs',import.meta.url).pathname],{stdio:'inherit'});
-console.log(total,'remplacements. Pensez à refaire l’image de partage (dist/brand/partage.png) et à monter le numéro de version dans index.html.');
+try{execFileSync('node',[new URL('og/render.mjs',import.meta.url).pathname],{stdio:'inherit'});}catch{console.log('Images de partage non redessinées (Playwright absent) : lancez node tools/og/render.mjs.');}
+console.log(total,'remplacements. Vérifiez les noms de communes de l’image de partage et montez le numéro de version dans index.html.');

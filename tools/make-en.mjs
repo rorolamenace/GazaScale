@@ -18,5 +18,6 @@ swap('<meta property="og:locale" content="fr_FR">','<meta property="og:locale" c
 swap('<meta property="og:url" content="https://gazascale.org/">','<meta property="og:url" content="https://gazascale.org/?lang=en">');
 swap('<link rel="canonical" href="https://gazascale.org/">','<link rel="canonical" href="https://gazascale.org/?lang=en">');
 swap(/(<meta property="og:image:alt" content=")([^"]*)/,(m,a)=>a+'Map: the Gaza Strip placed on Chambéry. In red, the municipalities equivalent to the 73,922 lives lost; in yellow, 92 municipalities for the 174,995 injured. Toll reported as of 23 September 2026.');
+swap('<meta property="og:image" content="https://gazascale.org/brand/partage.png">','<meta property="og:image" content="https://gazascale.org/brand/partage-en.png">');
 fs.writeFileSync(new URL('index.en.html',dist),html);
 console.log('dist/index.en.html written');

@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Manrope;src:url(/fonts/manrope-latin.woff2)}@font-face{font-family:'DM Sans';src:url(/fonts/dm-sans-latin.woff2)}
+body{margin:0;width:1200px;height:560px;font-family:'DM Sans';color:#20313a;display:grid;grid-template-columns:470px 1fr;overflow:hidden;background:#f5f7f7}
+.l{padding:46px 0 0 48px;position:relative}
+.logo{display:block}
+h1{font:800 44px/1.1 Manrope;letter-spacing:-1.5px;margin:34px 0 22px}
+.row{display:flex;gap:12px;align-items:flex-start;margin:0 0 16px;font-size:20px;line-height:1.35}
+.sw{flex:0 0 22px;height:22px;border-radius:5px;margin-top:3px;box-sizing:border-box}
+.row b{font-family:Manrope}
+.r{background:rgba(220,54,85,.62);border:1.5px solid rgba(178,24,54,.8)}.y{background:rgba(242,204,50,.42);border:1.5px solid rgba(155,115,0,.32)}.g{background:rgba(123,129,138,.2);border:2px dashed rgba(69,75,84,.8)}
+.map{background:url(/map.jpg) 0 0/730px 560px no-repeat;position:relative}
+.note{position:absolute;right:26px;bottom:24px;font:italic 400 16px 'DM Sans';color:#56666d}
+.tag{position:absolute;top:22px;right:22px;background:#20313a;color:#fff;font:700 18px Manrope;padding:10px 14px;border-radius:9px}
+</style></head><body><div class="l"><img class="logo" src="/brand.png" height="54" alt="">
+<h1>{title}</h1>
+<div class="row"><span class="sw r"></span><span>{lives}</span></div>
+<div class="row"><span class="sw y"></span><span>{injured}</span></div>
+<div class="row"><span class="sw g"></span><span>{buildings}</span></div>
+<div class="note">{date}</div></div><div class="map"><div class="tag">{tag}</div></div></body></html>

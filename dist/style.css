@@ -3674,3 +3674,10 @@ aside {
   .share-label { display: none; }
   .share-panel { top: 70px; right: 12px; left: 12px; width: auto; }
 }
+
+/* Short "Sources" label on phones, so the header stays on one line next to the share icon */
+.sources-short { display: none; }
+@media (max-width: 650px) {
+  .sources-long { display: none; }
+  .sources-short { display: inline; }
+}

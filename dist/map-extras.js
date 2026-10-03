@@ -222,3 +222,7 @@ function readShareCode(code){const p=code.split(',');if(p.length!==9)return null
  document.addEventListener('pointerdown',e=>{if(!panel.hidden&&!panel.contains(e.target)&&!button.contains(e.target))close();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){close();button.focus();}});
 })();
+
+// Draw the French départements as soon as the map shows France.
+const franceInView=()=>{if(!franceReady){const b=map.getBounds();if(bboxOverlap([b.getWest(),b.getSouth(),b.getEast(),b.getNorth()],franceBox))loadFrance().catch(()=>{});}};
+map.on('moveend',franceInView);franceInView();
