@@ -3,7 +3,7 @@
 (function(){
  const $=id=>document.getElementById(id),doneKey='gazascale-tour-done';
  const touch=window.matchMedia('(pointer: coarse)').matches,compact=()=>window.matchMedia('(max-width:650px)').matches;
- const move=t(touch?'Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.':'Double-cliquez sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu.');
+ const move=t(touch?'Maintenez le doigt appuyé sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu, partout dans le monde.':'Double-cliquez sur la carte : la surface de Gaza, les vies perdues et les blessés se replacent sur ce lieu, partout dans le monde.');
  const steps=[
   {title:'Déplacez Gaza où vous voulez',text:move},
   {target:()=>$('explanation-panel').hidden?(compact()?$('welcome-bar'):$('toggle-sidebar')):$('explanation-panel'),title:'Les chiffres clés',text:'Bombardements, superficie, population, vies perdues, blessés et bâtiments détruits, chacun avec sa source et sa date.'},
@@ -11,7 +11,7 @@
   {target:()=>$('toggle-shape'),title:'Contour ou cercle',text:'Gaza s’affiche avec son contour réel. Ce bouton la remplace par un cercle de même surface, 365 km², et inversement.'},
   {target:()=>$('toggle-overseas'),title:'Outre-mer',text:'Placez Gaza en Guadeloupe, à La Réunion, en Nouvelle-Calédonie et dans les autres territoires.'},
   {target:()=>$('toggle-comparison'),title:'Victimes',text:'Ouvre le détail : la population de Gaza, puis les vies perdues et les blessés transposés chez vous, commune par commune.'},
-  {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez un nom ou un code postal pour y placer Gaza.'},
+  {target:()=>$('search-city'),title:'Rechercher une ville',text:'Tapez le nom d’une ville, n’importe où dans le monde, ou un code postal français pour y placer Gaza.'},
   {target:()=>$('comparison-panel'),title:'Population et victimes',text:'La population de Gaza, les vies perdues et les blessés, chacun traduit en communes. Touchez une vignette pour la replier ou l’ouvrir. Le bleu, le rouge et le jaune ne situent personne.'},
   {target:()=>$('locate-me'),title:'Ma position',text:'Place Gaza là où vous êtes, si votre navigateur l’autorise.'},
   {target:()=>$('toggle-legend'),title:'Légende',text:'Ce que signifient les couleurs et les traits de la carte : Gaza, bâtiments, vies perdues, blessés.'},
