@@ -7,7 +7,7 @@ Usage: python3 tools/live/update-populations.py DIST_DIR LIVE_DIR
   LIVE_DIR: a checkout of the live-data branch (manifest.json is updated there).
 Each source is tried for a newer year than the one already published; nothing is written otherwise.
 Geometry never changes here: new boundaries need a release of the site.
-Needs: openpyxl (Israel, Japan). Prints a summary; exits 0 even when a source is unreachable (it is retried next run).
+Needs: openpyxl (Israel, Japan, Australia). Prints a summary; exits 0 even when a source is unreachable (it is retried next run).
 """
 import csv, io, json, os, sys, glob, datetime, urllib.request, urllib.error
 
@@ -18,7 +18,7 @@ manifest_path = os.path.join(LIVE, 'manifest.json')
 manifest = json.load(open(manifest_path))
 datasets = manifest.setdefault('datasets', {})
 # Years built into the release: a source must be newer than this (or than what live-data already has).
-BUILT_IN = {'eu': 2024, 'it': 2024, 'me': 2024, 'br': 2024, 'us': 2024, 'ca': 2025, 'jp': 2026}
+BUILT_IN = {'eu': 2024, 'it': 2024, 'me': 2024, 'br': 2024, 'us': 2024, 'ca': 2025, 'jp': 2026, 'au': 2025}
 
 def get(url, binary=False):
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=300) as r:
@@ -164,7 +164,29 @@ def japan():
     if len(values) > 1500:
         apply('wd', values, year, 'jp', 'https://www.soumu.go.jp' + links[0], only=lambda n: n.startswith('JP-'))
 
-for step in (eurostat, israel, brazil, united_states, canada, japan):
+def australia():
+    """ABS estimated resident population at June 30 by SA2 (Regional population, table 32180DS0001), in wd/AU-*.json."""
+    import openpyxl
+    for year in range(NOW, published('au'), -1):
+        edition = f'{year - 1}-{str(year)[2:]}'
+        url = f'https://www.abs.gov.au/statistics/people/population/regional-population/{edition}/32180DS0001_{edition}.xlsx'
+        try: data = get(url, binary=True)
+        except urllib.error.URLError: continue
+        wb = openpyxl.load_workbook(io.BytesIO(data), read_only=True)
+        values = {}
+        for ws in wb.worksheets:
+            if not ws.title.startswith('Table'): continue
+            rows = ws.iter_rows(values_only=True)
+            years = next((r for r in rows if r and year in r), None)
+            if not years: continue
+            col = list(years).index(year)
+            for r in rows:
+                if len(r) > col and isinstance(r[6], int) and isinstance(r[col], int): values[f'WD-AU-{r[6]}'] = r[col]
+        if len(values) > 2000:
+            apply('wd', values, year, 'au', url, only=lambda n: n.startswith('AU-'))
+        return
+
+for step in (eurostat, israel, brazil, united_states, canada, japan, australia):
     before = dict(datasets.get('_years') or {})
     try: step()
     except Exception as e: print(step.__name__, 'failed:', e)
