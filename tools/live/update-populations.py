@@ -7,7 +7,7 @@ Usage: python3 tools/live/update-populations.py DIST_DIR LIVE_DIR
   LIVE_DIR: a checkout of the live-data branch (manifest.json is updated there).
 Each source is tried for a newer year than the one already published; nothing is written otherwise.
 Geometry never changes here: new boundaries need a release of the site.
-Needs: openpyxl (Israel). Prints a summary; exits 0 even when a source is unreachable (it is retried next run).
+Needs: openpyxl (Israel, Japan). Prints a summary; exits 0 even when a source is unreachable (it is retried next run).
 """
 import csv, io, json, os, sys, glob, datetime, urllib.request, urllib.error
 
@@ -18,7 +18,7 @@ manifest_path = os.path.join(LIVE, 'manifest.json')
 manifest = json.load(open(manifest_path))
 datasets = manifest.setdefault('datasets', {})
 # Years built into the release: a source must be newer than this (or than what live-data already has).
-BUILT_IN = {'eu': 2024, 'it': 2024, 'me': 2024, 'br': 2024, 'us': 2024}
+BUILT_IN = {'eu': 2024, 'it': 2024, 'me': 2024, 'br': 2024, 'us': 2024, 'ca': 2025, 'jp': 2026}
 
 def get(url, binary=False):
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=300) as r:
@@ -134,7 +134,37 @@ def united_states():
         if len(values) > 30000: apply('us', values, year, 'us', url)
         return
 
-for step in (eurostat, israel, brazil, united_states):
+def canada():
+    """Statistics Canada table 17-10-0155 (July 1 estimates by census subdivision), in wd/CA-*.json."""
+    import zipfile
+    data = zipfile.ZipFile(io.BytesIO(get('https://www150.statcan.gc.ca/n1/tbl/csv/17100155-eng.zip', binary=True)))
+    rows = list(csv.DictReader(io.StringIO(data.read('17100155.csv').decode('utf-8-sig'))))
+    year = max(int(r['REF_DATE']) for r in rows)
+    if year <= published('ca'): return
+    values = {'WD-CA-' + r['DGUID'][9:]: int(r['VALUE']) for r in rows
+              if r['REF_DATE'] == str(year) and r['DGUID'].startswith('2021A0005') and r['VALUE'].isdigit()}
+    if len(values) > 4000:
+        apply('wd', values, year, 'ca', 'https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710015501', only=lambda n: n.startswith('CA-'))
+
+def japan():
+    """Japanese resident register at January 1 (soumu.go.jp, municipalities, all residents), in wd/JP-*.json."""
+    import openpyxl, re
+    page_url = 'https://www.soumu.go.jp/main_sosiki/jichi_gyousei/daityo/jinkou_jinkoudoutai-setaisuu.html'
+    page = get(page_url, binary=True).decode('shift_jis', 'replace')
+    # The page lists one workbook per table: the right one is the all-residents (総計) population by municipality (市区町村別).
+    links = [m.group(1) for m in re.finditer(r'href="([^"]+\.xlsx)">([^<]*)', page)
+             if '総計' in m.group(2) and '市区町村別' in m.group(2) and '人口・世帯数' in m.group(2)]
+    if not links: print('jp: workbook link not found'); return
+    rows = list(openpyxl.load_workbook(io.BytesIO(get('https://www.soumu.go.jp' + links[0], binary=True)), read_only=True).worksheets[0].iter_rows(values_only=True))
+    era = re.search(r'令和(\d+)年1月1日', str(rows[0][0]))
+    if not era: return
+    year = 2018 + int(era.group(1))
+    if year <= published('jp'): return
+    values = {'WD-JP-' + str(r[0])[:5]: int(r[5]) for r in rows if r[0] and str(r[0]).isdigit() and isinstance(r[5], (int, float))}
+    if len(values) > 1500:
+        apply('wd', values, year, 'jp', 'https://www.soumu.go.jp' + links[0], only=lambda n: n.startswith('JP-'))
+
+for step in (eurostat, israel, brazil, united_states, canada, japan):
     before = dict(datasets.get('_years') or {})
     try: step()
     except Exception as e: print(step.__name__, 'failed:', e)
