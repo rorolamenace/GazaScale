@@ -22,6 +22,8 @@ jobs:
         with:
           node-version: 22
       - run: node --test tests/*.test.mjs
+      - name: Tests of the population routine
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
 
   image:
     needs: test

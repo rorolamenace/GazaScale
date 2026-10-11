@@ -18,6 +18,7 @@ Ouvrir http://127.0.0.1:4187. Le serveur local compresse les réponses en gzip e
 
 ```sh
 node --test tests/*.test.mjs
+python3 -m unittest discover -s tests -p 'test_*.py'
 ```
 
 Ils vérifient la surface de 365 km² après déplacement et rotation, l'arrêt exact de la sélection au bilan, la séparation entre vies perdues et blessés, et la cohérence des fichiers chargés à la demande.

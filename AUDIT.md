@@ -60,7 +60,7 @@ Aucun constat critique.
   Le script attrape toutes les erreurs et termine toujours avec succès. Si une adresse change (cas déjà vécu avec HDX), la mise à jour s'arrête en silence et aucun ticket n'est ouvert.
   *Correctif* : publier ce qui a réussi, puis terminer en erreur si une source a échoué, ce qui ouvre le ticket existant.
 
-- [ ] **I7. La routine des populations n'a aucun test.** `tools/live/update-populations.py` · effort M.
+- [x] **I7. La routine des populations n'a aucun test.** `tools/live/update-populations.py` · effort M.
   `apply()` réécrit des milliers de fichiers servis en production.
   *Correctif* : rendre le script importable sans l'exécuter, tester `apply()` sur un petit jeu de fichiers, lancer ces tests dans la CI.
 
