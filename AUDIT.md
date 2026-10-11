@@ -64,7 +64,7 @@ Aucun constat critique.
   `apply()` réécrit des milliers de fichiers servis en production.
   *Correctif* : rendre le script importable sans l'exécuter, tester `apply()` sur un petit jeu de fichiers, lancer ces tests dans la CI.
 
-- [ ] **I8. La fabrication des données « monde » n'est pas dans le dépôt.** `dist/wd/` (179 Mo) · effort S.
+- [x] **I8. La fabrication des données « monde » n'est pas dans le dépôt.** `dist/wd/` (179 Mo) · effort S.
   Les scripts qui ont produit les unités du Canada, du Japon, de l'Indonésie, du Nigeria, des Philippines, de l'Afrique du Sud, de l'Australie, des États-Unis et du reste du monde n'existent que dans un dossier temporaire de session. Ils seront perdus, et `dist/wd/` deviendra impossible à refaire ou à corriger.
   *Correctif* : les versionner dans `tools/world/` avec une notice (sources, ordre d'exécution, limites).
 
