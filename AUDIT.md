@@ -85,6 +85,8 @@ Aucun constat critique.
 - [ ] **M10. 321 Mo de données dans Git et dans l'image.** Chaque déploiement repousse 320 Mo. Voir les recommandations. Effort L.
 - [ ] **M11. Mexique, Turquie, Indonésie, Nigeria, Philippines, Afrique du Sud hors de la routine annuelle** : leurs adresses HDX changent à chaque édition. Effort M.
 - [ ] **M12. Aucune surveillance de disponibilité.** Une panne de Jelastic ou de `/live/` ne prévient personne. Effort S (sonde externe gratuite).
+- [ ] **M14. Le serveur local relaie encore tout `/live/`.** `serve.mjs` ne reprend pas la liste de nginx (I3). Sans risque : il n'écoute que sur 127.0.0.1. Effort S.
+- [ ] **M15. Le Brésil injoignable ouvre désormais un ticket.** Conséquence voulue de I6 ; l'API SIDRA est parfois lente. Le ticket n'est ouvert qu'une fois tant qu'il reste ouvert. Effort S.
 - [ ] **M13. Textes français en dur** dans la branche morte de M1 (`Chargement des territoires…`, `habitants / km²`). Disparaît avec M1.
 
 ## Données personnelles et RGPD
@@ -98,9 +100,22 @@ Aucun constat critique.
 
 | Constat | Commit | Vérification |
 |---|---|---|
-| I1, I2 | voir l'historique de la branche | `tests/live.test.mjs` |
-| I3 | idem | conteneur : `/live/README.md` 404, `/live/manifest.json` 200 |
-| I4 | idem | `docker build`, contrôles du workflow |
-| I5 | idem | `tests/toll.test.mjs` |
-| I6, I7 | idem | `tests/test_update_populations.py` |
-| I8 | idem | relecture |
+| I1 | `bc0e9f7` | `tests/live.test.mjs` ; Chromium avec le bilan réel du 30 septembre : 16 remplacements, 0 ancien chiffre restant, comme avant |
+| I2 | `ef297ff` | `tests/live.test.mjs` |
+| I3 | `b0de175` | conteneur : `/live/README.md` et `/live/wd/places/pa.json` en 404 ; manifeste, images et fichiers de communes en 200 ; contrôle ajouté à la CI |
+| I4 | `f57b279` | `docker build`, contrôles de la CI, healthcheck « healthy », nginx 1.28.3 |
+| I5 | `d260590` | `tests/toll.test.mjs` ; script lancé contre ochaopt.org |
+| I6 | `9b37734` | `tests/test_update_populations.py` |
+| I7 | `8ed23be` | 5 tests Python, lancés par la CI |
+| I8 | `25557cc` | relecture des chemins et des dépendances |
+
+## Deuxième tour
+
+Relecture du code modifié : aucun nouveau constat critique ou important. Deux constats mineurs ajoutés (M14, M15).
+La nouvelle correction du bilan donne exactement le même résultat que l'ancienne sur les 629 textes du site
+(page française, page anglaise, `en.js`, `app.js`, `tour.js`) : elle ne change que les nombres collés à d'autres chiffres.
+
+## À la prochaine release
+
+`dist/live.js` a changé sans changer de numéro de version (`?v=1.13.0`). nginx garde les scripts une heure en cache :
+monter la version dans `dist/index.html` puis lancer `node tools/make-en.mjs` avant de mettre en ligne.

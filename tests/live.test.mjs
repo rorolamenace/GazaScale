@@ -26,7 +26,7 @@ test('a newer toll replaces the built-in figures in texts', async()=>{
 
 test('numbers that merely contain the old toll are left alone', async()=>{
  const w=await load({toll:newer});
- // A commune of 1 73 922-like size must keep its own population.
+ // A commune of 173 922 or 2 174 995 inhabitants keeps its own population.
  const bigger=group(Number('1'+BUILT.killed)),ending=group(Number('2'+BUILT.injured));
  assert.equal(w.t('{n} habitants',{n:bigger}),bigger+' habitants');
  assert.equal(w.t('{n} habitants',{n:ending}),ending+' habitants');
