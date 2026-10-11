@@ -40,7 +40,7 @@ Aucun constat critique.
   Quand un nouveau bilan OCHA arrive, `live.js` remplace partout l'ancien chiffre par le nouveau, par simple recherche de texte, y compris dans les valeurs passées à `t()`. Une commune de 173 922 habitants s'affiche alors avec 174 032 habitants, car « 73 922 » est contenu dans « 173 922 ». Le bilan actuel de `live-data` (30 septembre) déclenche déjà ce remplacement.
   *Correctif* : ne corriger que les phrases du site, pas les valeurs calculées, et exiger que le nombre ne soit pas collé à d'autres chiffres. Test : `tests/live.test.mjs`.
 
-- [ ] **I2. La recherche européenne cassera à la prochaine mise à jour Eurostat.** `dist/live.js` · effort S.
+- [x] **I2. La recherche européenne cassera à la prochaine mise à jour Eurostat.** `dist/live.js` · effort S.
   Quand un dossier entier est mis à jour (`eu`, `it`, `us`, sans liste `files`), `dataUrl()` envoie aussi `eu/places.json` vers `live/`. Or la routine des populations ne copie pas ce fichier. La recherche des villes européennes renverrait alors une erreur 404 et ne trouverait plus rien.
   *Correctif* : ne rediriger vers `live/` que les fichiers de communes, jamais `index.json`, `countries.json`, `places.json` ni `places/`. Test : `tests/live.test.mjs`.
 

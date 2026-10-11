@@ -34,3 +34,11 @@ test('numbers that merely contain the old toll are left alone', async()=>{
  assert.equal(w.t('{n} habitants',{n:group(BUILT.killed)}),group(BUILT.killed)+' habitants');
 });
 
+test('a folder updated as a whole still serves the search and index files of the release', async()=>{
+ const w=await load({datasets:{eu:{year:2025},wd:{year:2026,files:['BR--17_-2.json']}}});
+ assert.equal(w.dataUrl('eu/AL011.json'),'live/eu/AL011.json');
+ assert.equal(w.dataUrl('eu/places.json'),'eu/places.json');
+ assert.equal(w.dataUrl('wd/BR--17_-2.json'),'live/wd/BR--17_-2.json');
+ assert.equal(w.dataUrl('wd/places/pa.json'),'wd/places/pa.json');
+ assert.equal(w.dataUrl('it/001.json'),'it/001.json');
+});

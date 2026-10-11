@@ -18,7 +18,9 @@
  window.TOLL={...BUILT_IN};
  // Commune files updated since the release (yearly populations): manifest.datasets[dir].files, or every file of dir.
  const DIRS=['eu','it','ch','me','wd','us'];window.LIVE_DATASETS={};
- window.dataUrl=path=>{const [dir,...rest]=path.split('/'),set=window.LIVE_DATASETS[dir];return set&&(!set.files||set.files.has(rest.join('/')))?'live/'+path:path;};
+ // Index and search files are never republished there: they always come from the release.
+ const RELEASE_ONLY=/^(?:index|countries|places)\.json$|^places\//;
+ window.dataUrl=path=>{const [dir,...rest]=path.split('/'),file=rest.join('/'),set=window.LIVE_DATASETS[dir];return set&&!RELEASE_ONLY.test(file)&&(!set.files||set.files.has(file))?'live/'+path:path;};
  window.tollFix=fix;
  // Only the sentence is corrected; the values filled in (populations, counts) are computed and stay as they are.
  const t0=window.t;if(t0)window.t=(fr,vars)=>{const s=fix(t0(fr));return vars?s.replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m):s;};
