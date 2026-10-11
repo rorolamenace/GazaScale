@@ -48,7 +48,7 @@ Aucun constat critique.
   `https://gazascale.org/live/<n'importe quoi>` interroge GitHub, par exemple `/live/README.md`. Chaque adresse inventée part chez GitHub (le 404 n'est gardé qu'une minute). Quelqu'un peut ainsi épuiser le quota de requêtes du serveur vers GitHub, et le bilan en direct cesse alors de se mettre à jour.
   *Correctif* : n'accepter que `manifest.json`, les deux images de partage et les fichiers JSON des six dossiers de données ; le reste répond 404 sans sortir du serveur.
 
-- [ ] **I4. L'image repose sur nginx 1.27, qui ne reçoit plus de correctifs.** `Dockerfile` · effort S.
+- [x] **I4. L'image repose sur nginx 1.27, qui ne reçoit plus de correctifs.** `Dockerfile` · effort S.
   La branche 1.27 s'est arrêtée au printemps 2025. La branche stable maintenue est 1.28.
   *Correctif* : `nginx:1.28-alpine`. Même configuration, simple montée de version mineure.
 

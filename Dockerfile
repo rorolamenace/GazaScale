@@ -1,5 +1,5 @@
 # Static image for GazaScale: nginx serves dist/ with precompressed files and security headers.
-FROM nginx:1.27-alpine
+FROM nginx:1.28-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY dist/ /usr/share/nginx/html/
 # Commune data is kept compressed only; nginx unpacks it for clients without gzip.
