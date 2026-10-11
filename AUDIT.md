@@ -94,7 +94,7 @@ Aucun constat critique.
 - Pas de cookie. Le navigateur garde la langue, la visite guidée vue et les vignettes repliées (`localStorage`), sans envoi : c'est du stockage fonctionnel, sans consentement requis.
 - Mesure d'audience zstats auto-hébergée : IP tronquée, code visiteur renouvelé chaque jour, conservation 13 mois, rubrique « Cookies et données » à jour. Cela correspond aux conditions d'exemption de consentement de la CNIL.
 - La géolocalisation reste dans le navigateur et n'est demandée qu'au clic sur « Ma position ».
-- Reste I9 (mentions légales).
+- Mentions légales ajoutées (I9), sans nom d’éditeur.
 
 ## Suivi des corrections
 
