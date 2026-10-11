@@ -44,7 +44,7 @@ Aucun constat critique.
   Quand un dossier entier est mis à jour (`eu`, `it`, `us`, sans liste `files`), `dataUrl()` envoie aussi `eu/places.json` vers `live/`. Or la routine des populations ne copie pas ce fichier. La recherche des villes européennes renverrait alors une erreur 404 et ne trouverait plus rien.
   *Correctif* : ne rediriger vers `live/` que les fichiers de communes, jamais `index.json`, `countries.json`, `places.json` ni `places/`. Test : `tests/live.test.mjs`.
 
-- [ ] **I3. `/live/` relaie n'importe quel fichier du dépôt.** `deploy/nginx.conf` · effort S.
+- [x] **I3. `/live/` relaie n'importe quel fichier du dépôt.** `deploy/nginx.conf` · effort S.
   `https://gazascale.org/live/<n'importe quoi>` interroge GitHub, par exemple `/live/README.md`. Chaque adresse inventée part chez GitHub (le 404 n'est gardé qu'une minute). Quelqu'un peut ainsi épuiser le quota de requêtes du serveur vers GitHub, et le bilan en direct cesse alors de se mettre à jour.
   *Correctif* : n'accepter que `manifest.json`, les deux images de partage et les fichiers JSON des six dossiers de données ; le reste répond 404 sans sortir du serveur.
 
