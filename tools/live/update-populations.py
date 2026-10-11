@@ -7,16 +7,23 @@ Usage: python3 tools/live/update-populations.py DIST_DIR LIVE_DIR
   LIVE_DIR: a checkout of the live-data branch (manifest.json is updated there).
 Each source is tried for a newer year than the one already published; nothing is written otherwise.
 Geometry never changes here: new boundaries need a release of the site.
-Needs: openpyxl (Israel, Japan, Australia). Prints a summary; exits 0 even when a source is unreachable (it is retried next run).
+Needs: openpyxl (Israel, Japan, Australia). Prints a summary. What succeeded is always saved; the exit code is 1
+when a source failed (unreachable or changed), so that the workflow opens an issue. Tests: tests/test_update_populations.py.
 """
 import csv, io, json, os, sys, glob, datetime, urllib.request, urllib.error
 
-DIST, LIVE = sys.argv[1], sys.argv[2]
 UA = {'User-Agent': 'GazaScale live data (https://gazascale.org)'}
 NOW = datetime.date.today().year
-manifest_path = os.path.join(LIVE, 'manifest.json')
-manifest = json.load(open(manifest_path))
-datasets = manifest.setdefault('datasets', {})
+DIST = LIVE = manifest_path = None
+manifest, datasets = {}, {}
+
+def setup(dist, live):
+    """Points the script at a site folder and a live-data checkout, and reads its manifest."""
+    global DIST, LIVE, manifest_path, manifest, datasets
+    DIST, LIVE = dist, live
+    manifest_path = os.path.join(LIVE, 'manifest.json')
+    manifest = json.load(open(manifest_path))
+    datasets = manifest.setdefault('datasets', {})
 # Years built into the release: a source must be newer than this (or than what live-data already has).
 BUILT_IN = {'eu': 2024, 'it': 2024, 'me': 2024, 'br': 2024, 'us': 2024, 'ca': 2025, 'jp': 2026, 'au': 2025}
 
@@ -107,8 +114,7 @@ def israel():
 
 def brazil():
     """IBGE population estimates by municipality (SIDRA table 6579), in wd/BR-*.json."""
-    try: rows = json.loads(get('https://apisidra.ibge.gov.br/values/t/6579/n6/all/v/all/p/last'))
-    except Exception as e: print('br: unreachable', e); return
+    rows = json.loads(get('https://apisidra.ibge.gov.br/values/t/6579/n6/all/v/all/p/last'))
     year = int(rows[1]['D3C'])
     if year <= published('br'): return
     values = {'WD-BR-' + r['D1C']: int(r['V']) for r in rows[1:] if r['V'].isdigit()}
@@ -186,11 +192,23 @@ def australia():
             apply('wd', values, year, 'au', url, only=lambda n: n.startswith('AU-'))
         return
 
-for step in (eurostat, israel, brazil, united_states, canada, japan, australia):
-    before = dict(datasets.get('_years') or {})
-    try: step()
-    except Exception as e: print(step.__name__, 'failed:', e)
-    else:
-        if (datasets.get('_years') or {}) == before: print(step.__name__ + ': nothing newer than what is published')
-json.dump(manifest, open(manifest_path, 'w'), indent=2, ensure_ascii=False)
-open(manifest_path, 'a').write('\n')
+STEPS = (eurostat, israel, brazil, united_states, canada, japan, australia)
+
+def main(dist, live, steps=STEPS):
+    """Runs every source, saves what succeeded, and returns 1 if a source failed (the workflow then opens an issue)."""
+    setup(dist, live)
+    failed = []
+    for step in steps:
+        before = dict(datasets.get('_years') or {})
+        try: step()
+        except Exception as e:
+            print(step.__name__, 'failed:', e); failed.append(step.__name__)
+        else:
+            if (datasets.get('_years') or {}) == before: print(step.__name__ + ': nothing newer than what is published')
+    json.dump(manifest, open(manifest_path, 'w'), indent=2, ensure_ascii=False)
+    open(manifest_path, 'a').write('\n')
+    if failed: print('Failed sources:', ', '.join(failed))
+    return 1 if failed else 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1], sys.argv[2]))

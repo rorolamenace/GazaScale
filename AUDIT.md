@@ -56,7 +56,7 @@ Aucun constat critique.
   Ce script lit un PDF et publie le bilan sur le site sans relecture humaine. Sa logique de lecture n'était testable qu'en ligne.
   *Correctif* : sortir la lecture dans une fonction pure (`tools/live/parse-toll.mjs`) et la tester sur une fiche type, sur une mise en page changée et sur des chiffres invraisemblables.
 
-- [ ] **I6. Une source de population cassée ne prévient jamais.** `tools/live/update-populations.py`, `.github/workflows/live-populations.yml` · effort S.
+- [x] **I6. Une source de population cassée ne prévient jamais.** `tools/live/update-populations.py`, `.github/workflows/live-populations.yml` · effort S.
   Le script attrape toutes les erreurs et termine toujours avec succès. Si une adresse change (cas déjà vécu avec HDX), la mise à jour s'arrête en silence et aucun ticket n'est ouvert.
   *Correctif* : publier ce qui a réussi, puis terminer en erreur si une source a échoué, ce qui ouvre le ticket existant.
 

@@ -24,7 +24,9 @@ jobs:
       - run: pip install openpyxl
       - name: Chercher des populations plus récentes
         run: python3 tools/live/update-populations.py dist live
+      # Publishes what succeeded even when a source failed; the failure then opens the issue below.
       - name: Publier
+        if: ${{ !cancelled() }}
         working-directory: live
         run: |
           git add -A
@@ -40,5 +42,5 @@ jobs:
         run: |
           title="Populations : mise à jour automatique impossible"
           if [ -z "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "$title in:title" --json number --jq '.[].number')" ]; then
-            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "La mise à jour mensuelle des populations a échoué ; le site garde les chiffres précédents. Détails : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "Au moins une source de la mise à jour mensuelle des populations a échoué (adresse changée, format modifié ou service injoignable). Les autres sources ont été publiées ; pour celle-ci, le site garde les chiffres précédents. Détails : $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           fi
