@@ -68,7 +68,7 @@ Aucun constat critique.
   Les scripts qui ont produit les unités du Canada, du Japon, de l'Indonésie, du Nigeria, des Philippines, de l'Afrique du Sud, de l'Australie, des États-Unis et du reste du monde n'existent que dans un dossier temporaire de session. Ils seront perdus, et `dist/wd/` deviendra impossible à refaire ou à corriger.
   *Correctif* : les versionner dans `tools/world/` avec une notice (sources, ordre d'exécution, limites).
 
-- [ ] **I9. Pas de mentions légales.** `dist/index.html` · **attend votre décision**.
+- [x] **I9. Pas de mentions légales.** `dist/index.html` · ajoutées sans nom d’éditeur, à votre demande.
   La loi française (LCEN, art. 6-III) demande d'identifier l'éditeur et l'hébergeur d'un site, même associatif ou personnel ; un particulier peut garder l'anonymat en donnant les coordonnées de son hébergeur. Le site ne donne qu'une adresse e-mail. Je n'écris pas votre identité à votre place.
 
 ### Mineur
