@@ -36,7 +36,7 @@ Aucun constat critique.
 
 ### Important
 
-- [ ] **I1. Le bilan en direct peut réécrire la population d'une commune.** `dist/live.js` · effort S.
+- [x] **I1. Le bilan en direct peut réécrire la population d'une commune.** `dist/live.js` · effort S.
   Quand un nouveau bilan OCHA arrive, `live.js` remplace partout l'ancien chiffre par le nouveau, par simple recherche de texte, y compris dans les valeurs passées à `t()`. Une commune de 173 922 habitants s'affiche alors avec 174 032 habitants, car « 73 922 » est contenu dans « 173 922 ». Le bilan actuel de `live-data` (30 septembre) déclenche déjà ce remplacement.
   *Correctif* : ne corriger que les phrases du site, pas les valeurs calculées, et exiger que le nombre ne soit pas collé à d'autres chiffres. Test : `tests/live.test.mjs`.
 

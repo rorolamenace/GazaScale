@@ -12,13 +12,16 @@
   return [[`${d} ${MONTHS.fr[i]} ${y}`,`${d} ${MONTHS.frShort[i]} ${y}`,`${d} ${MONTHS.en[i]} ${y}`,`${d} ${MONTHS.enShort[i]} ${y}`],num(t.killed),num(t.injured)];};
  let pairs=[];
  const valid=t=>t&&/^\d{4}-\d{2}-\d{2}$/.test(t.date)&&Number.isInteger(t.killed)&&Number.isInteger(t.injured)&&t.killed>=BUILT_IN.killed&&t.injured>=BUILT_IN.injured&&t.killed<10000000&&t.injured<10000000&&t.date>=BUILT_IN.date;
- const fix=s=>{if(!pairs.length||typeof s!=='string')return s;for(const [a,b] of pairs)if(s.includes(a))s=s.split(a).join(b);return s;};
+ // One pass, and only whole figures: 173 922 inhabitants must not become 174 032 when 73 922 changes.
+ let pattern=null,swap=null;
+ const fix=s=>{if(!pattern||typeof s!=='string')return s;return s.replace(pattern,m=>swap.get(m));};
  window.TOLL={...BUILT_IN};
  // Commune files updated since the release (yearly populations): manifest.datasets[dir].files, or every file of dir.
  const DIRS=['eu','it','ch','me','wd','us'];window.LIVE_DATASETS={};
  window.dataUrl=path=>{const [dir,...rest]=path.split('/'),set=window.LIVE_DATASETS[dir];return set&&(!set.files||set.files.has(rest.join('/')))?'live/'+path:path;};
  window.tollFix=fix;
- const t0=window.t;if(t0)window.t=(fr,vars)=>fix(t0(fr,vars));
+ // Only the sentence is corrected; the values filled in (populations, counts) are computed and stay as they are.
+ const t0=window.t;if(t0)window.t=(fr,vars)=>{const s=fix(t0(fr));return vars?s.replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m):s;};
  const rewrite=root=>{const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode())){const v=fix(n.textContent);if(v!==n.textContent)n.textContent=v;}
   for(const e of root.querySelectorAll('[title],[aria-label],[alt]'))for(const a of ['title','aria-label','alt']){const v=e.getAttribute(a);if(v){const f=fix(v);if(f!==v)e.setAttribute(a,f);}}};
  window.liveReady=new Promise(resolve=>{
@@ -27,7 +30,8 @@
    clearTimeout(timer);
    if(m&&m.datasets&&typeof m.datasets==='object')for(const dir of DIRS){const d=m.datasets[dir];if(d&&Number.isInteger(d.year))window.LIVE_DATASETS[dir]={year:d.year,files:Array.isArray(d.files)?new Set(d.files.filter(f=>typeof f==='string'&&/^[\w./-]+\.json$/.test(f)&&!f.includes('..'))):null};}
    if(m&&valid(m.toll)&&(m.toll.date!==BUILT_IN.date||m.toll.killed!==BUILT_IN.killed||m.toll.injured!==BUILT_IN.injured)){
-    const a=forms(BUILT_IN),b=forms(m.toll);pairs=a.flatMap((list,k)=>list.map((v,j)=>[v,b[k][j]])).sort((x,y)=>y[0].length-x[0].length);
+    const a=forms(BUILT_IN),b=forms(m.toll);pairs=a.flatMap((list,k)=>list.map((v,j)=>[v,b[k][j]])).filter(([x,y])=>x!==y).sort((x,y)=>y[0].length-x[0].length);
+    if(pairs.length){swap=new Map(pairs);const esc=v=>v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');pattern=new RegExp('(?<!\\d)(?<!\\d[ ,.\u00a0\u202f])(?:'+pairs.map(([x])=>esc(x)).join('|')+')(?!\\d)(?![ ,.\u00a0\u202f]\\d)','g');}
     window.TOLL={date:m.toll.date,killed:m.toll.killed,injured:m.toll.injured,source:typeof m.toll.source==='string'&&/^https:\/\/www\.ochaopt\.org\//.test(m.toll.source)?m.toll.source:null};
     rewrite(document.body);document.title=fix(document.title);
     if(window.TOLL.source)for(const a of document.querySelectorAll('a[href*="Gaza_Reported_Impact_Snapshot"]'))a.href=window.TOLL.source;
