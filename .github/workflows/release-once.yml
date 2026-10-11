@@ -1,0 +1,19 @@
+name: Release v1.14.1 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.14.1 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.14.1 --repo "$GITHUB_REPOSITORY" \
+            --target f60fb3d3244f2c4253a345d3d3b4f38d2d89423f \
+            --title "GazaScale 1.14.1" --latest \
+            --notes "Mentions légales, en français et en anglais : éditeur non professionnel (non nommé, comme la loi le permet), contact, hébergeur Infomaniak, données en direct relayées depuis GitHub et licences des contenus. Accessibles depuis « Sources & méthode » et depuis le pied du panneau."
