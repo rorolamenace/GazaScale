@@ -1,9 +1,14 @@
 /* Language: French is written in the page; English replaces it at load time.
-   Choice order: ?lang=, then the visitor's last choice, then the browser language. */
+   English lives at /en (nginx serves index.en.html there), French at /. ?lang= is the older form of the same choice.
+   Choice order: the address, then the visitor's last choice, then the browser language. */
 (function(){
- const q=new URLSearchParams(location.search).get('lang');let stored=null;try{stored=localStorage.getItem('gazascale-lang');}catch{}
- const lang=q==='en'||q==='fr'?q:stored==='en'||stored==='fr'?stored:/^fr\b/i.test(navigator.language||'fr')?'fr':'en';
- if(q==='en'||q==='fr'){try{localStorage.setItem('gazascale-lang',q);}catch{}}
+ const enPath=/^\/en\/?$|\/index\.en\.html$/.test(location.pathname),q=new URLSearchParams(location.search).get('lang');
+ const asked=enPath?'en':q==='en'||q==='fr'?q:null;let stored=null;try{stored=localStorage.getItem('gazascale-lang');}catch{}
+ const lang=asked||(stored==='en'||stored==='fr'?stored:/^fr\b/i.test(navigator.language||'fr')?'fr':'en');
+ if(asked){try{localStorage.setItem('gazascale-lang',asked);}catch{}}
+ // The address always says the language shown: /en for English, / for French (the hash, a shared view, is kept).
+ const home=l=>l==='en'?'/en':'/';
+ try{const url=new URL(location.href);url.searchParams.delete('lang');if(enPath||/^\/(?:index\.html)?$/.test(url.pathname))url.pathname=home(lang);if(url.href!==location.href)history.replaceState(history.state,'',url.href);}catch{}
  window.LANG=lang;document.documentElement.lang=lang;
  const norm=s=>s.replace(/\s+/g,' ').trim();
  // t('texte français', {n:…}) returns the English text when the page is in English; {n} placeholders are filled either way.
@@ -24,7 +29,9 @@
   if(lang==='en'){document.title=t(document.title);window.translatePage(document.body);}
   const button=document.getElementById('lang-toggle');
   if(button){button.textContent=lang==='en'?'FR':'EN';button.setAttribute('aria-label',lang==='en'?'Afficher le site en français':'Show the site in English');button.lang=lang==='en'?'fr':'en';
-   button.onclick=()=>{const next=lang==='en'?'fr':'en';try{localStorage.setItem('gazascale-lang',next);sessionStorage.setItem('gazascale-restore',JSON.stringify(window.gazaSnapshot?.()??null));}catch{}const url=new URL(location.href);url.searchParams.set('lang',next);location.replace(url);};}
+   button.onclick=()=>{const next=lang==='en'?'fr':'en';try{localStorage.setItem('gazascale-lang',next);sessionStorage.setItem('gazascale-restore',JSON.stringify(window.gazaSnapshot?.()??null));}catch{}const url=new URL(location.href);url.searchParams.delete('lang');url.pathname=home(next);location.replace(url.href);};}
+  // The logo and "open in a browser" lead to the page in the same language.
+  if(lang==='en')for(const a of document.querySelectorAll('a.brand,#location-browser-link'))a.setAttribute('href',home(lang));
  };
  // Loaded at the end of <body>, so the page is already there: translate it before the other scripts read it.
  apply();

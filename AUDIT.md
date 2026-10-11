@@ -115,7 +115,6 @@ Relecture du code modifié : aucun nouveau constat critique ou important. Deux c
 La nouvelle correction du bilan donne exactement le même résultat que l'ancienne sur les 629 textes du site
 (page française, page anglaise, `en.js`, `app.js`, `tour.js`) : elle ne change que les nombres collés à d'autres chiffres.
 
-## À la prochaine release
+## Release 1.14.0
 
-`dist/live.js` a changé sans changer de numéro de version (`?v=1.13.0`). nginx garde les scripts une heure en cache :
-monter la version dans `dist/index.html` puis lancer `node tools/make-en.mjs` avant de mettre en ligne.
+Le numéro de version est passé à 1.14.0 : les navigateurs rechargent `live.js` et les autres scripts modifiés.

@@ -40,6 +40,8 @@ jobs:
           curl -fsSI http://127.0.0.1:8080/app.js | grep -qi 'content-type: application/javascript'
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/introuvable)" = 404
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/live/README.md)" = 404
+          curl -fsS http://127.0.0.1:8080/en | grep -q '<html lang="en">'
+          test "$(curl -s -o /dev/null -w '%{redirect_url}' 'http://127.0.0.1:8080/?lang=en')" = http://127.0.0.1:8080/en
       - name: Push to GitHub Container Registry
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |

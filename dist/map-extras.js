@@ -201,7 +201,7 @@ function readShareCode(code){const p=code.split(',');if(p.length!==9)return null
 
 // Share this view: the phone's own share menu on touch screens, a small panel elsewhere.
 (()=>{const button=$('share-button'),panel=$('share-panel');
- const url=()=>location.origin+location.pathname+(window.LANG==='en'?'?lang=en':'')+'#v='+shareCode();
+ const url=()=>location.origin+location.pathname+'#v='+shareCode();
  const place=()=>{const pt=turf.point(center);return communes.find(f=>{try{return turf.booleanPointInPolygon(pt,f);}catch{return false;}})?.properties.nom||'';};
  const close=()=>{panel.hidden=true;button.setAttribute('aria-expanded','false');};
  button.onclick=async event=>{event.stopPropagation();window.zstats?.('Partager la vue');

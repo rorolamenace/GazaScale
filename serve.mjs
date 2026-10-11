@@ -27,7 +27,9 @@ http.createServer(async(req,res)=>{
    const r=await fetch('https://raw.githubusercontent.com/rorolamenace/GazaScale/live-data/'+rel);
    res.writeHead(r.status,{'Content-Type':r.headers.get('content-type')||'application/octet-stream','Cache-Control':'no-cache'}).end(Buffer.from(await r.arrayBuffer()));return;
   }
-  const name=decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname),file=path.resolve(root,'.'+name);
+  // Same addresses as production: /en is the English page, /en/ and /?lang=en lead there.
+  if(url.pathname==='/en/'||url.pathname==='/'&&url.searchParams.get('lang')==='en'){res.writeHead(301,{Location:'/en'}).end();return;}
+  const name=decodeURIComponent(url.pathname==='/'?'/index.html':url.pathname==='/en'?'/index.en.html':url.pathname),file=path.resolve(root,'.'+name);
   if(!file.startsWith(path.resolve(root)+path.sep)){res.writeHead(403).end();return;}
   await send(req,res,file);
  }catch{

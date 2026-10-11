@@ -40,6 +40,7 @@ Le déploiement sur Jelastic (Infomaniak) est décrit dans `deploy/README.md`.
 - Un double-clic sur la carte, ou un appui long sur mobile, place Gaza à cet endroit. Les flèches du clavier la déplacent d'un kilomètre. En mode contour, la poignée ronde la fait pivoter.
 - La surface reste exacte grâce à une projection azimutale équivalente ; la rotation se fait dans un plan local.
 - Le panneau Victimes se ferme pendant un déplacement et se rouvre quand le calcul est prêt. Sur ordinateur, c'est une colonne à gauche de la carte ; sur mobile, un panneau en bas. Ses vignettes (population de Gaza, vies perdues, blessés) se replient une à une, et le navigateur retient ce choix.
+- Le site est en français à l'adresse `/` et en anglais à `/en`. Le bouton FR/EN passe de l'une à l'autre en gardant la carte. Sans choix, la langue du navigateur décide (français si elle est française, anglais sinon), et l'adresse change en conséquence. Les anciens liens `?lang=en` mènent à `/en`.
 - La zone bleue réunit autant d'habitants que Gaza (estimation PCBS la plus récente par défaut), en additionnant les communes les plus proches du centre. Elle se masque dans « Affichage ».
 
 ## Lire les chiffres
