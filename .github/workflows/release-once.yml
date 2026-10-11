@@ -1,0 +1,19 @@
+name: Release v1.14.0 (one-off)
+on:
+  push:
+    branches: [claude/serene-mendel-j2m6t6]
+    paths: [.github/workflows/release-once.yml]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.14.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "déjà publiée"; exit 0; fi
+          gh release create v1.14.0 --repo "$GITHUB_REPOSITORY" \
+            --target f1b2739141f2e28d958c15378ad79a3b73743821 \
+            --title "GazaScale 1.14" --latest \
+            --notes "La version anglaise a sa propre adresse, gazascale.org/en ; le bouton FR ramène à gazascale.org, en français, en gardant la carte. Les anciens liens ?lang=en mènent à /en. Corrections issues de l'audit : le bilan mis à jour ne modifie plus les populations des communes qui contiennent l'ancien chiffre, la recherche européenne reste disponible quand Eurostat publie de nouvelles populations, le relais des données en direct n'accepte plus que les fichiers du site, nginx passe en 1.28, et les routines du bilan OCHA et des populations sont testées et signalent leurs échecs."
