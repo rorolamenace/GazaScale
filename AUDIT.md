@@ -52,7 +52,7 @@ Aucun constat critique.
   La branche 1.27 s'est arrêtée au printemps 2025. La branche stable maintenue est 1.28.
   *Correctif* : `nginx:1.28-alpine`. Même configuration, simple montée de version mineure.
 
-- [ ] **I5. Le lecteur de fiches OCHA publie des chiffres sans aucun test.** `tools/live/fetch-toll.mjs` · effort M.
+- [x] **I5. Le lecteur de fiches OCHA publie des chiffres sans aucun test.** `tools/live/fetch-toll.mjs` · effort M.
   Ce script lit un PDF et publie le bilan sur le site sans relecture humaine. Sa logique de lecture n'était testable qu'en ligne.
   *Correctif* : sortir la lecture dans une fonction pure (`tools/live/parse-toll.mjs`) et la tester sur une fiche type, sur une mise en page changée et sur des chiffres invraisemblables.
 
