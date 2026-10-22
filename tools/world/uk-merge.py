@@ -32,13 +32,12 @@ for nid,fs in files.items():
     json.dump({'type':'FeatureCollection','features':fs},open(D+'eu/'+nid+'.json','w'),separators=(',',':'),ensure_ascii=False)
     b=shapely.total_bounds([shape(x['geometry']) for x in fs]);bb[nid]=[round(v,4) for v in b]
 # update europe.js boxes for UK regions
-src=open(D+'europe.js').read();head,body=src.split('window.EUROPE_DATA=');data=json.loads(body.rstrip().rstrip(';'))
-for f in data['features']:
-    nid=f['properties']['code'][3:]
+src=open(D+'europe.js').read();a=src.index('/*rows*/')+8;b=src.index('/*end*/');rows=json.loads(src[a:b])
+for r in rows:
+    nid=r[0][3:]
     if nid in bb:
-        b=bb[nid];f['bbox']=b;f['geometry']={'type':'Polygon','coordinates':[[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]],[b[0],b[1]]]]}
-        f['properties']['population']=sum(x['properties']['population'] or 0 for x in files[nid])
-open(D+'europe.js','w').write(head+'window.EUROPE_DATA='+json.dumps(data,separators=(',',':'),ensure_ascii=False)+';\n')
+        r[5:9]=bb[nid];r[3]=sum(x['properties']['population'] or 0 for x in files[nid])
+open(D+'europe.js','w').write(src[:a]+json.dumps(rows,separators=(',',':'),ensure_ascii=False)+src[b:])
 # search list
 pl=[r for r in json.load(open(D+'eu/places.json')) if not ((r[1].startswith('EU-UK_')) and r[1] not in KEEP)]
 for nid,fs in files.items():

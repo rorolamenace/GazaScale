@@ -10,7 +10,7 @@ const {GazaGeometry,GazaSelection}=globalThis,data=window.ATLAS_DATA;
 const km2=f=>turf.area(f)/1e6,geneva=[6.108,46.035];
 // Swiss communes are split by canton in dist/ch/, loaded on demand by the site.
 const fs=require('node:fs'),chDir=new URL('../dist/ch/',import.meta.url);
-const swissCommunes=fs.readdirSync(chDir).flatMap(file=>JSON.parse(fs.readFileSync(new URL(file,chDir))).features);
+const swissCommunes=fs.readdirSync(chDir).filter(file=>file!=='places.json').flatMap(file=>JSON.parse(fs.readFileSync(new URL(file,chDir))).features);
 
 test('le cercle et le contour gardent 365 km² partout', ()=>{
  const xy=GazaGeometry.prepare(data.gaza);
