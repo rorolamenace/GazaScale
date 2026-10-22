@@ -144,7 +144,7 @@ window.callVictims=()=>{
  const home=communes.find(f=>{f.bbox??=turf.bbox(f);return center[0]>=f.bbox[0]&&center[0]<=f.bbox[2]&&center[1]>=f.bbox[1]&&center[1]<=f.bbox[3]&&turf.booleanPointInPolygon(turf.point(center),f);});
  const hint=document.createElement('div');hint.id='victims-hint';hint.className='victims-hint'+(sheetMode()?' below':'');hint.setAttribute('role','status');
  const title=document.createElement('strong'),text=document.createElement('span'),action=document.createElement('small');
- title.textContent=t('Transposé chez vous');text.textContent=(home?t('Vies perdues et blessés de Gaza, rapportés aux habitants de {n} communes, autour de {name}.',{n:count||'',name:home?.properties.nom}):t('Vies perdues et blessés de Gaza, rapportés aux habitants de {n} communes.',{n:count||''})).replace('  ',' ');action.textContent=sheetMode()?t('Touchez pour voir le détail'):t('Cliquez pour voir le détail');
+ title.textContent=t('Transposé chez vous');text.textContent=(home?t('Vies perdues et blessés de Gaza, rapportés aux habitants de {n} communes, autour de {name}.',{n:count||'',name:window.isolateName(home.properties.nom)}):t('Vies perdues et blessés de Gaza, rapportés aux habitants de {n} communes.',{n:count||''})).replace('  ',' ');action.textContent=sheetMode()?t('Touchez pour voir le détail'):t('Cliquez pour voir le détail');
  hint.append(title,text,action);hint.onclick=()=>{button.click();};workspace.append(hint);
  const b=button.getBoundingClientRect(),w=workspace.getBoundingClientRect();
  if(sheetMode()){hint.style.right=Math.max(8,w.right-b.right)+'px';hint.style.top=(b.bottom-w.top+12)+'px';}else{hint.style.right=(w.right-b.left+14)+'px';hint.style.top=(b.top-w.top-6)+'px';}
