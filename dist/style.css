@@ -3698,3 +3698,24 @@ html, body { overscroll-behavior-y: none; }
   .leaflet-control-attribution .credits-toggle::after,
   .rotate-handle::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
 }
+
+/* Reading text on phones: 13.5 px instead of 12 (labels in capitals and map labels keep their size). */
+@media (max-width: 650px) {
+  #explanation-panel p,
+  #explanation-panel .micro,
+  #explanation-panel summary,
+  #explanation-panel label,
+  #explanation-panel small,
+  #explanation-panel footer,
+  #explanation-panel .bld-note,
+  #explanation-panel .circle-eq,
+  #comparison-panel .victim-list li button,
+  #comparison-panel .victim-list li span,
+  #comparison-panel .vcard-sub,
+  #comparison-panel .victim-gap,
+  #comparison-panel #territory-detail,
+  .sources-nav a { font-size: 13.5px; }
+  #comparison-panel .comparison-foot { font-size: 13px; }
+  .commune-popup small { font-size: 12px; }
+  #explanation-panel .hero-title { letter-spacing: -0.5px; }
+}
