@@ -3684,3 +3684,17 @@ aside {
 
 /* No pull-to-refresh: on phones a downward swipe folds the sheets instead */
 html, body { overscroll-behavior-y: none; }
+
+/* Touch targets: 44 px on phones. The small round controls drawn over the map keep their size and get a wider invisible hit area. */
+@media (max-width: 650px) {
+  #sources-button { min-height: 44px; }
+  .lang-toggle { min-width: 44px; min-height: 44px; }
+  .share-button { width: 44px; height: 44px; }
+  .share-close { top: 2px; right: 2px; width: 44px; height: 44px; }
+  .sources-nav a { display: inline-flex; align-items: center; min-height: 44px; }
+  #comparison-panel .victims-block .vcard-top { min-height: 44px; }
+  .leaflet-control-zoom.leaflet-bar a { height: 44px !important; line-height: 44px !important; }
+  .leaflet-control-attribution .credits-toggle { position: relative; }
+  .leaflet-control-attribution .credits-toggle::after,
+  .rotate-handle::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+}
