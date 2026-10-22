@@ -73,5 +73,5 @@
  let seen=false;try{seen=localStorage.getItem(doneKey)==='1';}catch{}
  if(!window.gazaRestored)start(!seen);
  $('help-tour')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();setTimeout(()=>start(true),0);});
- window.gazaTour={start};
+ window.gazaTour={start,end};
 })();
