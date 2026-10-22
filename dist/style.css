@@ -7,11 +7,22 @@
   --lives: #dc3655;
   --injuries: #f2cc32;
   --tools-offset: 184px;
+  --surface: #fff;
+  --page: #f5f7f7;
+  --ink-2: #445c68;
+  --slate: #3d6377;
+  --border: #d4dde0;
+  --wash: #edf1f2;
+  --lives-ink: #b21836;
+  --lives-deep: #9c1733;
+  --injuries-ink: #725300;
+  --damage: #454b54;
+  --gaza-ink: #0b5c8c;
 }
 :root {
   font-family: "DM Sans", sans-serif;
   color: var(--ink);
-  background: #f5f7f7;
+  background: var(--page);
   font-size: 16px;
 }
 * {
@@ -32,12 +43,12 @@ select {
 button {
   color: inherit;
   background: white;
-  border: 1px solid #d4dde0;
+  border: 1px solid var(--border);
   border-radius: 7px;
   padding: 10px 14px;
 }
 button:hover {
-  background: #edf1f2;
+  background: var(--wash);
 }
 .leaflet-marker-icon:focus-visible,
 #map:focus-visible,
@@ -55,7 +66,7 @@ header {
   justify-content: space-between;
   padding: 0 30px;
   border-bottom: 1px solid var(--line);
-  background: #fff;
+  background: var(--surface);
 }
 .brand {
   text-decoration: none;
@@ -84,7 +95,7 @@ main {
 aside {
   padding: 29px 26px;
   overflow: auto;
-  background: #fff;
+  background: var(--surface);
   border-right: 1px solid var(--line);
 }
 .eyebrow,
@@ -164,7 +175,7 @@ select {
   border: 1px solid #d7dfe1;
   border-radius: 6px;
   padding: 11px;
-  background: #fff;
+  background: var(--surface);
   color: #233740;
   font-size: 14px;
   margin-top: 7px;
@@ -172,7 +183,7 @@ select {
 .gaza-card select {
   background: #2d434d;
   border-color: #586b74;
-  color: #fff;
+  color: var(--surface);
   font-size: 12px;
 }
 .stats {
@@ -265,7 +276,7 @@ footer {
   top: 23px;
   left: 23px;
   z-index: 500;
-  background: #fff;
+  background: var(--surface);
   padding: 13px 18px;
   border-radius: 8px;
   font-size: 12px;
@@ -284,7 +295,7 @@ footer {
   left: 24px;
   right: 24px;
   z-index: 500;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid #dce1e4;
   box-shadow: 0 8px 35px #20313a20;
   border-radius: 12px;
@@ -315,7 +326,7 @@ footer {
   padding: 8px 12px;
 }
 .segmented button[aria-pressed="true"] {
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 1px 5px #0001;
 }
 .metrics {
@@ -587,7 +598,7 @@ dialog li {
   top: 20px;
   left: 20px;
   z-index: 550;
-  background: #fff;
+  background: var(--surface);
   border-radius: 9px;
   box-shadow: 0 3px 16px #20313a1c;
   padding: 7px;
@@ -777,12 +788,12 @@ input:disabled {
   background: transparent;
   font-size: 28px;
   line-height: 1;
-  color: #445c68;
+  color: var(--ink-2);
   border-radius: 50%;
   z-index: 1;
 }
 .comparison-close:hover {
-  background: #edf1f2;
+  background: var(--wash);
 }
 .comparison-heading {
   padding-right: 36px;
@@ -794,7 +805,7 @@ input:disabled {
   left: 24px;
   box-shadow: 0 4px 18px #20313a22;
   background: #20333b;
-  color: #fff;
+  color: var(--surface);
   border: 0;
   padding: 12px 18px;
   min-height: 44px;
@@ -900,7 +911,7 @@ input:disabled {
   background: #f1f2f4;
 }
 .lives-card .section-label {
-  color: #454b54;
+  color: var(--damage);
   font-size: 12px;
 }
 .lives-card > strong {
@@ -928,7 +939,7 @@ input:disabled {
 }
 .lives-card a {
   display: block;
-  color: #454b54;
+  color: var(--damage);
 }
 .life-equivalence {
   margin-top: 15px;
@@ -939,7 +950,7 @@ input:disabled {
 }
 .life-equivalence > span {
   font-size: 13px;
-  color: #454b54;
+  color: var(--damage);
 }
 .life-equivalence strong {
   display: block;
@@ -1059,18 +1070,18 @@ input:disabled {
 .lives-card .section-label,
 .lives-card a,
 .life-equivalence > span {
-  color: #9c1733;
+  color: var(--lives-deep);
 }
 .lives-card > strong,
 .life-equivalence strong {
-  color: #b21836;
+  color: var(--lives-ink);
 }
 .lives-card button {
-  background: #b21836;
+  background: var(--lives-ink);
 }
 .life-equivalence {
   background: #fff1f3;
-  border-left-color: #b21836;
+  border-left-color: var(--lives-ink);
 }
 @media (max-width: 650px) {
   .comparison .segmented button {
@@ -1084,7 +1095,7 @@ input:disabled {
   gap: 6px 14px;
 }
 .lives-toggle input {
-  accent-color: #b21836;
+  accent-color: var(--lives-ink);
 }
 @media (max-width: 650px) {
   .shape-toolbar {
@@ -1107,7 +1118,7 @@ input:disabled {
 }
 .injury-equivalence > strong {
   font-size: 21px;
-  color: #725300;
+  color: var(--injuries-ink);
 }
 .injury-equivalence > p {
   font-size: 14px;
@@ -1136,7 +1147,7 @@ input:disabled {
   padding: 0;
   border: 1px solid #cbd5db;
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: #243b48;
   box-shadow: 0 2px 10px #20313a20;
   font-size: 24px;
@@ -1264,7 +1275,7 @@ input:disabled {
   max-width: calc(100% - 40px);
   padding: 10px 13px;
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 3px 16px #20313a20;
   font-size: 13px;
 }
@@ -1336,7 +1347,7 @@ input:disabled {
   pointer-events: none;
 }
 .scenario-toggle {
-  border-top: 1px solid #d4dde0;
+  border-top: 1px solid var(--border);
   padding-top: 10px;
 }
 .shape-toolbar {
@@ -1352,7 +1363,7 @@ input:disabled {
   width: fit-content;
   max-width: calc(100% - 254px);
   padding: 7px 10px;
-  border: 1px solid #b21836;
+  border: 1px solid var(--lives-ink);
   border-radius: 6px;
   background: #fff5f5;
   color: #87142b;
@@ -1465,7 +1476,7 @@ footer strong {
   width: 260px;
   max-height: calc(100% - 55px);
   overflow: auto;
-  background: #fff;
+  background: var(--surface);
   padding: 12px;
   border-radius: 10px;
   box-shadow: 0 4px 20px #20313a30;
@@ -2068,7 +2079,7 @@ aside .micro a {
   box-shadow: none !important;
 }
 .leaflet-control-zoom a {
-  border: 1px solid #d4dde0 !important;
+  border: 1px solid var(--border) !important;
   border-radius: 7px !important;
   box-shadow: 0 2px 9px #20313a25;
 }
@@ -2160,7 +2171,7 @@ aside .micro a {
   width: min(340px, calc(100vw - 24px));
   padding: 16px 18px 14px;
   background: var(--ink);
-  color: #fff;
+  color: var(--surface);
   border-radius: 12px;
   box-shadow: 0 10px 30px #20313a66;
 }
@@ -2189,7 +2200,7 @@ aside .micro a {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--surface);
   font-size: 24px;
   line-height: 1;
 }
@@ -2321,7 +2332,7 @@ aside .micro a {
   max-height: calc(100% - 48px);
   overflow: auto;
   padding: 14px 16px;
-  background: #fff;
+  background: var(--surface);
   border-radius: 9px;
   box-shadow: 0 5px 24px #20313a30;
   font-size: 14px;
@@ -2379,11 +2390,11 @@ aside .micro a {
   padding: 0;
   border: 0;
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: #243b48;
 }
 #locate-me:hover {
-  background: #edf1f2;
+  background: var(--wash);
 }
 @media (max-width: 650px) {
   .leaflet-bar.locate-control {
@@ -2412,12 +2423,12 @@ dialog {
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #445c68;
+  color: var(--ink-2);
   font-size: 28px;
   line-height: 1;
 }
 #close-sources:hover {
-  background: #edf1f2;
+  background: var(--wash);
 }
 @media (max-width: 650px) {
   dialog {
@@ -2461,7 +2472,7 @@ aside {
   margin-bottom: 0;
 }
 .copy-link {
-  border: 1px solid #d4dde0;
+  border: 1px solid var(--border);
   padding: 5px 10px;
   font-size: 12px;
   color: #ad4f2b;
@@ -2565,13 +2576,13 @@ aside {
   padding: 0;
   border: 0;
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: #243b48;
   font: 700 20px/1 Manrope, sans-serif;
 }
 #help-tour:hover,
 #toggle-legend:hover {
-  background: #edf1f2;
+  background: var(--wash);
 }
 #toggle-legend[aria-expanded="true"] {
   background: #eaf4fa;
@@ -2653,11 +2664,11 @@ aside {
 }
 .injury-equivalence > span {
   font-size: 13px;
-  color: #725300;
+  color: var(--injuries-ink);
 }
 .comparison .injury-equivalence > strong {
   display: block;
-  color: #725300;
+  color: var(--injuries-ink);
   font-size: 16px;
   line-height: 1.35;
   margin: 3px 0;
@@ -2665,7 +2676,7 @@ aside {
 .victim-gap {
   font-size: 12px;
   margin: 4px 0;
-  color: #454b54;
+  color: var(--damage);
 }
 .life-equivalence > small,
 .injury-equivalence > small {
@@ -2684,10 +2695,10 @@ aside {
   min-height: 32px;
 }
 .life-equivalence .victim-list summary {
-  color: #9c1733;
+  color: var(--lives-deep);
 }
 .injury-equivalence .victim-list summary {
-  color: #725300;
+  color: var(--injuries-ink);
 }
 .victim-list ul {
   list-style: none;
@@ -2770,10 +2781,10 @@ aside {
   color: #385563;
 }
 .lives-card .card-more summary {
-  color: #9c1733;
+  color: var(--lives-deep);
 }
 .injuries-card .card-more summary {
-  color: #725300;
+  color: var(--injuries-ink);
 }
 .card-more a.micro {
   display: block;
@@ -2797,14 +2808,14 @@ aside {
 .gaza-card .card-top > span:first-child {
   font-weight: 700;
   letter-spacing: 1.4px;
-  color: #0b5c8c;
+  color: var(--gaza-ink);
 }
 .gaza-card .dot {
   background: var(--gaza);
 }
 .gaza-card .tag {
   border-color: #9cc6df;
-  color: #0b5c8c;
+  color: var(--gaza-ink);
   background: #ffffff88;
 }
 .gaza-card .big,
@@ -2815,13 +2826,13 @@ aside {
 .gaza-card .hectares,
 .gaza-card label,
 .gaza-card .stats small {
-  color: #3d6377;
+  color: var(--slate);
 }
 .gaza-card .line {
   background: #cfe3ef;
 }
 .gaza-card select {
-  background: #fff;
+  background: var(--surface);
   border-color: #9cc6df;
   color: var(--ink);
 }
@@ -2830,14 +2841,14 @@ aside {
 }
 .gaza-card a.micro,
 .gaza-card .card-more summary {
-  color: #0b5c8c;
+  color: var(--gaza-ink);
 }
 
 /* v1.3 · Buildings join the Gaza card: one bar for destroyed and damaged shares. */
 .gaza-card .circle-eq {
   margin-top: 3px;
   font-size: 12px;
-  color: #3d6377;
+  color: var(--slate);
 }
 .gaza-buildings[hidden] {
   display: none;
@@ -2849,7 +2860,7 @@ aside {
   gap: 8px;
   margin-bottom: 8px;
   font-size: 12px;
-  color: #3d6377;
+  color: var(--slate);
 }
 .bld-title b {
   font-size: 13px;
@@ -2862,7 +2873,7 @@ aside {
   overflow: hidden;
   border: 1px solid #9cc6df;
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
 }
 .bld-bar i {
   display: block;
@@ -2912,12 +2923,12 @@ aside {
 .bld-rows span {
   font-size: 12px;
   line-height: 1.35;
-  color: #3d6377;
+  color: var(--slate);
 }
 .bld-note {
   margin: 9px 0 0;
   font-size: 12px;
-  color: #3d6377;
+  color: var(--slate);
 }
 /* Damaged buildings switched off in the display panel: their share fades out. */
 #damaged-card.is-off,
@@ -2959,7 +2970,7 @@ aside {
   display: block;
   position: relative;
   padding: 11px 44px 11px 14px;
-  background: #fff;
+  background: var(--surface);
   border-radius: 10px;
   box-shadow: 0 4px 18px #20313a26;
 }
@@ -2990,7 +3001,7 @@ aside {
 #comparison-panel #territory-tabs:not(:empty),
 #comparison-panel #comparison-body > :not(.victims-grid),
 #comparison-panel .comparison-foot {
-  background: #fff;
+  background: var(--surface);
   border-radius: 10px;
   box-shadow: 0 4px 18px #20313a26;
 }
@@ -3017,10 +3028,10 @@ aside {
 }
 
 .vcard {
-  --c: #20313a;
-  --tint: #fff;
+  --c: var(--ink);
+  --tint: var(--surface);
   overflow: hidden;
-  background: #fff;
+  background: var(--surface);
   border-left: 4px solid var(--c);
   border-radius: 10px;
   box-shadow: 0 4px 18px #20313a26;
@@ -3030,11 +3041,11 @@ aside {
   --tint: #f2f4fd;
 }
 .vcard-lives {
-  --c: #b21836;
+  --c: var(--lives-ink);
   --tint: #fff1f3;
 }
 .vcard-injuries {
-  --c: #725300;
+  --c: var(--injuries-ink);
   --tint: #fff9df;
 }
 .vcard-top {
@@ -3045,7 +3056,7 @@ aside {
   min-height: 44px;
   padding: 0 14px;
   border: 0;
-  background: #fff;
+  background: var(--surface);
   color: var(--c);
   font: inherit;
   text-align: left;
@@ -3070,8 +3081,8 @@ aside {
   width: 9px;
   height: 9px;
   margin: 5px 3px 0 2px;
-  border-right: 2.4px solid #445c68;
-  border-bottom: 2.4px solid #445c68;
+  border-right: 2.4px solid var(--ink-2);
+  border-bottom: 2.4px solid var(--ink-2);
   transform: rotate(-135deg);
 }
 .vcard.is-folded .vcard-chev {
@@ -3104,7 +3115,7 @@ aside {
   margin: 0;
   font-size: 12.5px;
   line-height: 1.45;
-  color: #454b54;
+  color: var(--damage);
 }
 .vcard-sub b {
   color: var(--ink);
@@ -3128,10 +3139,10 @@ aside {
   margin-top: 8px;
 }
 .vcard-lives .victim-list summary {
-  color: #9c1733;
+  color: var(--lives-deep);
 }
 .vcard-injuries .victim-list summary {
-  color: #725300;
+  color: var(--injuries-ink);
 }
 .text-population {
   color: #2b3f9e;
@@ -3146,7 +3157,7 @@ aside {
     max-width: none;
     max-height: 58%;
     padding: 18px 10px 12px;
-    background: #f5f7f7;
+    background: var(--page);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 22px #20313a33;
     pointer-events: auto;
@@ -3192,8 +3203,8 @@ aside {
 }
 #comparison-panel .victims-block {
   position: relative;
-  background: #fff;
-  border-left: 4px solid #445c68;
+  background: var(--surface);
+  border-left: 4px solid var(--ink-2);
   border-radius: 10px;
   box-shadow: 0 4px 18px #20313a26;
   padding-bottom: 2px;
@@ -3211,7 +3222,7 @@ aside {
   margin-top: 0;
 }
 #comparison-panel .victims-block #comparison-eyebrow {
-  color: #445c68;
+  color: var(--ink-2);
 }
 #comparison-panel .victims-block .victims-grid {
   gap: 8px;
@@ -3248,8 +3259,8 @@ aside {
   width: 250px;
   padding: 11px 14px;
   border-radius: 10px;
-  background: #20313a;
-  color: #fff;
+  background: var(--ink);
+  color: var(--surface);
   font-size: 14px;
   line-height: 1.45;
   box-shadow: 0 6px 24px #0004;
@@ -3273,7 +3284,7 @@ aside {
   right: -7px;
   border: 8px solid transparent;
   border-right: 0;
-  border-left-color: #20313a;
+  border-left-color: var(--ink);
 }
 .victims-hint.below {
   width: 240px;
@@ -3283,7 +3294,7 @@ aside {
   right: 18px;
   border: 8px solid transparent;
   border-top: 0;
-  border-bottom-color: #20313a;
+  border-bottom-color: var(--ink);
 }
 @media (prefers-reduced-motion: reduce) {
   #toggle-comparison.is-calling {
@@ -3331,7 +3342,7 @@ aside {
     width: 100%;
     max-height: none;
     padding: 22px 12px 0;
-    background: #f5f7f7;
+    background: var(--page);
     border-right: 0;
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 22px #20313a33;
@@ -3339,7 +3350,7 @@ aside {
     grid-template-columns: 1fr 1fr;
     column-gap: 8px;
     align-content: start;
-    transition: transform 0.2s ease-out, height 0.2s ease-out;
+    transition: transform 0.2s ease-out;
   }
   #explanation-panel[hidden] {
     display: none;
@@ -3430,9 +3441,9 @@ aside {
     padding-top: 28px;
     border: 0;
     border-radius: 0;
-    background: linear-gradient(#f5f7f700, #f5f7f7 55%);
+    background: linear-gradient(#f5f7f700, var(--page) 55%);
     font: 700 12.5px Manrope, sans-serif;
-    color: #0b5c8c;
+    color: var(--gaza-ink);
     grid-column: 1 / -1;
   }
   #explanation-panel.sheet-half #welcome-more::before {
@@ -3451,7 +3462,7 @@ aside {
     padding: 10px 16px 12px;
     border: 0;
     border-radius: 16px 16px 0 0;
-    background: #fff;
+    background: var(--surface);
     box-shadow: 0 -3px 16px #20313a2a;
     font: 800 15px Manrope, sans-serif;
     color: var(--ink);
@@ -3464,8 +3475,8 @@ aside {
     width: 9px;
     height: 9px;
     margin-top: 5px;
-    border-right: 2.4px solid #445c68;
-    border-bottom: 2.4px solid #445c68;
+    border-right: 2.4px solid var(--ink-2);
+    border-bottom: 2.4px solid var(--ink-2);
     transform: rotate(-135deg);
   }
   #comparison-panel.comparison {
@@ -3493,7 +3504,7 @@ aside {
     border-radius: 50%;
     background: #fffd;
     font: 700 13px Manrope, sans-serif;
-    color: #445c68;
+    color: var(--ink-2);
     box-shadow: 0 1px 5px #0002;
   }
   .leaflet-control-attribution.credits-open {
@@ -3501,7 +3512,7 @@ aside {
     font-size: 12px;
     padding: 3px 10px 3px 3px !important;
     border-radius: 14px;
-    background: #fff !important;
+    background: var(--surface) !important;
     box-shadow: 0 1px 5px #0002;
   }
   .leaflet-control-attribution.credits-open > * {
@@ -3554,12 +3565,12 @@ aside {
 
 /* v1.6.2 · Lives and injuries cards share the same left stripe, and their "Source et détails" rows line up. */
 .lives-card {
-  border-left: 4px solid #b21836;
+  border-left: 4px solid var(--lives-ink);
 }
 .shape-toolbar .population-toggle {
   margin-bottom: 6px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #d4dde0;
+  border-bottom: 1px solid var(--border);
 }
 @media (max-width: 650px) {
   #explanation-panel > .lives-card,
@@ -3638,13 +3649,13 @@ aside {
   padding: 7px 13px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
 }
-.share-button[aria-expanded="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.share-button[aria-expanded="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 .share-panel {
   position: fixed;
   top: 72px;
@@ -3654,7 +3665,7 @@ aside {
   max-width: calc(100vw - 24px);
   padding: 16px;
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface);
   box-shadow: 0 12px 36px rgba(0,0,0,.2);
   color: var(--ink);
   font-size: 14px;
@@ -3665,7 +3676,7 @@ aside {
 .share-close { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; font-size: 20px; color: var(--muted); }
 .share-url { display: flex; gap: 6px; margin-bottom: 12px; }
 .share-url input { flex: 1; min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: 8px; font: 13px ui-monospace, monospace; color: var(--ink); }
-.share-url button { padding: 8px 12px; border: 0; border-radius: 8px; background: var(--ink); color: #fff; font-weight: 600; }
+.share-url button { padding: 8px 12px; border: 0; border-radius: 8px; background: var(--ink); color: var(--surface); font-weight: 600; }
 .share-links { display: flex; gap: 8px; }
 .share-links a { flex: 1; padding: 8px 0; border: 1px solid var(--line); border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; }
 .share-links a:hover, .share-links a:focus-visible { border-color: var(--ink); }
@@ -3718,4 +3729,19 @@ html, body { overscroll-behavior-y: none; }
   #comparison-panel .comparison-foot { font-size: 13px; }
   .commune-popup small { font-size: 12px; }
   #explanation-panel .hero-title { letter-spacing: -0.5px; }
+}
+
+/* Reduced motion: the sheets snap instead of sliding. */
+@media (prefers-reduced-motion: reduce) {
+  #explanation-panel,
+  #comparison-panel { transition: none !important; }
+}
+
+/* Header on phones: the round buttons never shrink, the logo is a 44 px target, and on the narrowest screens the ".org" gives way. */
+@media (max-width: 650px) {
+  #sources-button, .share-button, .lang-toggle { flex-shrink: 0; }
+  a.brand { min-height: 44px; }
+}
+@media (max-width: 360px) {
+  .brand-domain { display: none; }
 }

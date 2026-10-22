@@ -158,7 +158,9 @@ document.addEventListener('gazatour:end',()=>setTimeout(()=>window.callVictims()
 
 // Welcome sheet (phone): half screen first, swipe up to read everything, swipe down or tap the map to fold it into a bar.
 (()=>{const sheet=$('explanation-panel');let swipe=null;
- const setFull=full=>{sheet.classList.toggle('sheet-full',full);sheet.classList.toggle('sheet-half',!full);sheet.scrollTop=0;};
+ // The height changes at once; a translation from the old top edge makes it slide (transform only, no height animation).
+ const setFull=full=>{const before=sheet.offsetHeight;sheet.classList.toggle('sheet-full',full);sheet.classList.toggle('sheet-half',!full);sheet.scrollTop=0;const shift=sheet.offsetHeight-before;
+  if(shift&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){sheet.style.transition='none';sheet.style.transform='translateY('+shift+'px)';sheet.getBoundingClientRect();sheet.style.transition='';sheet.style.transform='';}};
  $('welcome-bar').onclick=()=>$('toggle-sidebar').click();
  $('welcome-more').onclick=()=>setFull(true);
  sheet.addEventListener('touchstart',e=>{swipe=compact()&&e.touches.length===1&&sheet.scrollTop<=0?{y:e.touches[0].clientY,dy:0}:null;},{passive:true});
