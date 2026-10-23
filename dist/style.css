@@ -3745,3 +3745,21 @@ html, body { overscroll-behavior-y: none; }
 @media (max-width: 360px) {
   .brand-domain { display: none; }
 }
+
+/* Short windows (a laptop with a small window, a phone held sideways): the map fits the screen instead of keeping
+   a 580 px floor, so the victims sheet opens in view. The round buttons at the bottom right line up in a row so that
+   they never meet the tools column; the wheel, pinching and the + and - keys replace the zoom buttons. */
+@media (max-height: 600px) and (min-width: 651px) {
+  main { min-height: 0; }
+  .leaflet-control-zoom { display: none !important; }
+  .leaflet-bottom.leaflet-right { display: grid; grid-template-columns: repeat(3, auto); justify-content: end; justify-items: end; align-items: end; }
+  .leaflet-bottom.leaflet-right > .legend-control { grid-area: 1 / 1; }
+  .leaflet-bottom.leaflet-right > .locate-control { grid-area: 1 / 2; }
+  .leaflet-bottom.leaflet-right > .help-control { grid-area: 1 / 3; }
+  .leaflet-bottom.leaflet-right > .leaflet-control-scale,
+  .leaflet-bottom.leaflet-right > .leaflet-control-attribution { grid-column: 1 / -1; justify-self: end; }
+}
+@media (max-height: 520px) and (min-width: 651px) {
+  header { height: 56px; }
+  main { height: calc(100dvh - 56px); }
+}
